@@ -1,0 +1,25 @@
+const ServiceRequests = {
+  RRFRequest: require('../../assets/serviceRequests/RRFRequest.png'),
+  editDocument: require('../../assets/serviceRequests/editDocument.png'),
+  pdfDoc: require('../../assets/serviceRequests/pdfDoc.png'),
+  previewDoc: require('../../assets/serviceRequests/previewDoc.png'),
+  deleteDoc: require('../../assets/serviceRequests/deleteDoc.png'),
+  reAttachmentDoc: require('../../assets/serviceRequests/reAttachmentDoc.png'),
+  pendingStatus: require('../../assets/serviceRequests/pendingStatus.png'),
+  activeStatus: require('../../assets/serviceRequests/activeStatus.png'),
+  inactiveStatus: require('../../assets/serviceRequests/inactiveStatus.png'),
+  imageDocument: require('../../assets/serviceRequests/documentImage.png'),
+  imageAttachment: require('../../assets/serviceRequests/imageAttachment.png'),
+  downloadAttachment: require('../../assets/serviceRequests/downloadAttachment.png'),
+  gridView: require('../../assets/serviceRequests/GridView.png'),
+  listView: require('../../assets/serviceRequests/ListView.png'),
+  eduClaimRequest: require('../../assets/serviceRequests/eduClaimRequest.png'),
+  attachmentGroup3: require('../../assets/serviceRequests/Group3.png'),
+  attachmentUpload: require('../../assets/serviceRequests/upload-2.png'),
+  veritcalDots: require('../../assets/serviceRequests/VerticalDots.png'),
+  imageIcon: require('../../assets/serviceRequests/ImageIcon.png'),
+  calendar: require('../../assets/serviceRequests/calendar.png'),
+  calendarClock: require('../../assets/serviceRequests/calendar-clock.png'),
+  Calendar_Balance: require('../../assets/serviceRequests/Calendar_Balance.png')
+};
+export default ServiceRequests;

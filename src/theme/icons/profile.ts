@@ -1,0 +1,51 @@
+const ProfileIcons = {
+  changePassword: require('../../assets/profile/changePassword.png'),
+  faq: require('../../assets/profile/faq.png'),
+  homeProfileIcon: require('../../assets/profile/home_profile_icon.png'),
+  manageBiometric: require('../../assets/profile/manageBiometric.png'),
+  privacyPolicy: require('../../assets/profile/privacyPolicy.png'),
+  qrCode: require('../../assets/profile/qrCode.png'),
+  settings: require('../../assets/profile/settings.png'),
+  share: require('../../assets/profile/share.png'),
+  termsConditions: require('../../assets/profile/termsConditions.png'),
+
+  walkthrough: require('../../assets/profile/walkthrough.png'),
+  placeholderProfile: require('../../assets/profile/placeholderProfile.png'),
+  camera: require('../../assets/profile/camera.png'),
+  fingerprintSimple: require('../../assets/profile/FingerprintSimple.png'),
+  termsConditionsNew: require('../../assets/profile/termsConditionsNew.png'),
+  walkthroughNew: require('../../assets/profile/walkthroughNew.png'),
+  shareNew: require('../../assets/profile/shareNew.png'),
+  qrCodeNew: require('../../assets/profile/QR_codeNew.png'),
+  edit: require('../../assets/profile/edit_icon.png'),
+  ProfilePhotoCamera: require('../../assets/profile/ProfilePhotocamera.png'),
+
+  settingsGear: require('../../assets/profile/settingsGear.png'),
+  chooseTheme: require('../../assets/profile/chooseTheme.png'),
+  lightTheme: require('../../assets/profile/lightTheme.png'),
+  darkTheme: require('../../assets/profile/darkTheme.png'),
+  circleBlueCheck: require('../../assets/profile/circleBlueCheck.png'),
+  whiteSettingsGear: require('../../assets/profile/whiteSettingsGear.png'),
+  profileBackgroundDark: require('../../assets/profile/profileBackgroundDark.png'),
+  profileCardBg: require('../../assets/profile/profileCardBg.png'),
+  shareWhite: require('../../assets/profile/share_white.png'),
+
+  QR_code: require('../../assets/profile/QR_code.png'),
+  Fingerprint: require('../../assets/profile/fingerprint.png'),
+  profileTermcondition: require('../../assets/profile/profile_termcondition.png'),
+
+  Profilefaq: require('../../assets/profile/faq.png'),
+  ProfilePrivacyPolicy: require('../../assets/profile/Privacy_policy.png'),
+
+  notificationsProfile: require('../../assets/profile/notifications_profile.png'),
+  profileInstruction: require('../../assets/profile/Profile_instruction.png'),
+  appSettings: require('../../assets/profile/appSettings.png'),
+  syncProfile: require('../../assets/profile/sync.png'),
+  theme_profile: require('../../assets/profile/theme_profile.png'),
+  kudos: require('../../assets/bottomTabIcons/kudos.png'),
+  wish: require('../../assets/bottomTabIcons/wish.png'),
+  welcome: require('../../assets/profile/welcome.png'),
+  languageChange: require('../../assets/profile/languageChange.png'),
+  logout: require('../../assets/profile/logout.png')
+};
+export default ProfileIcons;

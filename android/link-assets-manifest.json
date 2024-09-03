@@ -1,0 +1,41 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/NeoSansArabic-Regular.ttf",
+      "sha1": "12b344aab869ab126ef38e6a1652af88d2f8094d"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabic.ttf",
+      "sha1": "ccc44aa8de42b5683782d5b177aa0f49866d64f5"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabicBlack.ttf",
+      "sha1": "a1ce31ed99825128a7934d75e4fa8605eb2e9d8a"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabicBold.ttf",
+      "sha1": "a6882e43438d6af875ea952122c08cc5400ca6ba"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabicLight.ttf",
+      "sha1": "fb5f850abcdaf3fbc3c7176d55511348b6e31db2"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabicMedium.ttf",
+      "sha1": "8b977f125b99fd2f96f8f227e5bcedb7648cdb8f"
+    },
+    {
+      "path": "src/assets/fonts/NeoSansArabicUltra.ttf",
+      "sha1": "7fa40c22311d3acbb44ff63d2742b263e2db4d5a"
+    },
+    {
+      "path": "src/assets/fonts/Neo_Sans_Medium.ttf",
+      "sha1": "1e8295ad6e261b5810e2872c4cc82a9026f1c802"
+    },
+    {
+      "path": "src/assets/fonts/SEGOEUI.ttf",
+      "sha1": "280935e382b62fe953a4efe09b2bbf8d34b0f14a"
+    }
+  ]
+}

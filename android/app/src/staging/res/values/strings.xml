@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Cenomi One Staging</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">GWZtIJQiYvw6zmruK9IMXtHpTUfaJbVMP6i3w</string>
+
+</resources>

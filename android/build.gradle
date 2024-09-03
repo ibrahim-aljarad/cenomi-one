@@ -1,0 +1,47 @@
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        kotlinVersion = '1.8.0'
+        ndkVersion = "23.1.7779620"
+        googlePlayServicesAuthVersion = "19.2.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath('com.android.tools.build:gradle:4.2.2')
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath('com.google.gms:google-services:4.3.15')
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.7'
+    }
+}
+
+allprojects {
+  
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url "$rootDir/../node_modules/react-native/android"
+        }
+        maven { url 'https://maven.google.com' }
+        maven { url "https://www.jitpack.io" }
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android") || project.plugins.hasPlugin('com.android.library')) {
+            project.android {
+                compileSdkVersion 34
+                buildToolsVersion '34.0.0'
+            }
+        }
+    }
+}

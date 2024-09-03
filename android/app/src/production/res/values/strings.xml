@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Cenomi One</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">3crZaPOE_kgF9q3w2bQqF-ZL28-UGKUXty-xv</string>
+</resources>

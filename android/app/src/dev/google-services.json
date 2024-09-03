@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "128003168097",
+    "firebase_url": "https://cenomi-one-staging-default-rtdb.firebaseio.com",
+    "project_id": "cenomi-one-staging",
+    "storage_bucket": "cenomi-one-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128003168097:android:e6f1519ab7e30ae6bfd720",
+        "android_client_info": {
+          "package_name": "com.cenomi.oca.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJq9AhAmr_WN18efrVjkTp-ITlbaWJ0Pw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

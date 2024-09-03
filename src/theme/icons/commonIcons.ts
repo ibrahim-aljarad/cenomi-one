@@ -1,0 +1,61 @@
+const CommonIcons = {
+  notification: require('../../assets/common/notification.png'),
+  attachment: require('../../assets/common/Attachment.png'),
+
+  calendarblack: require('../../assets/common/calendar.png'),
+  person: require('../../assets/common/person.png'),
+  calendarGrey: require('../../assets/common/calendarGrey.png'),
+  attachmentFile: require('../../assets/common/attachmentFile.png'),
+
+  dotOptions: require('../../assets/common/dotOptions.png'),
+  homeWhite: require('../../assets/common/homeWhite.png'),
+  wifiAlert: require('../../assets/common/wifiAlert.png'),
+  gridIcon: require('../../assets/common/gridIcon.png'),
+  listIcon: require('../../assets/common/listIcon.png'),
+  backDotArrow: require('../../assets/common/backDotArrow.png'),
+
+  icCheckTick: require('../../assets/common/ic_checkTick.png'),
+  successTick: require('../../assets/common/successTick.png'),
+
+  arrowDownBlack: require('../../assets/common/arrowDownBlack.png'),
+  onePeopleLogo: require('../../assets/common/onePeople.png'),
+
+  uncheckSquare: require('../../assets/common/uncheckSquare.png'),
+  whiteBackDotArrow: require('../../assets/common/whiteBackDotArrow.png'),
+  gridIconDark: require('../../assets/common/gridIconDark.png'),
+  listIconDark: require('../../assets/common/listIconDark.png'),
+  arrowRightWhite: require('../../assets/common/arrowRightWhite.png'),
+  crossWhite: require('../../assets/common/crossWhite.png'),
+  searchBarIconDark: require('../../assets/common/searchBarIconDark.png'),
+  attachmentWhite: require('../../assets/common/attachmentWhite.png'),
+  attachmentFileWhite: require('../../assets/common/attachmentFileWhite.png'),
+  icCalendarDarkMode: require('../../assets/common/icCalendarDarkMode.png'),
+  arrowDownWhite: require('../../assets/common/arrowDownWhite.png'),
+  angleLeft: require('../../assets/common/angle-left.png'),
+
+  callbenefit: require('../../assets/common/callbenefit.png'),
+  arrowRightblack: require('../../assets/common/chevron-right.png'),
+  uploadVoilet: require('../../assets/common/uploadVoilet.png'),
+  voiletRightArrow: require('../../assets/common/voiletRightArrow.png'),
+  close_search: require('../../assets/common/close_search.png'),
+  benefitEmptyIcon: require('../../assets/common/benefit_empty_icon.png'),
+  infoIcon: require('../../assets/common/info_icon.png'),
+  comingSoon: require('../../assets/common/coming_soon.png'),
+  noNetwork: require('../../assets/common/no_network.png'),
+  forceUpdate: require('../../assets/common/force_update.png'),
+  appMaintanence: require('../../assets/common/app_maintanence.png'),
+  chatIcon: require('../../assets/common/chatIcon.png'),
+  sendIcon: require('../../assets/common/sendIcon.png'),
+  thumbsUpIcon: require('../../assets/common/thumbsUp.png'),
+  thumbsDownIcon: require('../../assets/common/thumbsDown.png'),
+  cenomiBorder: require('../../assets/common/cenomiBorder.png'),
+  calendarNoFound: require('../../assets/common/calendarNoFound.png'),
+  emptyIcon: require('../../assets/common/empty.png'),
+  ellipseIcon: require('../../assets/common/ellipse.png'),
+  formatQuoteIcon: require('../../assets/common/format_quote.png'),
+  shareSquareIcon: require('../../assets/common/shareSquareIcon.png'),
+  backgroundImage: require('../../assets/common/backgroundImage.png'),
+  bottomBarImage: require('../../assets/common/bottomBarImage.png')
+};
+
+export default CommonIcons;

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "13927393560",
+    "firebase_url": "https://cenomi-central-default-rtdb.firebaseio.com",
+    "project_id": "cenomi-central",
+    "storage_bucket": "cenomi-central.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13927393560:android:a12370af850051aac7566d",
+        "android_client_info": {
+          "package_name": "com.cenomione.oca"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC8UNWKpfGqsWK0dR17frzOkRmPeP8LIs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
