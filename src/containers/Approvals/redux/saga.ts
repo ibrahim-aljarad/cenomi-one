@@ -1,6 +1,6 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import { setGlobalError } from '../../../appContainer/redux/actions';
-import { api } from '../../../utils/axios';
+import { call, put, takeLatest } from "redux-saga/effects";
+import { setGlobalError } from "../../../appContainer/redux/actions";
+import { api } from "../../../utils/axios";
 
 import {
   doApprovalAction,
@@ -13,95 +13,108 @@ import {
   getLeasingTasksDetails,
   getProcurementPendingTask,
   getProcurementTaskDetails,
-  getUserSearchList
-} from './actions';
+  getUserSearchList,
+  getWorkflowPendingTasks,
+  getWorkflowTasksDetails,
+} from "./actions";
 
-import { alertBox } from '../../../utils/helpers';
-import { DEVICE_TIMEZONE } from '../../../utils/constants';
-const qs = require('qs');
+import { alertBox } from "../../../utils/helpers";
+import { DEVICE_TIMEZONE } from "../../../utils/constants";
+const qs = require("qs");
 
-const APPROVAL_PENDINGTASKS_URL = 'process/hr-approval/pending-tasks';
-const APPROVAL_TASKS_DETAILS_URL = 'process/hr-approval/tasks-details/';
-const FUSION_TAKE_ACTION_URL = 'process/hr-approval/take-action/';
+const APPROVAL_PENDINGTASKS_URL = "process/hr-approval/pending-tasks";
+const APPROVAL_TASKS_DETAILS_URL = "process/hr-approval/tasks-details/";
+const FUSION_TAKE_ACTION_URL = "process/hr-approval/take-action/";
 
-const APPROVAL_TASK_COUNT = 'process/tasks-count';
-const USER_SEARCH_URL = 'user/search';
+const APPROVAL_TASK_COUNT = "process/tasks-count";
+const USER_SEARCH_URL = "user/search";
 
-const LEASING_PENDING_TASK_URL = 'process/leasing/pending-tasks';
-const LEASING_TASKS_DETAILS_URL = 'process/leasing/tasks-details';
-const LEASING_TAKE_ACTION_URL = 'process/leasing/take-action';
+const LEASING_PENDING_TASK_URL = "process/leasing/pending-tasks";
+const LEASING_TASKS_DETAILS_URL = "process/leasing/tasks-details";
+const LEASING_TAKE_ACTION_URL = "process/leasing/take-action";
 
-const PROCUREMENT_PENDING_TASK_URL = 'process/procurement/pending-tasks';
-const PROCUREMENT_TASK_DETAILS_URL = 'process/procurement/tasks-details/';
-const PROCUREMENT_TAKE_ACTION_URL = 'process/procurement/take-action/';
+const PROCUREMENT_PENDING_TASK_URL = "process/procurement/pending-tasks";
+const PROCUREMENT_TASK_DETAILS_URL = "process/procurement/tasks-details/";
+const PROCUREMENT_TAKE_ACTION_URL = "process/procurement/take-action/";
+
+const DEALS_PENDING_TASK_URL = "deals/";
 
 const getUserListApiCall = (data) =>
   api({
-    method: 'GET',
-    url: `${USER_SEARCH_URL}` + '?' + qs.stringify(data, { arrayFormat: 'repeat', encode: false })
+    method: "GET",
+    url:
+      `${USER_SEARCH_URL}` +
+      "?" +
+      qs.stringify(data, { arrayFormat: "repeat", encode: false }),
   });
 
 const getApprovalTasksCountApiCall = () =>
   api({
-    method: 'GET',
-    url: `${APPROVAL_TASK_COUNT}`
+    method: "GET",
+    url: `${APPROVAL_TASK_COUNT}`,
   });
 
 const getApprovalPendingTasksApiCall = () =>
   api({
-    method: 'GET',
-    url: `${APPROVAL_PENDINGTASKS_URL}`
+    method: "GET",
+    url: `${APPROVAL_PENDINGTASKS_URL}`,
   });
 
 const getApprovalTasksDetailsApiCall = (taskId) =>
   api({
-    method: 'GET',
-    url: `${APPROVAL_TASKS_DETAILS_URL}${taskId}?tz=${DEVICE_TIMEZONE}`
+    method: "GET",
+    url: `${APPROVAL_TASKS_DETAILS_URL}${taskId}?tz=${DEVICE_TIMEZONE}`,
   });
 
 const approvalActionApiCall = (taskId, data) =>
   api({
-    method: 'PUT',
+    method: "PUT",
     url: `${FUSION_TAKE_ACTION_URL}${taskId}`,
-    data
+    data,
   });
 
 const getLeasingPendingTasksApiCall = () =>
   api({
-    method: 'GET',
-    url: `${LEASING_PENDING_TASK_URL}`
+    method: "GET",
+    url: `${LEASING_PENDING_TASK_URL}`,
+  });
+
+const getWorkflowPendingTasksApiCall = (endpoint) =>
+  api({
+    method: "GET",
+    url: `${DEALS_PENDING_TASK_URL}${endpoint}`,
   });
 
 const getLeasingTasksDetailsApiCall = (data) =>
   api({
-    method: 'POST',
+    method: "POST",
     url: `${LEASING_TASKS_DETAILS_URL}`,
-    data
+    data,
   });
 
 const leasingTakeActionApiCall = (data) =>
   api({
-    method: 'PUT',
+    method: "PUT",
     url: `${LEASING_TAKE_ACTION_URL}`,
-    data
+    data,
   });
 
 const getProcurementPendingTasksApiCall = () =>
   api({
-    method: 'GET',
-    url: `${PROCUREMENT_PENDING_TASK_URL}`
+    method: "GET",
+    url: `${PROCUREMENT_PENDING_TASK_URL}`,
   });
 const getProcurementTasksDetailsApiCall = (taskId) =>
   api({
-    method: 'GET',
-    url: `${PROCUREMENT_TASK_DETAILS_URL}${taskId}?tz=${DEVICE_TIMEZONE}`
+    method: "GET",
+    url: `${PROCUREMENT_TASK_DETAILS_URL}${taskId}?tz=${DEVICE_TIMEZONE}`,
   });
 
 const procurementTakeActionApiCall = (taskId, data) =>
   api({
-    method: 'PUT',
+    method: "PUT",
     url: `${PROCUREMENT_TAKE_ACTION_URL}${taskId}`,
-    data
+    data,
   });
 
 function* getApprovalTasksDetailsRequest(action: { payload: { taskId: any } }) {
@@ -128,6 +141,7 @@ function* getApprovalPendingTasksRequest() {
   try {
     yield put(getApprovalPendingTasks.request({ isLoading: false }));
     const response = yield call(getApprovalPendingTasksApiCall);
+    console.log("getApprovalPendingTasks", response);
 
     if (response.success) {
       const { data } = response;
@@ -171,7 +185,7 @@ function* approvalActionRequest(taskAction: {
     const data = {
       comments,
       assignTo,
-      action
+      action,
     };
 
     yield put(doApprovalAction.request({ isLoading: true }));
@@ -182,7 +196,7 @@ function* approvalActionRequest(taskAction: {
       const { data } = response;
       yield put(doApprovalAction.success({ data }));
     } else {
-      if (response?.data?.httpStatus === '400') {
+      if (response?.data?.httpStatus === "400") {
         alertBox(response?.data?.title, response?.data?.detail);
       } else {
         yield put(setGlobalError.success());
@@ -195,7 +209,9 @@ function* approvalActionRequest(taskAction: {
   }
 }
 
-function* getUserSearchListRequest(action: { payload: { name: any; autoComplete: any } }) {
+function* getUserSearchListRequest(action: {
+  payload: { name: any; autoComplete: any };
+}) {
   try {
     const data = action.payload;
     yield put(getUserSearchList.request({ isLoading: true }));
@@ -253,6 +269,52 @@ function* getLeasingTasksDetailsRequest(action: { payload: { taskId: any } }) {
     yield put(setGlobalError.success());
   } finally {
     yield put(getLeasingTasksDetails.fulfill({ isLoading: false }));
+  }
+}
+
+function* getWorkflowPendingTasksRequest(action: {
+  payload: { endpoint: string };
+}) {
+  try {
+    yield put(getWorkflowPendingTasks.request({ isLoading: false }));
+    const { endpoint } = action?.payload;
+    const response = yield call(getWorkflowPendingTasksApiCall,endpoint);
+
+    if (response.success) {
+      const { data } = response;
+      yield put(getWorkflowPendingTasks.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+      yield put(getWorkflowPendingTasks.failure({}));
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+    yield put(getWorkflowPendingTasks.failure({}));
+  } finally {
+    yield put(getWorkflowPendingTasks.fulfill({ isLoading: false }));
+  }
+}
+
+function* getWorkflowTaskDetailRequest(action: {
+  payload: { endpoint: string };
+}) {
+  try {
+    yield put(getWorkflowTasksDetails.request({ isLoading: false }));
+    const { endpoint } = action?.payload;
+    const response = yield call(getWorkflowPendingTasksApiCall,endpoint);
+
+    if (response.success) {
+      const { data } = response;
+      yield put(getWorkflowTasksDetails.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+      yield put(getWorkflowTasksDetails.failure({}));
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+    yield put(getWorkflowPendingTasks.failure({}));
+  } finally {
+    yield put(getWorkflowPendingTasks.fulfill({ isLoading: false }));
   }
 }
 
@@ -345,19 +407,45 @@ function* procurementTakeActionRequest(action: any) {
 }
 
 export default function* approvalsSaga() {
-  yield takeLatest(getApprovalPendingTasks.TRIGGER, getApprovalPendingTasksRequest);
-  yield takeLatest(getApprovalTasksDetails.TRIGGER, getApprovalTasksDetailsRequest);
+  yield takeLatest(
+    getApprovalPendingTasks.TRIGGER,
+    getApprovalPendingTasksRequest
+  );
+  yield takeLatest(
+    getApprovalTasksDetails.TRIGGER,
+    getApprovalTasksDetailsRequest
+  );
 
   yield takeLatest(getUserSearchList.TRIGGER, getUserSearchListRequest);
   yield takeLatest(getApprovalTasksCount.TRIGGER, getApprovalTasksCountRequest);
   yield takeLatest(doApprovalAction.TRIGGER, approvalActionRequest);
 
-  yield takeLatest(getLeasingPendingTasks.TRIGGER, getLeasingPendingTasksRequest);
-  yield takeLatest(getLeasingTasksDetails.TRIGGER, getLeasingTasksDetailsRequest);
+  yield takeLatest(
+    getLeasingPendingTasks.TRIGGER,
+    getLeasingPendingTasksRequest
+  );
+  yield takeLatest(
+    getLeasingTasksDetails.TRIGGER,
+    getLeasingTasksDetailsRequest
+  );
 
   yield takeLatest(doLeasingTakeAction.TRIGGER, leasingTakeActionRequest);
 
-  yield takeLatest(getProcurementPendingTask.TRIGGER, getProcurementPendingTaskRequest);
-  yield takeLatest(getProcurementTaskDetails.TRIGGER, getProcurementTaskDetailsRequest);
+  yield takeLatest(
+    getProcurementPendingTask.TRIGGER,
+    getProcurementPendingTaskRequest
+  );
+  yield takeLatest(
+    getProcurementTaskDetails.TRIGGER,
+    getProcurementTaskDetailsRequest
+  );
   yield takeLatest(doProucurementAction.TRIGGER, procurementTakeActionRequest);
+  yield takeLatest(
+    getWorkflowPendingTasks.TRIGGER,
+    getWorkflowPendingTasksRequest
+  );
+  yield takeLatest(
+    getWorkflowTasksDetails.TRIGGER,
+    getWorkflowTaskDetailRequest
+  );
 }

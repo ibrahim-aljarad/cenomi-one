@@ -279,7 +279,7 @@ const Home = () => {
       );
 
       setIsVisibleQuotes((isActiveQoutes && slicedData?.length > 0) || false);
-      console.log(" pprofile details", qoutesList);
+      // console.log(" pprofile details", qoutesList);
     });
   }, [qoutesList]);
 

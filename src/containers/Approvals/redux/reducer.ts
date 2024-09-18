@@ -12,7 +12,9 @@ import {
   getLeasingTasksDetails,
   getProcurementPendingTask,
   getProcurementTaskDetails,
-  getUserSearchList
+  getUserSearchList,
+  getWorkflowPendingTasks,
+  getWorkflowTasksDetails
 } from './actions';
 
 export const initialState = {
@@ -149,6 +151,32 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         break;
       }
 
+      case getWorkflowPendingTasks.TRIGGER: {
+        draft.approvalPendingTasksData = undefined;
+        break;
+      }
+      case getWorkflowPendingTasks.SUCCESS: {
+        draft.approvalPendingTasksData = action.payload?.data;
+        break;
+      }
+      case getWorkflowPendingTasks.FAILURE: {
+        draft.approvalPendingTasksData = [];
+        break;
+      }
+
+      case getWorkflowTasksDetails.TRIGGER: {
+        draft.approvalTasksDetailsData = undefined;
+        break;
+      }
+      case getWorkflowTasksDetails.SUCCESS: {
+        draft.approvalTasksDetailsData = action.payload?.data;
+        break;
+      }
+      case getWorkflowTasksDetails.FAILURE: {
+        draft.approvalTasksDetailsData = [];
+        break;
+      }
+      
       default: {
         break;
       }

@@ -1,49 +1,60 @@
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { FlatList, Linking, SafeAreaView, View } from 'react-native';
-import { HeaderSVG, SearchComponent } from '../../../components';
-import NavigationRouteNames from '../../../routes/ScreenNames';
-import { Colors, Images } from '../../../theme';
-import { RfH } from '../../../utils/helpers';
-import ApprovalsListItems from './ApprovalsListItems';
-import styles from './styles';
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { FlatList, Linking, SafeAreaView, View } from "react-native";
+import { HeaderSVG, SearchComponent } from "../../../components";
+import NavigationRouteNames from "../../../routes/ScreenNames";
+import { Colors, Images } from "../../../theme";
+import { RfH } from "../../../utils/helpers";
+import ApprovalsListItems from "./ApprovalsListItems";
+import styles from "./styles";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import { isLoadingSelector } from '../../../appContainer/redux/selectors';
-import EmptyListComponent from '../../../components/EmptyListComponent';
-import ApprovalsListingSkeleton from '../../../components/SkeletonLoader/ApprovalsListingSkeleton';
-import { localize } from '../../../locale/utils';
-import { EVENT_NAME, trackEvent } from '../../../utils/analytics';
-import { isDarkModeSelector } from '../../redux/selectors';
+import { useDispatch, useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { isLoadingSelector } from "../../../appContainer/redux/selectors";
+import EmptyListComponent from "../../../components/EmptyListComponent";
+import ApprovalsListingSkeleton from "../../../components/SkeletonLoader/ApprovalsListingSkeleton";
+import { localize } from "../../../locale/utils";
+import { EVENT_NAME, trackEvent } from "../../../utils/analytics";
+import { isDarkModeSelector } from "../../redux/selectors";
 import {
   DoApprovalActionDone,
   getApprovalPendingTasks,
   getLeasingPendingTasks,
-  getProcurementPendingTask
-} from '../redux/actions';
-import { getApprovalPendingTasksSelector } from '../redux/selectors';
-import { isProcurementServiceModuleCheck, isYardiServiceModuleCheck } from '../serializer';
-import WrapperContainer from '../../../components/WrapperContainer';
-import { RfW } from '../../../utils/helper';
+  getProcurementPendingTask,
+  getWorkflowPendingTasks,
+} from "../redux/actions";
+import { getApprovalPendingTasksSelector } from "../redux/selectors";
+import {
+  dealWorkflowSubmodules,
+  isDealWorkflowModuleCheck,
+  isProcurementServiceModuleCheck,
+  isYardiServiceModuleCheck,
+} from "../serializer";
+import WrapperContainer from "../../../components/WrapperContainer";
+import { RfW } from "../../../utils/helper";
 
 const stateSelector = createStructuredSelector({
   approvalPendingTasksData: getApprovalPendingTasksSelector,
   isLoading: isLoadingSelector,
-  isDarkMode: isDarkModeSelector
+  isDarkMode: isDarkModeSelector,
 });
 
 const ApprovalsListing = (props: any) => {
   const navigation = useNavigation();
-  const { module, approvalType, redirectToExternalUrl = false } = props.route.params;
-  const [searchText, setSearchText] = useState('');
+  const {
+    module,
+    approvalType,
+    redirectToExternalUrl = false,
+  } = props.route.params;
+  const [searchText, setSearchText] = useState("");
   const [isSearchViewVisible, setSearchViewVisible] = useState(true);
   const [filterPendingTasksList, setFilterPendingTasksList] = useState([]);
   const isFocused = useIsFocused();
   const [approvalPendingTasksList, setApprovalPendingTasksList] = useState([]);
   const dispatch = useDispatch();
 
-  const { approvalPendingTasksData, isLoading, isDarkMode } = useSelector(stateSelector);
+  const { approvalPendingTasksData, isLoading, isDarkMode } =
+    useSelector(stateSelector);
 
   useEffect(() => {
     trackEvent(EVENT_NAME.SCREEN_APPROVALS_LISTING);
@@ -52,6 +63,10 @@ const ApprovalsListing = (props: any) => {
       dispatch(getLeasingPendingTasks.trigger());
     } else if (isProcurementServiceModuleCheck(approvalType)) {
       dispatch(getProcurementPendingTask.trigger());
+    } else if (isDealWorkflowModuleCheck(approvalType)) {
+      dispatch(
+        getWorkflowPendingTasks.trigger({ endpoint: module?.externalId })
+      );
     } else {
       dispatch(getApprovalPendingTasks.trigger());
     }
@@ -60,12 +75,34 @@ const ApprovalsListing = (props: any) => {
   }, [isFocused]);
 
   useEffect(() => {
-    if (approvalPendingTasksData) {
-      const filterList = approvalPendingTasksData?.filter((item) => {
-        return item?.subModule?.name === module?.name;
-      });
-      setFilterPendingTasksList(filterList);
-      setApprovalPendingTasksList(filterList);
+    try {
+      if (approvalPendingTasksData) {
+        if (isDealWorkflowModuleCheck(approvalType)) {
+          const fieldName = dealWorkflowSubmodules[module?.externalId];
+          const listData = approvalPendingTasksData?.[fieldName]?.map(
+            (item) => ({
+              createdBy:
+                approvalPendingTasksData?.createdBy ||
+                approvalPendingTasksData?.Requestedby ||
+                approvalPendingTasksData?.requetedBy,
+              title: approvalPendingTasksData?.customerName,
+              date: item?.ActualExpiryDate || item?.actualExpiryDate,
+              featureModule: approvalType,
+              externalId: module?.externalId
+            })
+          );
+          setApprovalPendingTasksList(listData);
+        } else {
+          const filterList = approvalPendingTasksData?.filter((item) => {
+            return item?.subModule?.name === module?.name;
+          });
+          setFilterPendingTasksList(filterList);
+          setApprovalPendingTasksList(filterList);
+        }
+      }
+    } catch (error) {
+      console.log(module, isDealWorkflowModuleCheck(approvalType));
+      setApprovalPendingTasksList([]);
     }
   }, [approvalPendingTasksData]);
 
@@ -85,13 +122,13 @@ const ApprovalsListing = (props: any) => {
               type: item?.Type,
               workflowName: item?.Workflow_Name,
               recordId: item?.RecordID,
-              recordCode: item?.RecordCode
-            }
+              recordCode: item?.RecordCode,
+            },
           },
           module,
           approvalType: approvalType,
           fromNotification: false,
-          isButtonDisable: false
+          isButtonDisable: false,
         });
       }
     } catch (error) {
@@ -111,16 +148,26 @@ const ApprovalsListing = (props: any) => {
         if (item?.Property_Name.toLowerCase().includes(text.toLowerCase())) {
           return item;
         }
-        if (item?.RecordID?.toString()?.toLowerCase().includes(text.toLowerCase())) {
+        if (
+          item?.RecordID?.toString()?.toLowerCase().includes(text.toLowerCase())
+        ) {
           return item;
         }
-        if (item?.Brand?.toString()?.toLowerCase().includes(text.toLowerCase())) {
+        if (
+          item?.Brand?.toString()?.toLowerCase().includes(text.toLowerCase())
+        ) {
           return item;
         }
-        if (item?.Unit?.toString()?.toLowerCase().includes(text.toLowerCase())) {
+        if (
+          item?.Unit?.toString()?.toLowerCase().includes(text.toLowerCase())
+        ) {
           return item;
         }
-        if (item?.Requester_Name?.toString()?.toLowerCase().includes(text.toLowerCase())) {
+        if (
+          item?.Requester_Name?.toString()
+            ?.toLowerCase()
+            .includes(text.toLowerCase())
+        ) {
           return item;
         }
         //applying filter for the inserted text in search bar
@@ -129,18 +176,24 @@ const ApprovalsListing = (props: any) => {
     } else {
       const newData = filterPendingTasksList?.filter(function (item) {
         //applying filter for the inserted text in search bar
-        const itemData = item?.title ? item?.title.toUpperCase() : ''.toUpperCase();
-        const itemData1 = item?.number ? item?.number?.toString()?.toUpperCase() : ''.toUpperCase();
+        const itemData = item?.title
+          ? item?.title.toUpperCase()
+          : "".toUpperCase();
+        const itemData1 = item?.number
+          ? item?.number?.toString()?.toUpperCase()
+          : "".toUpperCase();
 
         const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1 || itemData1?.indexOf(textData) > -1;
+        return (
+          itemData.indexOf(textData) > -1 || itemData1?.indexOf(textData) > -1
+        );
       });
       setApprovalPendingTasksList(newData);
     }
   };
 
   const handleClearSearch = () => {
-    setSearchText('');
+    setSearchText("");
     setApprovalPendingTasksList(filterPendingTasksList);
     setSearchViewVisible(false);
   };
@@ -172,7 +225,7 @@ const ApprovalsListing = (props: any) => {
         ListFooterComponent={
           <View
             style={{
-              height: RfH(50)
+              height: RfH(50),
             }}
           />
         }
@@ -181,7 +234,7 @@ const ApprovalsListing = (props: any) => {
       !isLoading && (
         <EmptyListComponent
           icon={Images.noApproval}
-          errorText={localize('approvals.no_approval')}
+          errorText={localize("approvals.no_approval")}
         />
       )
     );
@@ -193,9 +246,12 @@ const ApprovalsListing = (props: any) => {
         style={[
           styles.mainContainer,
           {
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-          }
-        ]}>
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.transparent,
+          },
+        ]}
+      >
         <HeaderSVG
           isRightButtonVisible={false}
           isBackButtonVisible={true}
@@ -208,27 +264,31 @@ const ApprovalsListing = (props: any) => {
         />
         <View
           style={{
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.headerBgColor,
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.headerBgColor,
             paddingBottom: RfH(15),
             borderBottomLeftRadius: RfW(15),
-            borderBottomRightRadius: RfW(15)
-          }}>
+            borderBottomRightRadius: RfW(15),
+          }}
+        >
           <SearchComponent
-            placeholder={localize('common.search')}
+            placeholder={localize("common.search")}
             value={searchText}
             onChangeText={(search) => {
               setSearchText(search);
               SearchFilterFunction(search);
             }}
             cancelSearch={handleClearSearch}
-            keyboardType={'default'}
+            keyboardType={"default"}
           />
         </View>
 
         <View
           style={{
-            flex: 1
-          }}>
+            flex: 1,
+          }}
+        >
           {listSection()}
         </View>
       </SafeAreaView>

@@ -27,6 +27,15 @@ export const FUSION_STATE = {
   ASSIGNED: 'ASSIGNED'
 };
 
+export const dealWorkflowSubmodules = {
+  'customer-wise-termination': 'terminationGridData',
+  'new-deal-request': 'mallData',
+  'customer-wise-renewal': 'contractInformation',
+  'lease-wise-renewal': 'contractInformation',
+  'lease-wise-termination': 'terminationGridData',
+
+}
+
 export const getName = (item) => {
   if (!isEmpty(item?.createdBy)) {
     return item?.createdBy;
@@ -63,6 +72,16 @@ export const isProcurementServiceModuleCheck = (item) => {
     item?.featureModule?.toString()?.indexOf('_procurement') > -1 ||
     item?.serviceModule?.toString()?.indexOf('_procurement') > -1 ||
     item?.toString()?.indexOf('_procurement') > -1
+  ) {
+    return true;
+  }
+  return false;
+};
+export const isDealWorkflowModuleCheck = (item) => {
+  if (
+    item?.featureModule?.toString()?.indexOf('_workflow') > -1 ||
+    item?.serviceModule?.toString()?.indexOf('_workflow') > -1 ||
+    item?.toString()?.indexOf('_workflow') > -1
   ) {
     return true;
   }

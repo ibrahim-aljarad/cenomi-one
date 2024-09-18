@@ -1,54 +1,67 @@
-import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, TouchableOpacity, View } from 'react-native';
-import { CustomImage, CustomRenderHtml, HeaderSVG, Loader } from '../../../components';
-import { Colors, HEIGHT, Images, WIDTH } from '../../../theme';
-import styles from './styles';
+import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, TouchableOpacity, View } from "react-native";
+import {
+  CustomImage,
+  CustomRenderHtml,
+  CustomText,
+  HeaderSVG,
+  Loader,
+} from "../../../components";
+import { Colors, HEIGHT, Images, WIDTH } from "../../../theme";
+import styles from "./styles";
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
-import { ScrollView } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import DocumentsViewModal from '../../../components/DocumentsViewModal';
-import { localize } from '../../../locale/utils';
+import { ScrollView } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import DocumentsViewModal from "../../../components/DocumentsViewModal";
+import { localize } from "../../../locale/utils";
 import {
   getApprovalTasksDetails,
   getLeasingTasksDetails,
-  getProcurementTaskDetails
-} from '../redux/actions';
-import { getApprovalTasksDetailsSelector } from '../redux/selectors';
+  getProcurementTaskDetails,
+  getWorkflowTasksDetails,
+} from "../redux/actions";
+import { getApprovalTasksDetailsSelector } from "../redux/selectors";
 
-import { isEmpty } from 'lodash';
-import { EVENT_NAME, trackEvent } from '../../../utils/analytics';
-import Config from '../../../utils/config';
-import { LOCAL_STORAGE_DATA_KEY } from '../../../utils/constants';
-import { getSaveData } from '../../../utils/helpers';
-import { isDarkModeSelector } from '../../redux/selectors';
-import { isProcurementServiceModuleCheck, isYardiServiceModuleCheck } from '../serializer';
-import ApprovalsActionButtons from './ApprovalsActionButtons';
-import AttachmentModal from './AttachmentModal';
-import WrapperContainer from '../../../components/WrapperContainer';
-import { getColorWithOpacity } from '../../../utils/helper';
+import { isEmpty } from "lodash";
+import { EVENT_NAME, trackEvent } from "../../../utils/analytics";
+import Config from "../../../utils/config";
+import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
+import { getSaveData } from "../../../utils/helpers";
+import { isDarkModeSelector } from "../../redux/selectors";
+import {
+  isDealWorkflowModuleCheck,
+  isProcurementServiceModuleCheck,
+  isYardiServiceModuleCheck,
+} from "../serializer";
+import ApprovalsActionButtons from "./ApprovalsActionButtons";
+import AttachmentModal from "./AttachmentModal";
+import WrapperContainer from "../../../components/WrapperContainer";
+import { getColorWithOpacity } from "../../../utils/helper";
+import DealsDetails from "./DealsDetails";
 
 const stateSelector = createStructuredSelector({
   approvalTasksDetailsData: getApprovalTasksDetailsSelector,
-  isDarkMode: isDarkModeSelector
+  isDarkMode: isDarkModeSelector,
 });
 
 const ApprovalsDetails = (props: any) => {
   const navigation = useNavigation();
 
-  const [isModalDocumentVisible, setModalDocumentVisible] = useState<boolean>(false);
+  const [isModalDocumentVisible, setModalDocumentVisible] =
+    useState<boolean>(false);
   const [selectedDocumentItem, setSelectedDocumentItem] = useState({});
   const { approvalItem, fromNotification, approvalType } = props.route.params;
 
   const [attachmentListModal, setAttachmentListModal] = useState(false);
   const [documentInfo, setDocumentInfo] = useState({
-    title: '',
-    url: '',
-    fileType: '',
-    headers: {}
+    title: "",
+    url: "",
+    fileType: "",
+    headers: {},
   });
 
   const dispatch = useDispatch();
@@ -57,7 +70,9 @@ const ApprovalsDetails = (props: any) => {
 
   // approvalType is the servicemodule name
   const isYardiServiceModule = isYardiServiceModuleCheck(approvalItem);
-  const isProcurementServiceModule = isProcurementServiceModuleCheck(approvalItem);
+  const isProcurementServiceModule =
+    isProcurementServiceModuleCheck(approvalItem);
+  const isDealWorkflowModule = isDealWorkflowModuleCheck(approvalItem);
 
   useEffect(() => {
     trackEvent(EVENT_NAME.SCREEN_APPROVALS_DETAILS);
@@ -67,13 +82,21 @@ const ApprovalsDetails = (props: any) => {
         type: approvalItem?.additionalInfo?.type,
         workflowName: approvalItem?.additionalInfo?.workflowName,
         recordId: approvalItem?.additionalInfo?.recordId,
-        recordCode: approvalItem?.additionalInfo?.recordCode
+        recordCode: approvalItem?.additionalInfo?.recordCode,
       };
       dispatch(getLeasingTasksDetails.trigger({ data }));
     } else if (isProcurementServiceModule) {
-      dispatch(getProcurementTaskDetails.trigger({ taskId: approvalItem?.externalId }));
+      dispatch(
+        getProcurementTaskDetails.trigger({ taskId: approvalItem?.externalId })
+      );
+    } else if (isDealWorkflowModule) {
+      dispatch(
+        getWorkflowTasksDetails.trigger({ endpoint: approvalItem?.externalId })
+      );
     } else {
-      dispatch(getApprovalTasksDetails.trigger({ taskId: approvalItem?.externalId }));
+      dispatch(
+        getApprovalTasksDetails.trigger({ taskId: approvalItem?.externalId })
+      );
     }
   }, []);
 
@@ -91,17 +114,18 @@ const ApprovalsDetails = (props: any) => {
       // call api for document download
       const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
 
-      const splitedTitle = item?.AttachmentName?.split('.');
+      const splitedTitle = item?.AttachmentName?.split(".");
 
       title = item?.AttachmentName;
       url = `${Config.API_BASE_URL}process/leasing/tasks-attachments/${item?.AttachmentID}?download=false&token=${token}`;
-      fileType = splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : '';
+      fileType =
+        splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : "";
     } else {
       const fileName = item?.title || item?.attachmentName;
-      const splitedData = fileName?.split('.');
-      const splitedMimeType = item?.mimeType?.split('/');
+      const splitedData = fileName?.split(".");
+      const splitedMimeType = item?.mimeType?.split("/");
 
-      title = fileName || splitedMimeType[1] + ' file';
+      title = fileName || splitedMimeType[1] + " file";
 
       url = item?.uri?.href;
       fileType =
@@ -109,14 +133,14 @@ const ApprovalsDetails = (props: any) => {
           ? splitedData[splitedData?.length - 1]
           : splitedMimeType?.length > 0
           ? splitedMimeType[1]
-          : '';
+          : "";
     }
 
     setDocumentInfo({
       title,
       url,
       fileType,
-      headers: approvalTasksDetailsData?.attachmentAuthHeaders || {}
+      headers: approvalTasksDetailsData?.attachmentAuthHeaders || {},
     });
 
     setSelectedDocumentItem(item);
@@ -129,8 +153,11 @@ const ApprovalsDetails = (props: any) => {
       <SafeAreaView
         style={{
           flex: 1,
-          backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-        }}>
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.transparent,
+        }}
+      >
         <View style={styles.mainContainer}>
           <HeaderSVG
             // showing attachment even when action required is false
@@ -142,7 +169,10 @@ const ApprovalsDetails = (props: any) => {
             }
             isBackButtonVisible={true}
             rightIcon={
-              <TouchableOpacity style={{ alignItems: 'flex-end' }} onPress={callAttachmentApi}>
+              <TouchableOpacity
+                style={{ alignItems: "flex-end" }}
+                onPress={callAttachmentApi}
+              >
                 <CustomImage
                   image={Images.attachment}
                   imageWidth={WIDTH.W16}
@@ -153,8 +183,12 @@ const ApprovalsDetails = (props: any) => {
             }
             titleText={
               approvalItem.externalId +
-              ' - ' +
-              (approvalItem.subModule?.name || approvalItem.subModuleName || '')
+              " - " +
+              (approvalItem.subModule?.name ||
+                approvalItem.subModuleName ||
+                approvalTasksDetailsData?.leaseCode ||
+                approvalTasksDetailsData?.customerCode ||
+                "")
             }
             titleFont={20}
             onRightButtonClickHandler={() => {}}
@@ -164,39 +198,51 @@ const ApprovalsDetails = (props: any) => {
 
           <ScrollView
             style={{
-              backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent,
-              flex: 1
-            }}>
-            <CustomRenderHtml
-              source={approvalTasksDetailsData?.html}
-              style={{ backgroundColor: Colors.transparent }}
-            />
+              backgroundColor: isDarkMode
+                ? Colors.darkModeBackground
+                : Colors.transparent,
+              flex: 1,
+            }}
+          >
+            {isDealWorkflowModule ? (
+              <DealsDetails
+                data={approvalTasksDetailsData}
+                approvalType={approvalItem?.externalId}
+              />
+            ) : (
+              <CustomRenderHtml
+                source={approvalTasksDetailsData?.html}
+                style={{ backgroundColor: Colors.transparent }}
+              />
+            )}
           </ScrollView>
 
-          {!isEmpty(approvalTasksDetailsData) && approvalTasksDetailsData?.actionRequired && (
-            <View
-              style={[
-                styles.bottomButtonContainer,
-                {
-                  backgroundColor: isDarkMode
-                    ? Colors.darkModeBackground
-                    : getColorWithOpacity(Colors.white, 0.2),
-                  borderTopColor: Colors.grayBorder
-                }
-              ]}>
-              <ApprovalsActionButtons
-                isDarkMode={isDarkMode}
-                approvalItem={approvalItem}
-                detailData={approvalTasksDetailsData}
-                actionSuccess={() => navigation.goBack()}
-              />
-            </View>
-          )}
+          {!isEmpty(approvalTasksDetailsData) &&
+            approvalTasksDetailsData?.actionRequired && (
+              <View
+                style={[
+                  styles.bottomButtonContainer,
+                  {
+                    backgroundColor: isDarkMode
+                      ? Colors.darkModeBackground
+                      : getColorWithOpacity(Colors.white, 0.2),
+                    borderTopColor: Colors.grayBorder,
+                  },
+                ]}
+              >
+                <ApprovalsActionButtons
+                  isDarkMode={isDarkMode}
+                  approvalItem={approvalItem}
+                  detailData={approvalTasksDetailsData}
+                  actionSuccess={() => navigation.goBack()}
+                />
+              </View>
+            )}
           {attachmentListModal && (
             <AttachmentModal
               isDarkMode={isDarkMode}
               isVisible={attachmentListModal}
-              headerText={localize('approvals.attachments')}
+              headerText={localize("approvals.attachments")}
               openModal={() => setAttachmentListModal(false)}
               attachments={approvalTasksDetailsData?.attachments}
               onClick={(item) => {
@@ -210,14 +256,21 @@ const ApprovalsDetails = (props: any) => {
               isVisible={isModalDocumentVisible}
               documentInfo={documentInfo}
               onRequestClose={() => {
-                setDocumentInfo({ title: '', url: '', fileType: '', headers: {} });
+                setDocumentInfo({
+                  title: "",
+                  url: "",
+                  fileType: "",
+                  headers: {},
+                });
                 setModalDocumentVisible(false);
               }}
               onClick={(item) => {}}
             />
           )}
         </View>
-        <Loader isLoading={!approvalTasksDetailsData?.html} />
+        <Loader
+          isLoading={!isDealWorkflowModule && !approvalTasksDetailsData?.html}
+        />
       </SafeAreaView>
     </WrapperContainer>
   );
@@ -225,11 +278,11 @@ const ApprovalsDetails = (props: any) => {
 
 ApprovalsDetails.propTypes = {
   route: PropTypes.object,
-  isButtonDisable: PropTypes.bool
+  isButtonDisable: PropTypes.bool,
 };
 ApprovalsDetails.defaultProps = {
   route: {},
-  isButtonDisable: false
+  isButtonDisable: false,
 };
 
 export default ApprovalsDetails;

@@ -1,6 +1,9 @@
 const GET_APPROVAL_PENDINGTASKS = 'get_Approval_PendingTasks';
 const GET_APPROVAL_TASKS_DETAILS = 'get_Approval_Tasks_Details';
 
+const GET_WORKFLOW_PENDINGTASKS = 'get_Workflow_PendingTasks';
+const GET_WORKFLOW_TASKS_DETAILS = 'get_Workflow_Tasks_Details';
+
 const GET_APPROVAL_TASKS_COUNT = 'get_Approval_Tasks_count';
 
 const PUT_APPROVAL_ACTION = 'put_approval_action';
@@ -31,5 +34,7 @@ export {
   GET_LEASING_TASKS_ATTACHMENTS,
   GET_PROCUREMENT_PENDINGTASK,
   GET_PROCUREMENT_TASK_DETAILS,
-  PUT_PROCUREMENT_ACTION
+  PUT_PROCUREMENT_ACTION,
+  GET_WORKFLOW_PENDINGTASKS,
+  GET_WORKFLOW_TASKS_DETAILS,
 };
