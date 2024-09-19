@@ -1,10 +1,19 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { CustomText } from "../../../../components";
 import { dealWorkflowSubmodules } from "../../serializer";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import styles from "./styles";
 import { Colors, CommonStyles } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
+import {
+  contractGridDetails,
+  estimatedSalesField,
+  generalDetailsTermination,
+  mallDataFields,
+  renewalProposalDetailsData,
+  terminationGridDetails,
+  terminationPortfolioData,
+} from "./serializer";
 
 function DealsDetails({
   data,
@@ -17,177 +26,188 @@ function DealsDetails({
 }) {
   const field = dealWorkflowSubmodules[approvalType];
 
-  const generalData = [
-    {
-      label: "Department",
-      key: "department",
-    },
-    {
-      label: "Customer Group",
-      key: "customerGroup",
-    },
-    {
-      label: "Key Account",
-      key: "keyAccount",
-    },
-    {
-      label: "Created By",
-      key: "createdBy",
-    },
-    {
-      label: "Lease Type",
-      key: "leaseType",
-    },
-    {
-      label: "Customer Brand",
-      key: "customerCodeBrandName",
-    },
-  ];
-  const terminationPortfolioData = [
-    {
-      label: "No.Of Leases",
-      key: "NoOfLease",
-    },
-    {
-      label: "Total Area",
-      key: "TotalArea",
-    },
-    {
-      label: "Base Rent",
-      key: "BaseRent",
-    },
-    {
-      label: "Total Due",
-      key: "totalDue",
-    },
-    {
-      label: "90 days due",
-      key: "due0to90days",
-    },
-  ];
-  const terminationGridDetails = [
-    {
-      label: "Mall Name",
-      key: "Mallname",
-    },
-    {
-      label: "Customer Name",
-      key: "CustomerName",
-    },
-    {
-      label: "Brand Name",
-      key: "Brandname",
-    },
-    {
-      label: "Category",
-      key: "Category",
-    },
-    {
-      label: "Units",
-      key: "Units",
-    },
-    {
-      label: "Area(SQM)",
-      key: "AreaSQM",
-    },
-    {
-      label: "Orignal BR",
-      key: "OrignalBR",
-    },
-    {
-      label: "EstFinImpact",
-      key: "EstFinImpact",
-    },
-    {
-      label: "EstFinImpactPent",
-      key: "EstFinImpactPent",
-    },
-    {
-      label: "EstFinImpactHold",
-      key: "EstFinImpactHold",
-    },
-    {
-      label: "OutstandingAmount",
-      key: "OutstandingAmount",
-    },
-    {
-      label: "DiscountAmt",
-      key: "DiscountAmt",
-    },
-  ];
-  const customerWiseTerminationCardFields = [
+  const dealCardsData = [
     {
       title: "General",
-      details: generalData,
+      details: generalDetailsTermination,
       dataField: data,
     },
-    {
-      title: "Tenant Portfolio Data",
-      details: terminationPortfolioData,
-      dataField: data?.tenantPortFolioData,
-    },
-    ...(data?.terminationGridData||[]).map((terminationItem) => ({
+    ...(data?.tenantPortFolioData || data?.tenantProtfolioData
+      ? [
+          {
+            title: "Tenant Portfolio Data",
+            details: terminationPortfolioData,
+            dataField: data?.tenantPortFolioData || data?.tenantProtfolioData,
+          },
+        ]
+      : []),
+    ,
+    ...(data?.renewalProposalDetails
+      ? [
+          {
+            title: "Renewal Proposal Details",
+            details: renewalProposalDetailsData,
+            dataField: data?.renewalProposalDetails,
+          },
+        ]
+      : []),
+    ...(data?.estimatedSales
+      ? [
+          {
+            title: "Estimated Sales",
+            details: estimatedSalesField,
+            dataField: data?.estimatedSales,
+          },
+        ]
+      : []),
+    ...(data?.terminationGridData || []).map((terminationItem) => ({
       title: `Termination Lease: ${terminationItem?.LeaseNumber}`,
       details: terminationGridDetails,
       dataField: terminationItem,
     })),
+    ...(data?.contractInformation || []).map((contractItem) => ({
+      title: `Contract Lease: ${contractItem?.LeaseNumber}`,
+      details: contractGridDetails,
+      dataField: contractItem,
+    })),
+
+    ...(data?.mallData || []).map((mallItem) => ({
+      title: `Mall: ${mallItem?.mall_Name}`,
+      details: mallDataFields,
+      dataField: mallItem,
+    })),
   ];
+
+  if (!data) return <></>;
+
   return (
     <>
-      {customerWiseTerminationCardFields?.map(
-        ({ title, details, dataField }) => (
-          <>
-            <View
-              style={[
-                styles.requestCellView,
-                {
-                  backgroundColor: isDarkMode
-                    ? Colors.darkModeButton
-                    : getColorWithOpacity(Colors.midnightExpress, 0.24),
-                },
-              ]}
+      {dealCardsData?.map(({ title, details, dataField }) => (
+        <View
+          style={[
+            styles.requestCellView,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeButton
+                : getColorWithOpacity(Colors.midnightExpress, 0.24),
+            },
+          ]}
+          key={title}
+        >
+          <View
+            style={[
+              styles.topHeader,
+              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+            ]}
+          >
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.white : Colors.white}
+              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
             >
-              <View
-                style={[
-                  styles.topHeader,
-                  { borderColor: getColorWithOpacity(Colors.white, 0.2) },
-                ]}
-              >
+              {title}
+            </CustomText>
+          </View>
+          {details?.map(({ label, key }) =>
+            dataField?.[key] ? (
+              <View style={styles.cellContainerView} key={key + title}>
                 <CustomText
-                  fontSize={16}
-                  color={isDarkMode ? Colors.white : Colors.white}
-                  styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    marginStart: RfW(5),
+                    lineHeight: RfH(20),
+                    ...CommonStyles.regularFont400Style,
+                  }}
                 >
-                  {title}
+                  {label} : {dataField?.[key]?.join?.(", ") || dataField?.[key]}
                 </CustomText>
               </View>
-              {details?.map(({ label, key }) =>
-                dataField?.[key] ? (
-                  <View style={styles.cellContainerView}>
-                    <View style={styles.rightCellView}>
-                      <View style={styles.topTitle}>
-                        <CustomText
-                          fontSize={14}
-                          color={isDarkMode ? Colors.white : Colors.white}
-                          styling={{
-                            lineHeight: RfH(20),
-                            ...CommonStyles.regularFont500Style,
-                          }}
-                          numberOfLines={4}
-                        >
-                          {label}: {dataField?.[key]}
-                        </CustomText>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <></>
-                )
+            ) : (
+              <></>
+            )
+          )}
+        </View>
+      ))}
+      {Array.isArray(data?.notes) ? (
+        <View
+          style={[
+            styles.requestCellView,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeButton
+                : getColorWithOpacity(Colors.midnightExpress, 0.24),
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.topHeader,
+              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+            ]}
+          >
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.white : Colors.white}
+              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+            >
+              Notes
+            </CustomText>
+          </View>
+          {data?.notes?.map(({ items, accPolicy, customerRequest }) => (
+            <Fragment key={items + accPolicy}>
+              <View  style={styles.cellContainerView}>
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    marginStart: RfW(5),
+                    lineHeight: RfH(20),
+                    ...CommonStyles.regularFont400Style,
+                  }}
+                >
+                  Items : {items}
+                </CustomText>
+              </View>
+
+              {accPolicy && (
+                <View  style={styles.cellContainerView}>
+                  <CustomText
+                    fontSize={14}
+                    color={Colors.white}
+                    styling={{
+                      marginStart: RfW(5),
+                      lineHeight: RfH(20),
+                      ...CommonStyles.regularFont400Style,
+                    }}
+                  >
+                    Acc Policy : {accPolicy}
+                  </CustomText>
+                </View>
               )}
-            </View>
-          </>
-        )
+              {customerRequest && (
+                <View  style={styles.cellContainerView}>
+                  <CustomText
+                    fontSize={14}
+                    color={Colors.white}
+                    styling={{
+                      marginStart: RfW(5),
+                      lineHeight: RfH(20),
+                      ...CommonStyles.regularFont400Style,
+                    }}
+                  >
+                    Customer Request : {customerRequest}
+                  </CustomText>
+                </View>
+              )}
+              <View style={{ height: RfH(20) }} />
+            </Fragment>
+          ))}
+        </View>
+      ) : (
+        <></>
       )}
+      <View style={{ height: RfH(30) }} />
     </>
   );
 }

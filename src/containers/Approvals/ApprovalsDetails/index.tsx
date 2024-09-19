@@ -186,8 +186,8 @@ const ApprovalsDetails = (props: any) => {
               " - " +
               (approvalItem.subModule?.name ||
                 approvalItem.subModuleName ||
-                approvalTasksDetailsData?.leaseCode ||
                 approvalTasksDetailsData?.customerCode ||
+                approvalTasksDetailsData?.leaseCode ||
                 "")
             }
             titleFont={20}
@@ -269,7 +269,7 @@ const ApprovalsDetails = (props: any) => {
           )}
         </View>
         <Loader
-          isLoading={!isDealWorkflowModule && !approvalTasksDetailsData?.html}
+          isLoading={!(isDealWorkflowModule && approvalTasksDetailsData) && !approvalTasksDetailsData?.html}
         />
       </SafeAreaView>
     </WrapperContainer>
