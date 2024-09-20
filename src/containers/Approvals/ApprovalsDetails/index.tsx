@@ -218,7 +218,7 @@ const ApprovalsDetails = (props: any) => {
           </ScrollView>
 
           {!isEmpty(approvalTasksDetailsData) &&
-            approvalTasksDetailsData?.actionRequired && (
+            (approvalTasksDetailsData?.actionRequired || isDealWorkflowModule) && (
               <View
                 style={[
                   styles.bottomButtonContainer,
