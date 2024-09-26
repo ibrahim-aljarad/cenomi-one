@@ -1,11 +1,11 @@
-import { isArray, isEmpty } from 'lodash';
-import { Colors, Images } from '../../theme';
-import { localize } from '../../locale/utils';
+import { isArray, isEmpty } from "lodash";
+import { Colors, Images } from "../../theme";
+import { localize } from "../../locale/utils";
 
 export const searchOriginalApprovalList = (data: any) => {
   let finalArray: any[] = [];
   try {
-    if (data && data !== 'NULL') {
+    if (data && data !== "NULL") {
       const approvalsData = isArray(data) ? data : [data];
       const enabledApprovalList = approvalsData.filter((item) => item.enabled);
       for (let i = 0; i < enabledApprovalList.length; i++) {
@@ -23,18 +23,15 @@ export const searchOriginalApprovalList = (data: any) => {
 };
 
 export const FUSION_STATE = {
-  INFO_REQUESTED: 'INFO_REQUESTED',
-  ASSIGNED: 'ASSIGNED'
+  INFO_REQUESTED: "INFO_REQUESTED",
+  ASSIGNED: "ASSIGNED",
 };
 
-export const dealWorkflowSubmodules = {
-  'customer-wise-termination': 'terminationGridData',
-  'new-deal-request': 'mallData',
-  'customer-wise-renewal': 'contractInformation',
-  'lease-wise-renewal': 'contractInformation',
-  'lease-wise-termination': 'terminationGridData',
-
-}
+export const workflowDesicionLookupIdEnum = {
+  reject: 2,
+  approve: 4,
+  request_info: 3,
+};
 
 export const getName = (item) => {
   if (!isEmpty(item?.createdBy)) {
@@ -53,15 +50,15 @@ export const getUserName = (item) => {
   } else if (!isEmpty(item?.username)) {
     return item?.username;
   } else {
-    return '';
+    return "";
   }
 };
 
 export const isYardiServiceModuleCheck = (item) => {
   if (
-    item?.featureModule?.toString()?.indexOf('_yardi') > -1 ||
-    item?.serviceModule?.toString()?.indexOf('_yardi') > -1 ||
-    item?.toString()?.indexOf('_yardi') > -1
+    item?.featureModule?.toString()?.indexOf("_yardi") > -1 ||
+    item?.serviceModule?.toString()?.indexOf("_yardi") > -1 ||
+    item?.toString()?.indexOf("_yardi") > -1
   ) {
     return true;
   }
@@ -69,9 +66,9 @@ export const isYardiServiceModuleCheck = (item) => {
 };
 export const isProcurementServiceModuleCheck = (item) => {
   if (
-    item?.featureModule?.toString()?.indexOf('_procurement') > -1 ||
-    item?.serviceModule?.toString()?.indexOf('_procurement') > -1 ||
-    item?.toString()?.indexOf('_procurement') > -1
+    item?.featureModule?.toString()?.indexOf("_procurement") > -1 ||
+    item?.serviceModule?.toString()?.indexOf("_procurement") > -1 ||
+    item?.toString()?.indexOf("_procurement") > -1
   ) {
     return true;
   }
@@ -79,9 +76,9 @@ export const isProcurementServiceModuleCheck = (item) => {
 };
 export const isDealWorkflowModuleCheck = (item) => {
   if (
-    item?.featureModule?.toString()?.indexOf('_workflow') > -1 ||
-    item?.serviceModule?.toString()?.indexOf('_workflow') > -1 ||
-    item?.toString()?.indexOf('_workflow') > -1
+    item?.featureModule?.toString()?.indexOf("_workflow") > -1 ||
+    item?.serviceModule?.toString()?.indexOf("_workflow") > -1 ||
+    item?.toString()?.indexOf("_workflow") > -1
   ) {
     return true;
   }
@@ -89,25 +86,25 @@ export const isDealWorkflowModuleCheck = (item) => {
 };
 export const ACTION_TYPE_FUSION = [
   {
-    label: localize('hrRequest.actionButton.requestInfo'),
-    id: 'request_info',
+    label: localize("hrRequest.actionButton.requestInfo"),
+    id: "request_info",
     statusId: 0,
     fwdType: 1,
-    actionType: 'INFO_REQUEST',
+    actionType: "INFO_REQUEST",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.requestSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.requestSuccessMsg"),
+    module: "hr",
     image: Images.requestInfo,
     darkImage: Images.requestInfoIconWhite,
     textColor: Colors.coolGrey,
-    eventSuffix: '_for',
+    eventSuffix: "_for",
     imageDisable: Images.requestInfoGrey,
     isFwd: 0,
     showApproverSection: true,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.requestInfo')
+    buttonText: localize("hrRequest.actionButton.requestInfo"),
   },
   // {
   //   label: 'Reassign',
@@ -129,69 +126,69 @@ export const ACTION_TYPE_FUSION = [
 
   // },
   {
-    label: localize('hrRequest.actionButton.reject'),
-    id: 'reject',
+    label: localize("hrRequest.actionButton.reject"),
+    id: "reject",
     statusId: 3,
     fwdType: 0,
-    actionType: 'REJECT',
+    actionType: "REJECT",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.rejectSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.rejectSuccessMsg"),
+    module: "hr",
     image: Images.reject,
     darkImage: Images.rejectIconWhite,
     textColor: Colors.colorReject,
-    eventSuffix: '_rej',
+    eventSuffix: "_rej",
     imageDisable: Images.rejectGrey,
     isFwd: 0,
     showApproverSection: false,
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.reject')
+    buttonText: localize("hrRequest.actionButton.reject"),
   },
   {
-    label: localize('hrRequest.actionButton.approve'),
-    id: 'approve',
+    label: localize("hrRequest.actionButton.approve"),
+    id: "approve",
     statusId: 2,
     fwdType: 0,
-    actionType: 'APPROVE',
+    actionType: "APPROVE",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.arroveSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.arroveSuccessMsg"),
+    module: "hr",
     image: Images.approve,
     darkImage: Images.approveIconWhite,
     textColor: Colors.colorApprove,
-    eventSuffix: '_apr',
+    eventSuffix: "_apr",
     imageDisable: Images.approveGrey,
     isFwd: 0,
     showApproverSection: false,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: false,
-    buttonText: localize('hrRequest.actionButton.approve')
-  }
+    buttonText: localize("hrRequest.actionButton.approve"),
+  },
 ];
 
 export const ACTION_TYPE_WORKFLOW = [
   {
-    label: localize('hrRequest.actionButton.requestInfo'),
-    id: 'request_info',
+    label: localize("hrRequest.actionButton.requestInfo"),
+    id: "request_info",
     statusId: 0,
     fwdType: 1,
-    actionType: 'INFO_REQUEST',
+    actionType: "INFO_REQUEST",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.requestSuccessMsg'),
-    module: 'workflow',
+    successText: localize("hrRequest.actionButton.requestSuccessMsg"),
+    module: "workflow",
     image: Images.requestInfo,
     darkImage: Images.requestInfoIconWhite,
     textColor: Colors.coolGrey,
-    eventSuffix: '_for',
+    eventSuffix: "_for",
     imageDisable: Images.requestInfoGrey,
     isFwd: 0,
     showApproverSection: true,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.requestInfo')
+    buttonText: localize("hrRequest.actionButton.requestInfo"),
   },
   // {
   //   label: 'Reassign',
@@ -213,184 +210,184 @@ export const ACTION_TYPE_WORKFLOW = [
 
   // },
   {
-    label: localize('hrRequest.actionButton.reject'),
-    id: 'reject',
+    label: localize("hrRequest.actionButton.reject"),
+    id: "reject",
     statusId: 3,
     fwdType: 0,
-    actionType: 'REJECT',
+    actionType: "REJECT",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.rejectSuccessMsg'),
-    module: 'workflow',
+    successText: localize("hrRequest.actionButton.rejectSuccessMsg"),
+    module: "workflow",
     image: Images.reject,
     darkImage: Images.rejectIconWhite,
     textColor: Colors.colorReject,
-    eventSuffix: '_rej',
+    eventSuffix: "_rej",
     imageDisable: Images.rejectGrey,
     isFwd: 0,
     showApproverSection: false,
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.reject')
+    buttonText: localize("hrRequest.actionButton.reject"),
   },
   {
-    label: localize('hrRequest.actionButton.approve'),
-    id: 'approve',
+    label: localize("hrRequest.actionButton.approve"),
+    id: "approve",
     statusId: 2,
     fwdType: 0,
-    actionType: 'APPROVE',
+    actionType: "APPROVE",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.arroveSuccessMsg'),
-    module: 'workflow',
+    successText: localize("hrRequest.actionButton.arroveSuccessMsg"),
+    module: "workflow",
     image: Images.approve,
     darkImage: Images.approveIconWhite,
     textColor: Colors.colorApprove,
-    eventSuffix: '_apr',
+    eventSuffix: "_apr",
     imageDisable: Images.approveGrey,
     isFwd: 0,
     showApproverSection: false,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: false,
-    buttonText: localize('hrRequest.actionButton.approve')
-  }
+    buttonText: localize("hrRequest.actionButton.approve"),
+  },
 ];
 export const PROCUREMENT_ACTION_TYPE_FUSION = [
   {
-    label: localize('hrRequest.actionButton.requestInfo'),
-    id: 'request_info',
+    label: localize("hrRequest.actionButton.requestInfo"),
+    id: "request_info",
     statusId: 0,
     fwdType: 1,
-    actionType: 'INFO_REQUEST',
+    actionType: "INFO_REQUEST",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.requestSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.requestSuccessMsg"),
+    module: "hr",
     image: Images.requestInfo,
     darkImage: Images.requestInfoIconWhite,
     textColor: Colors.coolGrey,
-    eventSuffix: '_for',
+    eventSuffix: "_for",
     imageDisable: Images.requestInfoGrey,
     isFwd: 0,
     showApproverSection: true,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.requestInfo')
+    buttonText: localize("hrRequest.actionButton.requestInfo"),
   },
   {
-    label: 'Reassign',
-    id: 'reassign',
+    label: "Reassign",
+    id: "reassign",
     statusId: 0,
     fwdType: 2,
-    actionType: 'REASSIGN',
+    actionType: "REASSIGN",
     isPasswordNeeded: false,
-    successText: 'Reassigned Successfully',
-    module: 'hr',
+    successText: "Reassigned Successfully",
+    module: "hr",
     image: Images.reassign,
     textColor: Colors.colorReassign,
-    eventSuffix: '_rea',
+    eventSuffix: "_rea",
     imageDisable: Images.reassignGrey,
     isFwd: 0,
     showApproverSection: true,
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: false,
-    buttonText: 'Reassign'
+    buttonText: "Reassign",
   },
   {
-    label: localize('hrRequest.actionButton.reject'),
-    id: 'reject',
+    label: localize("hrRequest.actionButton.reject"),
+    id: "reject",
     statusId: 3,
     fwdType: 0,
-    actionType: 'REJECT',
+    actionType: "REJECT",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.rejectSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.rejectSuccessMsg"),
+    module: "hr",
     image: Images.reject,
     darkImage: Images.rejectIconWhite,
     textColor: Colors.colorReject,
-    eventSuffix: '_rej',
+    eventSuffix: "_rej",
     imageDisable: Images.rejectGrey,
     isFwd: 0,
     showApproverSection: false,
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.reject')
+    buttonText: localize("hrRequest.actionButton.reject"),
   },
   {
-    label: localize('hrRequest.actionButton.approve'),
-    id: 'approve',
+    label: localize("hrRequest.actionButton.approve"),
+    id: "approve",
     statusId: 2,
     fwdType: 0,
-    actionType: 'APPROVE',
+    actionType: "APPROVE",
     isPasswordNeeded: false,
-    successText: localize('hrRequest.actionButton.arroveSuccessMsg'),
-    module: 'hr',
+    successText: localize("hrRequest.actionButton.arroveSuccessMsg"),
+    module: "hr",
     image: Images.approve,
     darkImage: Images.approveIconWhite,
     textColor: Colors.colorApprove,
-    eventSuffix: '_apr',
+    eventSuffix: "_apr",
     imageDisable: Images.approveGrey,
     isFwd: 0,
     showApproverSection: false,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: false,
-    buttonText: localize('hrRequest.actionButton.approve')
-  }
+    buttonText: localize("hrRequest.actionButton.approve"),
+  },
 ];
 
 export const RFI_ACTION_TYPE_FUSION = [
   {
-    label: localize('hrRequest.actionButton.submitResponse'),
-    id: 'rfi_submit',
+    label: localize("hrRequest.actionButton.submitResponse"),
+    id: "rfi_submit",
     statusId: 0,
     fwdType: 0,
     isPasswordNeeded: false,
-    actionType: 'INFO_SUBMIT',
-    successText: localize('hrRequest.actionButton.submitSuccessMsg'),
-    module: 'hr',
+    actionType: "INFO_SUBMIT",
+    successText: localize("hrRequest.actionButton.submitSuccessMsg"),
+    module: "hr",
     image: Images.approve,
     darkImage: Images.approveIconWhite,
     textColor: Colors.coolGrey,
-    eventSuffix: '_rfi',
+    eventSuffix: "_rfi",
     imageDisable: Images.approve,
     isFwd: 1,
     showApproverSection: false,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
-    buttonText: localize('hrRequest.actionButton.reply')
-  }
+    buttonText: localize("hrRequest.actionButton.reply"),
+  },
 ];
 
 export const ACTION_TYPE_YARDI = [
   {
-    label: localize('hrRequest.actionButton.takeAction'),
-    id: 'yardi_action',
+    label: localize("hrRequest.actionButton.takeAction"),
+    id: "yardi_action",
     statusId: 0,
     fwdType: 0,
     isPasswordNeeded: false,
-    actionType: '',
-    successText: localize('hrRequest.actionButton.successfully'),
-    module: 'yardi',
+    actionType: "",
+    successText: localize("hrRequest.actionButton.successfully"),
+    module: "yardi",
     image: Images.approve,
     darkImage: Images.approveIconWhite,
     textColor: Colors.coolGrey,
-    eventSuffix: 'yadi',
+    eventSuffix: "yadi",
     imageDisable: Images.approve,
     isFwd: 1,
     showApproverSection: false,
 
-    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: false,
-    buttonText: localize('common.submit')
-  }
+    buttonText: localize("common.submit"),
+  },
 ];
 
 export const checkFusionActionsApproval = () => {
   return {
-    module: 'hr',
+    module: "hr",
     approvalActions: ACTION_TYPE_FUSION,
-    rfiAction: RFI_ACTION_TYPE_FUSION
+    rfiAction: RFI_ACTION_TYPE_FUSION,
   };
 };
 

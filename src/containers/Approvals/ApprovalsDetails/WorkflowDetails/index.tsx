@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import { CustomText } from "../../../../components";
-import { dealWorkflowSubmodules } from "../../serializer";
 import { View } from "react-native";
 import styles from "./styles";
 import { Colors, CommonStyles } from "../../../../theme";
@@ -24,7 +23,6 @@ function WorkflowDetails({
   approvalType: string;
   isDarkMode?: boolean;
 }) {
-  const field = dealWorkflowSubmodules[approvalType];
 
   const dealCardsData = [
     {

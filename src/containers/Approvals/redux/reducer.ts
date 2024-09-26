@@ -5,6 +5,7 @@ import {
   DoApprovalActionDone,
   doLeasingTakeAction,
   doProucurementAction,
+  doWorkflowTakeAction,
   getApprovalPendingTasks,
   getApprovalTasksCount,
   getApprovalTasksDetails,
@@ -191,6 +192,15 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         draft.workflowUserListData = [];
         break;
       }
+      case doWorkflowTakeAction.TRIGGER: {
+        draft.approvalActionData = [];
+        break;
+      }
+      case doWorkflowTakeAction.SUCCESS: {
+        draft.approvalActionData = action.payload;
+        break;
+      }
+
       
       default: {
         break;

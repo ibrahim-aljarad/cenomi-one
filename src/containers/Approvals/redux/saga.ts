@@ -6,6 +6,7 @@ import {
   doApprovalAction,
   doLeasingTakeAction,
   doProucurementAction,
+  doWorkflowTakeAction,
   getApprovalPendingTasks,
   getApprovalTasksCount,
   getApprovalTasksDetails,
@@ -41,8 +42,10 @@ const PROCUREMENT_TASK_DETAILS_URL = "process/procurement/tasks-details/";
 const PROCUREMENT_TAKE_ACTION_URL = "process/procurement/take-action/";
 
 //veena.sodha.ext%40cenomi.com&ss= - need removal
-const WORKFLOW_PENDING_TASK_URL = "pendingTasks?loggedInUser=veena.sodha.ext%40cenomi.com&ss=";
-const WORKFLOW_TASK_DETAIL_URL = "requestData?requestIdPk=";
+const WORKFLOW_PENDING_TASK_URL =
+  "pendingTasks?loggedInUser=veena.sodha.ext%40cenomi.com&ss=";
+const WORKFLOW_TASK_DETAIL_URL = "requestData";
+const WORKFLOW_TAKE_ACTION_URL = "updateRequestStatus";
 
 const getUserListApiCall = (data) =>
   api({
@@ -53,11 +56,11 @@ const getUserListApiCall = (data) =>
       qs.stringify(data, { arrayFormat: "repeat", encode: false }),
   });
 
-  const getWorkflowUserListApiCall = () =>
-    appianApi({
-      method: "GET",
-      url:`${USER_URL}`,
-    });
+const getWorkflowUserListApiCall = () =>
+  appianApi({
+    method: "GET",
+    url: `${USER_URL}`,
+  });
 
 const getApprovalTasksCountApiCall = () =>
   api({
@@ -89,7 +92,6 @@ const getLeasingPendingTasksApiCall = () =>
     method: "GET",
     url: `${LEASING_PENDING_TASK_URL}`,
   });
-
 
 const getLeasingTasksDetailsApiCall = (data) =>
   api({
@@ -123,16 +125,22 @@ const procurementTakeActionApiCall = (taskId, data) =>
     data,
   });
 
-  const getWorkflowPendingTasksApiCall = (loggedInUser) =>
-    appianApi({
-      method: "POST",
-      url: `${WORKFLOW_PENDING_TASK_URL}${loggedInUser}`,
-    });
+const getWorkflowPendingTasksApiCall = (loggedInUser) =>
+  appianApi({
+    method: "POST",
+    url: `${WORKFLOW_PENDING_TASK_URL}${loggedInUser}`,
+  });
 
 const getWorkflowTaskDetailApiCall = (taskId) =>
   appianApi({
     method: "GET",
-    url: `${WORKFLOW_TASK_DETAIL_URL}${taskId}`,
+    url: `${WORKFLOW_TASK_DETAIL_URL}?requestIdPk=${taskId}`,
+  });
+
+const workflowTakeActionApiCall = (data) =>
+  appianApi({
+    method: "POST",
+    url: `${WORKFLOW_TAKE_ACTION_URL}?${qs.stringify(data, { arrayFormat: "repeat", encode: false })}`,
   });
 
 function* getApprovalTasksDetailsRequest(action: { payload: { taskId: any } }) {
@@ -309,12 +317,14 @@ function* getLeasingTasksDetailsRequest(action: { payload: { taskId: any } }) {
   }
 }
 
-function* getWorkflowPendingTasksRequest(action: { payload: { loggedInUser: any } }) {
+function* getWorkflowPendingTasksRequest(action: {
+  payload: { loggedInUser: any };
+}) {
   try {
     yield put(getWorkflowPendingTasks.request({ isLoading: false }));
 
-    const {loggedInUser} = action?.payload;
-    const response = yield call(getWorkflowPendingTasksApiCall,loggedInUser);
+    const { loggedInUser } = action?.payload;
+    const response = yield call(getWorkflowPendingTasksApiCall, loggedInUser);
 
     if (response.success) {
       const { data } = response;
@@ -334,7 +344,7 @@ function* getWorkflowPendingTasksRequest(action: { payload: { loggedInUser: any 
 function* getWorkflowTaskDetailRequest(action: { payload: { taskId: any } }) {
   try {
     yield put(getWorkflowTasksDetails.request({ isLoading: false }));
-    const { taskId } = action?.payload
+    const { taskId } = action?.payload;
     const response = yield call(getWorkflowTaskDetailApiCall, taskId);
 
     if (response.success) {
@@ -349,6 +359,35 @@ function* getWorkflowTaskDetailRequest(action: { payload: { taskId: any } }) {
     yield put(getWorkflowPendingTasks.failure({}));
   } finally {
     yield put(getWorkflowPendingTasks.fulfill({ isLoading: false }));
+  }
+}
+
+function* workflowTakeActionRequest(action: {
+  payload: {
+    type: any;
+    workflowName: any;
+    propertyName: any;
+    recordId: any;
+    recordCode: any;
+    stepName: any;
+    nextStepName: any;
+    comments: any;
+  };
+}) {
+  try {
+    yield put(doWorkflowTakeAction.request({ isLoading: true }));
+    const response = yield call(workflowTakeActionApiCall, action.payload);
+
+    if (response.success) {
+      const { data } = response;
+      yield put(doWorkflowTakeAction.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(doWorkflowTakeAction.fulfill({ isLoading: false }));
   }
 }
 
@@ -456,7 +495,6 @@ export default function* approvalsSaga() {
 
   yield takeLatest(getWorkflowUserList.TRIGGER, getWorkflowUserListRequest);
 
-  
   yield takeLatest(
     getLeasingPendingTasks.TRIGGER,
     getLeasingPendingTasksRequest
@@ -484,5 +522,9 @@ export default function* approvalsSaga() {
   yield takeLatest(
     getWorkflowTasksDetails.TRIGGER,
     getWorkflowTaskDetailRequest
+  );
+  yield takeLatest(
+    doWorkflowTakeAction.TRIGGER,
+    workflowTakeActionRequest
   );
 }

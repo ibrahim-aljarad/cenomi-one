@@ -61,6 +61,8 @@ function DefaultActionModal(props) {
   const { userSearchListData, workflowUserListData } =
     useSelector(stateSelector);
 
+  const isWorkflowRequest = actionModule?.module === "workflow";
+  
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -81,7 +83,7 @@ function DefaultActionModal(props) {
     };
   }, []);
   useEffect(() => {
-    if (actionModule?.module === "workflow") {
+    if (isWorkflowRequest) {
       dispatch(getWorkflowUserList());
     }
   }, [actionModule]);
@@ -131,7 +133,7 @@ function DefaultActionModal(props) {
   };
   "".toLocaleLowerCase;
   const formatUserData = () => {
-    if (actionModule?.module === "workflow") {
+    if (isWorkflowRequest) {
       return workflowUserListData
         ?.filter(({ fullName, email }) => {
           const lowerSearch = searchKeyword?.toLocaleLowerCase();

@@ -314,7 +314,7 @@ async function fetchAppianResponse(config) {
       return { success: true, data };
     })
     .catch((error) => {
-      console.log('%c %s %c %s', bgRed, '💀 API Error 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
+      console.log('%c %s %c %s', bgRed, '💀 API Errors 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
      
       const { data: errorResponse } = error.response || {};
       console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);

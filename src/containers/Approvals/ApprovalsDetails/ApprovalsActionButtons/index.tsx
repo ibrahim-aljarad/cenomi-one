@@ -7,7 +7,7 @@ import {
   IconButtonWrapper,
 } from "../../../../components";
 import { Colors, CommonStyles } from "../../../../theme";
-import { RfH, RfW } from "../../../../utils/helpers";
+import { RfH, RfW, getSaveData } from "../../../../utils/helpers";
 
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ import {
   doApprovalAction,
   doLeasingTakeAction,
   doProucurementAction,
+  doWorkflowTakeAction,
 } from "../../redux/actions";
 import {
   ACTION_TYPE_FUSION,
@@ -29,6 +30,7 @@ import {
   isDealWorkflowModuleCheck,
   isProcurementServiceModuleCheck,
   isYardiServiceModuleCheck,
+  workflowDesicionLookupIdEnum,
 } from "../../serializer";
 import DefaultActionModal from "../DefaultActionModal";
 
@@ -40,6 +42,7 @@ import { getApprovalActionDataSelector } from "../../redux/selectors";
 import YardiActionListModal from "../YardiActionListModal";
 import { getNotification } from "../../../Notifications/redux/actions";
 import CustomInAppReview from "../../../../components/CustomInAppReview";
+import { LOCAL_STORAGE_DATA_KEY } from "../../../../utils/constants";
 
 const stateSelector = createStructuredSelector({
   approvalActionData: getApprovalActionDataSelector,
@@ -121,11 +124,26 @@ const ApprovalsActionButtons = (props) => {
     </TouchableOpacity>
   );
 
+  const workflowAction = async (actionPayload) => {
+    const initiator = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+    setSuccessText(actionPayload?.successText);
+    const data = {
+      originalOrderId: 1,
+      requestId: actionPayload?.user?.requestIdPk,
+      remarks: actionPayload?.comment,
+      decisionLookupId: workflowDesicionLookupIdEnum[actionPayload?.id],
+      initiatedBy: JSON.parse(initiator||'{}')?.username,
+      currentOrder: 1,
+      assignTo:
+        getUserName(actionPayload.user) || actionPayload.user?.createdBy,
+    };
+    dispatch(doWorkflowTakeAction.trigger(data))
+  }
+
   const handleOnActionClick = (actionPayload) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_ACTION_SUBMIT, {
       type: actionPayload?.id,
     });
-
     setShowDefaultActionModal(false);
 
     if (isYardiServiceModuleCheck(approvalItem)) {
@@ -155,6 +173,8 @@ const ApprovalsActionButtons = (props) => {
       dispatch(
         doProucurementAction.trigger({ taskId: approvalItem?.externalId, data })
       );
+    } else if (isDealWorkflowModuleCheck(approvalItem)) {
+      workflowAction(actionPayload);
     } else {
       setSuccessText(actionPayload.successText);
       const data = {

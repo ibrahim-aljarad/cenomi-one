@@ -25,7 +25,6 @@ import {
 } from "../redux/actions";
 import { getApprovalPendingTasksSelector } from "../redux/selectors";
 import {
-  dealWorkflowSubmodules,
   isDealWorkflowModuleCheck,
   isProcurementServiceModuleCheck,
   isYardiServiceModuleCheck,
