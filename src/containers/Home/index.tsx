@@ -460,7 +460,7 @@ const Home = () => {
     const actions = checkFusionActionsApproval();
     navigation.navigate(NavigationRouteNames.APPROVALS_LISTING, {
       module: item,
-      approvalType: selectedItem?.feature,
+      approvalType: item?.feature ||selectedItem?.feature,
       redirectToExternalUrl: selectedItem?.redirectToExternalUrl,
     });
   };

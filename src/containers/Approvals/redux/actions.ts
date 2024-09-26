@@ -14,7 +14,8 @@ import {
   GET_PROCUREMENT_TASK_DETAILS,
   PUT_PROCUREMENT_ACTION,
   GET_WORKFLOW_PENDINGTASKS,
-  GET_WORKFLOW_TASKS_DETAILS
+  GET_WORKFLOW_TASKS_DETAILS,
+  GET_WORKFLOW_USERS_LIST
 } from './constants';
 
 export const getApprovalPendingTasks = createRoutine(GET_APPROVAL_PENDINGTASKS);
@@ -32,6 +33,7 @@ export const getLeasingTasksDetails = createRoutine(GET_LEASING_TASKS_DETAILS);
 export const doLeasingTakeAction = createRoutine(PUT_LEASING_TAKE_ACTION);
 
 export const getUserSearchList = createRoutine(GET_USER_SEARCH_LIST);
+export const getWorkflowUserList = createRoutine(GET_WORKFLOW_USERS_LIST);
 
 export const getProcurementPendingTask = createRoutine(GET_PROCUREMENT_PENDINGTASK);
 export const getProcurementTaskDetails = createRoutine(GET_PROCUREMENT_TASK_DETAILS);

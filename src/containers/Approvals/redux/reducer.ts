@@ -14,7 +14,8 @@ import {
   getProcurementTaskDetails,
   getUserSearchList,
   getWorkflowPendingTasks,
-  getWorkflowTasksDetails
+  getWorkflowTasksDetails,
+  getWorkflowUserList
 } from './actions';
 
 export const initialState = {
@@ -24,6 +25,7 @@ export const initialState = {
 
   approvalActionData: [],
   userSearchListData: [],
+  workflowUserListData: [],
   approvalTasksCountData: [],
   approvalTasksCountDataLoading: false
 };
@@ -156,7 +158,7 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         break;
       }
       case getWorkflowPendingTasks.SUCCESS: {
-        draft.approvalPendingTasksData = action.payload?.data;
+        draft.approvalPendingTasksData = action.payload?.data?.result;
         break;
       }
       case getWorkflowPendingTasks.FAILURE: {
@@ -169,11 +171,24 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         break;
       }
       case getWorkflowTasksDetails.SUCCESS: {
-        draft.approvalTasksDetailsData = action.payload?.data;
+        draft.approvalTasksDetailsData = action.payload?.data?.result;
         break;
       }
       case getWorkflowTasksDetails.FAILURE: {
         draft.approvalTasksDetailsData = [];
+        break;
+      }
+
+      case getWorkflowUserList.TRIGGER: {
+        draft.workflowUserListData = undefined;
+        break;
+      }
+      case getWorkflowUserList.SUCCESS: {
+        draft.workflowUserListData = action.payload?.data?.result;
+        break;
+      }
+      case getWorkflowUserList.FAILURE: {
+        draft.workflowUserListData = [];
         break;
       }
       

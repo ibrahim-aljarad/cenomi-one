@@ -3,6 +3,7 @@ const GET_APPROVAL_TASKS_DETAILS = 'get_Approval_Tasks_Details';
 
 const GET_WORKFLOW_PENDINGTASKS = 'get_Workflow_PendingTasks';
 const GET_WORKFLOW_TASKS_DETAILS = 'get_Workflow_Tasks_Details';
+const GET_WORKFLOW_USERS_LIST = 'get_workflow_users';
 
 const GET_APPROVAL_TASKS_COUNT = 'get_Approval_Tasks_count';
 
@@ -37,4 +38,5 @@ export {
   PUT_PROCUREMENT_ACTION,
   GET_WORKFLOW_PENDINGTASKS,
   GET_WORKFLOW_TASKS_DETAILS,
+  GET_WORKFLOW_USERS_LIST,
 };

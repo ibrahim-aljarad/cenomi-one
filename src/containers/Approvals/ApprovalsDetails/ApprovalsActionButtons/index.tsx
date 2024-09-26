@@ -1,49 +1,55 @@
-import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { CustomImage, CustomText, IconButtonWrapper } from '../../../../components';
-import { Colors, CommonStyles } from '../../../../theme';
-import { RfH, RfW } from '../../../../utils/helpers';
+import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
+import {
+  CustomImage,
+  CustomText,
+  IconButtonWrapper,
+} from "../../../../components";
+import { Colors, CommonStyles } from "../../../../theme";
+import { RfH, RfW } from "../../../../utils/helpers";
 
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import CustomModal from '../../../../components/CustomModal';
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import CustomModal from "../../../../components/CustomModal";
 import {
   DoApprovalActionDone,
   doApprovalAction,
   doLeasingTakeAction,
-  doProucurementAction
-} from '../../redux/actions';
+  doProucurementAction,
+} from "../../redux/actions";
 import {
   ACTION_TYPE_FUSION,
+  ACTION_TYPE_WORKFLOW,
   ACTION_TYPE_YARDI,
   FUSION_STATE,
   PROCUREMENT_ACTION_TYPE_FUSION,
   RFI_ACTION_TYPE_FUSION,
   getUserName,
+  isDealWorkflowModuleCheck,
   isProcurementServiceModuleCheck,
-  isYardiServiceModuleCheck
-} from '../../serializer';
-import DefaultActionModal from '../DefaultActionModal';
+  isYardiServiceModuleCheck,
+} from "../../serializer";
+import DefaultActionModal from "../DefaultActionModal";
 
-import { isEmpty } from 'lodash';
-import { createStructuredSelector } from 'reselect';
-import { localize } from '../../../../locale/utils';
-import { EVENT_NAME, trackEvent } from '../../../../utils/analytics';
-import { getApprovalActionDataSelector } from '../../redux/selectors';
-import YardiActionListModal from '../YardiActionListModal';
-import { getNotification } from '../../../Notifications/redux/actions';
-import CustomInAppReview from '../../../../components/CustomInAppReview';
+import { isEmpty } from "lodash";
+import { createStructuredSelector } from "reselect";
+import { localize } from "../../../../locale/utils";
+import { EVENT_NAME, trackEvent } from "../../../../utils/analytics";
+import { getApprovalActionDataSelector } from "../../redux/selectors";
+import YardiActionListModal from "../YardiActionListModal";
+import { getNotification } from "../../../Notifications/redux/actions";
+import CustomInAppReview from "../../../../components/CustomInAppReview";
 
 const stateSelector = createStructuredSelector({
-  approvalActionData: getApprovalActionDataSelector
+  approvalActionData: getApprovalActionDataSelector,
 });
 const ApprovalsActionButtons = (props) => {
   const navigation = useNavigation();
   const { approvalItem, detailData, actionSuccess, isDarkMode } = props;
   const [clickedActionItem, setClickedActionItem] = useState({});
   const [isSuccessModal, setIsSuccessModal] = useState(false);
-  const [successText, setSuccessText] = useState('');
+  const [successText, setSuccessText] = useState("");
   const { approvalActionData } = useSelector(stateSelector);
   const [yardiActionListModal, setYardiActionListModal] = useState(false);
   const [showDefaultActionModal, setShowDefaultActionModal] = useState(false);
@@ -71,7 +77,7 @@ const ApprovalsActionButtons = (props) => {
 
   const onActionBtnCall = (actionItem) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_ACTION, {
-      actionInfo: approvalItem
+      actionInfo: approvalItem,
     });
     try {
       if (isYardiServiceModuleCheck(approvalItem)) {
@@ -90,14 +96,15 @@ const ApprovalsActionButtons = (props) => {
     <TouchableOpacity
       disabled={false}
       activeOpacity={0.7}
-      style={{ justifyContent: 'center', alignItems: 'center' }}
+      style={{ justifyContent: "center", alignItems: "center" }}
       key={index}
-      onPress={() => onActionBtnCall(actionItem)}>
+      onPress={() => onActionBtnCall(actionItem)}
+    >
       <CustomImage
         image={actionItem?.image}
         imageWidth={RfW(20)}
         imageHeight={RfW(20)}
-        imageResizeMode={'contain'}
+        imageResizeMode={"contain"}
         tintColor={isDarkMode ? Colors.white : Colors.white}
       />
       <CustomText
@@ -106,8 +113,9 @@ const ApprovalsActionButtons = (props) => {
         styling={{
           marginTop: RfH(10),
           ...CommonStyles.regularFont400Style,
-          lineHeight: RfH(12)
-        }}>
+          lineHeight: RfH(12),
+        }}
+      >
         {actionItem?.label}
       </CustomText>
     </TouchableOpacity>
@@ -115,13 +123,13 @@ const ApprovalsActionButtons = (props) => {
 
   const handleOnActionClick = (actionPayload) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_ACTION_SUBMIT, {
-      type: actionPayload?.id
+      type: actionPayload?.id,
     });
 
     setShowDefaultActionModal(false);
 
     if (isYardiServiceModuleCheck(approvalItem)) {
-      setSuccessText(actionPayload?.label + ' ' + actionPayload?.successText);
+      setSuccessText(actionPayload?.label + " " + actionPayload?.successText);
       dispatch(
         doLeasingTakeAction.trigger({
           type: detailData?.Type,
@@ -131,7 +139,7 @@ const ApprovalsActionButtons = (props) => {
           recordCode: detailData?.RecordCode,
           stepName: detailData?.StepName,
           nextStepName: actionPayload?.label,
-          comments: actionPayload?.comment
+          comments: actionPayload?.comment,
         })
       );
     } else if (isProcurementServiceModuleCheck(approvalItem)) {
@@ -141,10 +149,12 @@ const ApprovalsActionButtons = (props) => {
         comments: actionPayload?.comment,
         assignTo: actionPayload?.showApproverSection
           ? getUserName(actionPayload.user)
-          : actionPayload?.user?.fromUserName
+          : actionPayload?.user?.fromUserName,
       };
 
-      dispatch(doProucurementAction.trigger({ taskId: approvalItem?.externalId, data }));
+      dispatch(
+        doProucurementAction.trigger({ taskId: approvalItem?.externalId, data })
+      );
     } else {
       setSuccessText(actionPayload.successText);
       const data = {
@@ -154,7 +164,7 @@ const ApprovalsActionButtons = (props) => {
         comments: actionPayload?.comment,
         assignTo: actionPayload?.showApproverSection
           ? getUserName(actionPayload.user)
-          : actionPayload?.user?.fromUserName
+          : actionPayload?.user?.fromUserName,
       };
 
       dispatch(doApprovalAction.trigger(data));
@@ -165,22 +175,34 @@ const ApprovalsActionButtons = (props) => {
     <View>
       {/* select actionListType */}
       {isYardiServiceModuleCheck(approvalItem) ? (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          {ACTION_TYPE_YARDI?.map((action, index) => renderActionButton(action, index))}
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          {ACTION_TYPE_YARDI?.map((action, index) =>
+            renderActionButton(action, index)
+          )}
         </View>
       ) : isProcurementServiceModuleCheck(approvalItem) ? (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           {PROCUREMENT_ACTION_TYPE_FUSION?.map((action, index) =>
             renderActionButton(action, index)
           )}
         </View>
+      ) : isDealWorkflowModuleCheck(approvalItem) ? (
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          {ACTION_TYPE_WORKFLOW?.map((action, index) =>
+            renderActionButton(action, index)
+          )}
+        </View>
       ) : detailData?.state !== FUSION_STATE.INFO_REQUESTED ? (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          {ACTION_TYPE_FUSION?.map((action, index) => renderActionButton(action, index))}
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          {ACTION_TYPE_FUSION?.map((action, index) =>
+            renderActionButton(action, index)
+          )}
         </View>
       ) : (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          {RFI_ACTION_TYPE_FUSION?.map((action, index) => renderActionButton(action, index))}
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          {RFI_ACTION_TYPE_FUSION?.map((action, index) =>
+            renderActionButton(action, index)
+          )}
         </View>
       )}
 
@@ -214,7 +236,10 @@ const ApprovalsActionButtons = (props) => {
           onClose={() => setYardiActionListModal(false)}
           actionList={detailData?.ActionList}
           onClick={(item) => {
-            setClickedActionItem({ ...clickedActionItem, label: item.Next_Step_Name });
+            setClickedActionItem({
+              ...clickedActionItem,
+              label: item.Next_Step_Name,
+            });
             setShowDefaultActionModal(true);
             setYardiActionListModal(false);
           }}
@@ -222,7 +247,10 @@ const ApprovalsActionButtons = (props) => {
       )}
 
       {isShowInAppReview ? (
-        <CustomInAppReview isShow={isShowInAppReview} onDone={() => setIsShowInAppReview(false)} />
+        <CustomInAppReview
+          isShow={isShowInAppReview}
+          onDone={() => setIsShowInAppReview(false)}
+        />
       ) : null}
     </View>
   );
@@ -231,11 +259,11 @@ const ApprovalsActionButtons = (props) => {
 ApprovalsActionButtons.propTypes = {
   item: PropTypes.any,
   actionSuccess: PropTypes.func,
-  detailData: PropTypes.object
+  detailData: PropTypes.object,
 };
 ApprovalsActionButtons.defaultProps = {
   item: {},
   actionSuccess: null,
-  detailData: {}
+  detailData: {},
 };
 export default ApprovalsActionButtons;

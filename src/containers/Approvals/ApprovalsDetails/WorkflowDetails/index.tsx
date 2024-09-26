@@ -15,7 +15,7 @@ import {
   terminationPortfolioData,
 } from "./serializer";
 
-function DealsDetails({
+function WorkflowDetails({
   data,
   approvalType,
   isDarkMode,
@@ -78,6 +78,7 @@ function DealsDetails({
     })),
   ];
 
+  console.log('JSON.stringify(data)',JSON.stringify(data))
   if (!data) return <></>;
 
   return (
@@ -212,4 +213,4 @@ function DealsDetails({
   );
 }
 
-export default DealsDetails;
+export default WorkflowDetails;

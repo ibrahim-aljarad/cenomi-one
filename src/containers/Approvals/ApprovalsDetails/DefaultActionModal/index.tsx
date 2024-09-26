@@ -1,6 +1,6 @@
-import { isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import { isEmpty } from "lodash";
+import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Keyboard,
@@ -9,61 +9,91 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { Shadow } from 'react-native-shadow-2';
-import { CustomText, IconButtonWrapper, NameWrapper } from '../../../../components';
-import AppPrimaryButton from '../../../../components/AppPrimaryButton';
-import SearchComponent from '../../../../components/SearchComponent';
-import { Colors, CommonStyles, Images } from '../../../../theme';
-import { RfH, RfW, alertBox, deviceHeight } from '../../../../utils/helpers';
-import { getName } from '../../serializer';
-import styles from './styles';
+  View,
+} from "react-native";
+import { Shadow } from "react-native-shadow-2";
+import {
+  CustomText,
+  IconButtonWrapper,
+  NameWrapper,
+} from "../../../../components";
+import AppPrimaryButton from "../../../../components/AppPrimaryButton";
+import SearchComponent from "../../../../components/SearchComponent";
+import { Colors, CommonStyles, Images } from "../../../../theme";
+import { RfH, RfW, alertBox, deviceHeight } from "../../../../utils/helpers";
+import { getName, isDealWorkflowModuleCheck } from "../../serializer";
+import styles from "./styles";
 // import ThemeContext from '../../../../appContainer/theme.context';
-import { useDispatch, useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import COLORS from '../../../../theme/colors';
-import { BorderRadius } from '../../../../theme/sizes';
-import { getUserSearchList } from '../../redux/actions';
-import { getUserSearchListSelector } from '../../redux/selectors';
-import CustomEditComment from '../../../../components/CustomEditComment';
-import { isRTL, localize } from '../../../../locale/utils';
-import { getColorWithOpacity } from '../../../../utils/helper';
-import CustomBottomSheet from '../../../../components/CustomBottomSheet';
+import { useDispatch, useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import COLORS from "../../../../theme/colors";
+import { BorderRadius } from "../../../../theme/sizes";
+import { getUserSearchList, getWorkflowUserList } from "../../redux/actions";
+import {
+  getUserSearchListSelector,
+  getWorkflowUserListSelector,
+} from "../../redux/selectors";
+import CustomEditComment from "../../../../components/CustomEditComment";
+import { isRTL, localize } from "../../../../locale/utils";
+import { getColorWithOpacity } from "../../../../utils/helper";
+import CustomBottomSheet from "../../../../components/CustomBottomSheet";
 
 const stateSelector = createStructuredSelector({
-  userSearchListData: getUserSearchListSelector
+  userSearchListData: getUserSearchListSelector,
+  workflowUserListData: getWorkflowUserListSelector,
 });
 
 function DefaultActionModal(props) {
-  const [commentValue, setCommentValue] = useState('');
-  const { taskItem, isVisible, onClose, onActionClick, actionModule, isDarkMode } = props;
+  const [commentValue, setCommentValue] = useState("");
+  const {
+    taskItem,
+    isVisible,
+    onClose,
+    onActionClick,
+    actionModule,
+    isDarkMode,
+  } = props;
   const [isSelectUser, setSelectUser] = useState(true);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectUserInfo, setSelectUserInfo] = useState(taskItem);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const dispatch = useDispatch();
-  const { userSearchListData } = useSelector(stateSelector);
+  const { userSearchListData, workflowUserListData } =
+    useSelector(stateSelector);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true); // or some other action
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false); // or some other action
-    });
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true); // or some other action
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false); // or some other action
+      }
+    );
 
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
   }, []);
+  useEffect(() => {
+    if (actionModule?.module === "workflow") {
+      dispatch(getWorkflowUserList());
+    }
+  }, [actionModule]);
 
   useEffect(() => {}, [userSearchListData?.data]);
 
   const onChangeTextComment = (value) => {
     if (value.length > 400) {
-      alertBox('Character limit exceeded', 'The maximum character you can enter here is 400.');
+      alertBox(
+        "Character limit exceeded",
+        "The maximum character you can enter here is 400."
+      );
       return;
     }
     setCommentValue(value);
@@ -77,16 +107,20 @@ function DefaultActionModal(props) {
   const onUserSelect = (item) => {
     setSelectUserInfo(item);
     setSelectUser(true);
-    setSearchKeyword('');
+    setSearchKeyword("");
   };
 
   const updateSearch = (text) => {
     try {
-      if (!isEmpty(text) && text.length > 0) {
+      if (
+        !isEmpty(text) &&
+        text.length > 0 &&
+        actionModule?.module !== "workflow"
+      ) {
         dispatch(
           getUserSearchList.trigger({
             autoComplete: true,
-            name: text
+            name: text,
           })
         );
       }
@@ -95,19 +129,41 @@ function DefaultActionModal(props) {
       // handleError(error);
     }
   };
+  "".toLocaleLowerCase;
+  const formatUserData = () => {
+    if (actionModule?.module === "workflow") {
+      return workflowUserListData
+        ?.filter(({ fullName, email }) => {
+          const lowerSearch = searchKeyword?.toLocaleLowerCase();
+          if (searchKeyword.length > 0) {
+            return (
+              fullName?.toLocaleLowerCase()?.includes(lowerSearch) ||
+              email?.toLocaleLowerCase()?.includes(searchKeyword)
+            );
+          }
+          return true;
+        })
+        ?.map(({ fullName, email }, ind) => ({
+          username: email,
+          displayName: fullName,
+          id: ind,
+        }));
+    }
+    return searchKeyword.length > 0 ? userSearchListData?.data?.results : [];
+  };
 
   const onSubmit = () => {
     try {
       if (actionModule.isCommentRequired && isEmpty(commentValue)) {
-        alertBox('', localize('approvals.commentRequired'));
+        alertBox("", localize("approvals.commentRequired"));
         return;
       }
       onActionClick({
         ...actionModule,
         comment: commentValue,
-        user: selectUserInfo
+        user: selectUserInfo,
       });
-      setCommentValue('');
+      setCommentValue("");
       // setSelectUserInfo({});
     } catch (error) {
       // handleError(error);
@@ -120,29 +176,32 @@ function DefaultActionModal(props) {
         <View
           style={{
             flex: 1,
-            flexDirection: 'row',
-            marginBottom: RfH(8)
-          }}>
+            flexDirection: "row",
+            marginBottom: RfH(8),
+          }}
+        >
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => {
               onChangeUser();
             }}
             style={{
-              flexDirection: 'row',
-              alignItems: 'center'
-            }}>
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
             <CustomText
               fontSize={14}
               color={Colors.white}
-              styling={CommonStyles.regularFont400Style}>
+              styling={CommonStyles.regularFont400Style}
+            >
               {actionModule.approverSectionText}
             </CustomText>
             <IconButtonWrapper
               iconImage={isRTL() ? Images.arrowLeft : Images.arrowRight}
               iconWidth={RfW(8)}
               iconHeight={RfH(14)}
-              imageResizeMode={'contain'}
+              imageResizeMode={"contain"}
               styling={{ marginLeft: RfW(7), tintColor: Colors.white }}
             />
           </TouchableOpacity>
@@ -151,17 +210,18 @@ function DefaultActionModal(props) {
         <View
           style={{
             flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
             height: RfH(64),
             paddingLeft: RfW(10),
             paddingVertical: RfH(8),
             borderRadius: BorderRadius.BR10,
             backgroundColor: isDarkMode
               ? Colors.darkModeButton
-              : getColorWithOpacity(Colors.blueBayoux, 0.37)
-          }}>
+              : getColorWithOpacity(Colors.blueBayoux, 0.37),
+          }}
+        >
           <NameWrapper
             width={RfW(48)}
             height={RfH(48)}
@@ -170,7 +230,7 @@ function DefaultActionModal(props) {
             backgroundColor={Colors.grayBorder}
             textStyle={{
               ...CommonStyles.mediumFontStyle,
-              color: Colors.app_black
+              color: Colors.app_black,
             }}
           />
           <View>
@@ -192,8 +252,9 @@ function DefaultActionModal(props) {
               color={isDarkMode ? Colors.white : Colors.white}
               styling={{
                 marginHorizontal: RfW(8),
-                ...CommonStyles.regularFont400Style
-              }}>
+                ...CommonStyles.regularFont400Style,
+              }}
+            >
               {getName(selectUserInfo)}
             </CustomText>
           </View>
@@ -207,34 +268,40 @@ function DefaultActionModal(props) {
       style={[
         styles.header,
         {
-          backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.modalForegroundColor
-        }
-      ]}>
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.modalForegroundColor,
+        },
+      ]}
+    >
       <View
         style={{
           width: RfW(50),
           height: RfH(5),
-          alignSelf: 'center',
-          borderRadius: BorderRadius.BR0
+          alignSelf: "center",
+          borderRadius: BorderRadius.BR0,
         }}
       />
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingVertical: RfH(25)
-        }}>
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingVertical: RfH(25),
+        }}
+      >
         <CustomText
           color={isDarkMode ? Colors.white : Colors.white}
           fontSize={20}
-          styling={CommonStyles.mediumFontStyle}>
+          styling={CommonStyles.mediumFontStyle}
+        >
           {actionModule?.label}
         </CustomText>
         <TouchableOpacity
           activeOpacity={0.5}
           onPress={onClose}
-          style={{ marginRight: RfW(-12), padding: RfH(12) }}>
+          style={{ marginRight: RfW(-12), padding: RfH(12) }}
+        >
           <IconButtonWrapper
             iconWidth={RfH(18)}
             iconHeight={RfH(18)}
@@ -248,14 +315,17 @@ function DefaultActionModal(props) {
   const renderItem = (item) => (
     <TouchableOpacity
       style={{
-        alignItems: 'center',
+        alignItems: "center",
         paddingVertical: RfH(22),
         borderBottomWidth: RfH(1),
-        borderBottomColor: isDarkMode ? Colors.darkModeBorder : Colors.grayBorder,
-        flexDirection: 'row'
+        borderBottomColor: isDarkMode
+          ? Colors.darkModeBorder
+          : Colors.grayBorder,
+        flexDirection: "row",
       }}
       activeOpacity={0.4}
-      onPress={() => onUserSelect(item)}>
+      onPress={() => onUserSelect(item)}
+    >
       <NameWrapper
         width={RfW(28)}
         height={RfH(28)}
@@ -269,10 +339,11 @@ function DefaultActionModal(props) {
         style={{
           marginLeft: RfW(8),
           flex: 1,
-          flexDirection: 'row',
-          justifyContent: 'space-between'
-        }}>
-        <View style={{ width: '90%' }}>
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={{ width: "90%" }}>
           {/* {item.name !== 'NULL' && (
             <CustomText
               fontSize={15}
@@ -285,35 +356,46 @@ function DefaultActionModal(props) {
           <CustomText
             fontSize={16}
             color={isDarkMode ? Colors.white : Colors.white}
-            styling={{ marginTop: RfH(2), ...CommonStyles.regularFont400Style }}>
+            styling={{ marginTop: RfH(2), ...CommonStyles.regularFont400Style }}
+          >
             {item.displayName}
           </CustomText>
         </View>
         <IconButtonWrapper
-          iconImage={isDarkMode ? Images.arrowRightWhite : Images.arrowRightWhite}
+          iconImage={
+            isDarkMode ? Images.arrowRightWhite : Images.arrowRightWhite
+          }
           iconWidth={RfW(15)}
           iconHeight={RfH(15)}
-          imageResizeMode={'contain'}
+          imageResizeMode={"contain"}
         />
       </View>
     </TouchableOpacity>
   );
 
   const mainView = () => (
-    <View style={{ flex: 1, justifyContent: 'center' }}>
+    <View style={{ flex: 1, justifyContent: "center" }}>
       <View
         style={[
-          !isSelectUser ? { ...styles.innerView, top: RfH(100) } : styles.innerView,
+          !isSelectUser
+            ? { ...styles.innerView, top: RfH(100) }
+            : styles.innerView,
           {
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-          }
-        ]}>
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.transparent,
+          },
+        ]}
+      >
         {modalHeader()}
         <View
           style={{
             flex: 1,
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.modalForegroundColor
-          }}>
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.modalForegroundColor,
+          }}
+        >
           {!isSelectUser ? (
             <>
               <SearchComponent
@@ -323,28 +405,32 @@ function DefaultActionModal(props) {
                 styling={{
                   backgroundColor: isDarkMode
                     ? Colors.darkModeDisabledColor
-                    : getColorWithOpacity(Colors.white, 0.24)
+                    : getColorWithOpacity(Colors.white, 0.24),
                 }}
-                keyboardType={'default'}
+                keyboardType={"default"}
               />
               <View
                 style={{
                   flex: 1,
-                  paddingHorizontal: RfW(24)
-                }}>
+                  paddingHorizontal: RfW(24),
+                }}
+              >
                 <FlatList
-                  data={searchKeyword.length > 0 ? userSearchListData?.data?.results : []}
+                  data={formatUserData()}
                   renderItem={({ item }) => renderItem(item)}
                   keyExtractor={(item, index) => index.toString()}
                   showsVerticalScrollIndicator={false}
                   style={{
                     minHeight: RfH(250),
-                    maxHeight: deviceHeight() - deviceHeight() / 3
+                    maxHeight: deviceHeight() - deviceHeight() / 3,
                   }}
                   ListFooterComponent={() => (
                     <View
                       style={{
-                        height: isKeyboardVisible && Platform.OS === 'ios' ? RfH(320) : RfH(50)
+                        height:
+                          isKeyboardVisible && Platform.OS === "ios"
+                            ? RfH(320)
+                            : RfH(50),
                       }}
                     />
                   )}
@@ -356,8 +442,9 @@ function DefaultActionModal(props) {
               <View
                 style={{
                   marginTop: RfH(15),
-                  marginBottom: RfH(60)
-                }}>
+                  marginBottom: RfH(60),
+                }}
+              >
                 <View style={{ paddingHorizontal: RfW(24) }}>
                   {actionModule.showApproverSection ? approverSection() : null}
                 </View>
@@ -367,10 +454,10 @@ function DefaultActionModal(props) {
                     usedForLeaveForm={false}
                     label={
                       actionModule.isCommentRequired
-                        ? localize('common.comments')
-                        : localize('common.commentsOptional')
+                        ? localize("common.comments")
+                        : localize("common.commentsOptional")
                     }
-                    placeholder={localize('leave.typeYourComments')}
+                    placeholder={localize("leave.typeYourComments")}
                     onCommentChange={onChangeTextComment}
                     // backgroundColor={isDarkMode ? Colors.transparent : Colors.white}
                   />
@@ -379,12 +466,15 @@ function DefaultActionModal(props) {
 
               <View
                 style={{
-                  justifyContent: 'flex-end',
+                  justifyContent: "flex-end",
                   paddingHorizontal: RfW(24),
                   paddingTop: RfH(10),
                   paddingBottom: RfH(40),
-                  backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-                }}>
+                  backgroundColor: isDarkMode
+                    ? Colors.darkModeBackground
+                    : Colors.transparent,
+                }}
+              >
                 <AppPrimaryButton
                   onPress={() => onSubmit()}
                   buttonText={actionModule?.buttonText?.toUpperCase()}
@@ -398,7 +488,12 @@ function DefaultActionModal(props) {
   );
 
   return (
-    <Modal animationType="fade" transparent={true} visible={isVisible} onRequestClose={onClose}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
       {!isSelectUser ? (
         <View style={{ flex: 1 }}>
           <View style={styles.container}>{mainView()}</View>
@@ -406,8 +501,9 @@ function DefaultActionModal(props) {
       ) : (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior={Platform.select({ android: 'height', ios: 'padding' })}
-          enabled>
+          behavior={Platform.select({ android: "height", ios: "padding" })}
+          enabled
+        >
           <View style={styles.container}>{mainView()}</View>
         </KeyboardAvoidingView>
       )}
@@ -422,7 +518,7 @@ DefaultActionModal.propTypes = {
   actionModule: PropTypes.object,
   userList: PropTypes.array,
   taskItem: PropTypes.object,
-  isDarkMode: PropTypes.bool
+  isDarkMode: PropTypes.bool,
 };
 DefaultActionModal.defaultProps = {
   isVisible: false,
@@ -430,6 +526,6 @@ DefaultActionModal.defaultProps = {
   onActionClick: null,
   actionModule: {},
   userList: [],
-  isDarkMode: false
+  isDarkMode: false,
 };
 export default DefaultActionModal;

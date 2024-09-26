@@ -19,6 +19,9 @@ const getApprovalActionDataSelector = createSelector(selectGlobalSubStore, (glob
 const getUserSearchListSelector = createSelector(selectGlobalSubStore, (globalState) => {
   return globalState.userSearchListData;
 });
+const getWorkflowUserListSelector = createSelector(selectGlobalSubStore, (globalState) => {
+  return globalState.workflowUserListData;
+});
 const getApprovalTasksCountSelector = createSelector(selectGlobalSubStore, (globalState) => {
   return globalState.approvalTasksCountData;
 });
@@ -32,5 +35,6 @@ export {
   getApprovalActionDataSelector,
   getUserSearchListSelector,
   getApprovalTasksCountSelector,
-  getApprovalTasksCountLoadingSelector
+  getApprovalTasksCountLoadingSelector,
+  getWorkflowUserListSelector,
 };

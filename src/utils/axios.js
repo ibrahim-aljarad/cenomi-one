@@ -44,6 +44,29 @@ instance.interceptors.request.use(
   }
 );
 
+//for appian apis
+const appianInstance = axios.create();
+appianInstance.interceptors.request.use(
+  async (config) => {
+    const httpMetric = perf().newHttpMetric(
+      config.url,
+      config.method.toUpperCase()
+    );
+    config.metadata = { httpMetric };
+    config.metadata.requestStartTime = new Date().getTime();
+    await httpMetric.start();
+
+    config.headers['Appian-API-Key'] = Config.APPIAN_KEY;
+    config.headers.Cookie = `JSESSIONID=${Config.APPIAN_COOKIE}`;
+    config.baseURL = Config.APPIAN_URL;
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // for multiple requests
 // let isRefreshed = false;
 // let newTokens = {};
@@ -192,6 +215,28 @@ instance.interceptors.response.use(
   }
 );
 
+appianInstance.interceptors.response.use(
+  async function (response) {
+    // record metrics
+    const { httpMetric } = response.config.metadata;
+    response.config.metadata.requestEndTime = new Date().getTime();
+    httpMetric.setHttpResponseCode(response.status);
+    httpMetric.setResponseContentType(response.headers["content-type"]);
+    await httpMetric.stop();
+
+    return response;
+  },
+
+  async function (error) {
+    // record metrics
+    const { httpMetric } = error.config.metadata;
+    error.config.metadata.requestEndTime = new Date().getTime();
+    httpMetric.setHttpResponseCode(error.response.status);
+    httpMetric.setResponseContentType(error.response.headers["content-type"]);
+    await httpMetric.stop();
+    return Promise.reject(error);
+  }
+);
 /*
  * This function return the response from remote server
  * @param {Object} config
@@ -248,6 +293,57 @@ async function fetchResponse(config) {
     });
 }
 
+async function fetchAppianResponse(config) {
+  console.log('%c %s', bgBlue, '🚀 API Request Config 🚀 ', config);
+  return appianInstance(config)
+    .then((response) => {
+    
+      const { data, config } = response;
+        // console.log({ data, config });
+      if (__DEV__) {
+        const { requestStartTime, requestEndTime } = response.config.metadata;
+        const totalTimeInMs = requestEndTime - requestStartTime;
+        console.log('%c %s %c %s %c %s', bgGreen, '✨ Response ✨', bgYellow, `Time: ${totalTimeInMs}`, bgAqua, `${config.method}: ${config.url} `);
+      } else {
+        console.log('%c ✨Appian Response Data ✨', bgGreen, data);
+      }
+      if (response?.status === 403 || response?.status === 401) {
+        // refreshHandler(response?.status, config)
+        return { data, success: false, error: {title:'Error',message:'Authorization Error!'} };
+      }
+      return { success: true, data };
+    })
+    .catch((error) => {
+      console.log('%c %s %c %s', bgRed, '💀 API Error 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
+     
+      const { data: errorResponse } = error.response || {};
+      console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
+
+      if (errorResponse?.statusCode === 403 || errorResponse?.statusCode === 401) {
+        // refreshHandler(errorResponse?.statusCode, config);
+        return { data: errorResponse, success: false, error: {title:'Error',message:'Authorization Error!'} };
+      }
+      if (errorResponse?.statusCode === 400) {
+        return { data: errorResponse, success: false, error: errorResponse.message };
+      }
+      if (!errorResponse) {
+        return {
+          data: {},
+          success: false,
+          error: { title: 'Connectivity Error', message: 'Please check your internet connection.' },
+        };
+      }
+      return {
+        success: false,
+        data:errorResponse,
+        error: {
+          title: 'Unexpected Error',
+          message: 'Server error please try again later',
+        },
+      };
+    });
+}
+
 export const api = async (config, isLoading = true) => {
   if (isLoading) {
     return trackPromise(fetchResponse({ ...config }));
@@ -262,5 +358,13 @@ export const uploadApi = (config, isLoading = true) => {
     return trackPromise(fetchResponse({ ...config }));
   } else {
     return fetchResponse({ ...config });
+  }
+};
+
+export const appianApi = async (config, isLoading = true) => {
+  if (isLoading) {
+    return trackPromise(fetchAppianResponse({ ...config }));
+  } else {
+    return fetchAppianResponse({ ...config });
   }
 };

@@ -4,7 +4,7 @@ import { FlatList, Linking, SafeAreaView, View } from "react-native";
 import { HeaderSVG, SearchComponent } from "../../../components";
 import NavigationRouteNames from "../../../routes/ScreenNames";
 import { Colors, Images } from "../../../theme";
-import { RfH } from "../../../utils/helpers";
+import { RfH, getSaveData } from "../../../utils/helpers";
 import ApprovalsListItems from "./ApprovalsListItems";
 import styles from "./styles";
 
@@ -32,6 +32,7 @@ import {
 } from "../serializer";
 import WrapperContainer from "../../../components/WrapperContainer";
 import { RfW } from "../../../utils/helper";
+import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
 
 const stateSelector = createStructuredSelector({
   approvalPendingTasksData: getApprovalPendingTasksSelector,
@@ -64,9 +65,15 @@ const ApprovalsListing = (props: any) => {
     } else if (isProcurementServiceModuleCheck(approvalType)) {
       dispatch(getProcurementPendingTask.trigger());
     } else if (isDealWorkflowModuleCheck(approvalType)) {
-      dispatch(
-        getWorkflowPendingTasks.trigger({ endpoint: module?.externalId })
-      );
+      const fetchWithUserName = async () => {
+        const userData = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_INFO);
+        dispatch(
+          getWorkflowPendingTasks.trigger({
+            loggedInUser: JSON.parse(userData || "{}")?.username,
+          })
+        );
+      };
+      fetchWithUserName();
     } else {
       dispatch(getApprovalPendingTasks.trigger());
     }
@@ -78,20 +85,17 @@ const ApprovalsListing = (props: any) => {
     try {
       if (approvalPendingTasksData) {
         if (isDealWorkflowModuleCheck(approvalType)) {
-          const fieldName = dealWorkflowSubmodules[module?.externalId];
-          const listData = approvalPendingTasksData?.[fieldName]?.map(
-            (item) => ({
-              createdBy:
-                approvalPendingTasksData?.createdBy ||
-                approvalPendingTasksData?.Requestedby ||
-                approvalPendingTasksData?.requetedBy,
-              title: approvalPendingTasksData?.customerName,
-              date: item?.ActualExpiryDate || item?.actualExpiryDate,
-              featureModule: approvalType,
-              externalId: module?.externalId
-            })
-          );
+          const listData = approvalPendingTasksData?.map((item) => ({
+            createdBy: item?.createdBy,
+            title: item?.formTitle,
+            date: item?.createdOn,
+            featureModule: approvalType,
+            externalId: module?.externalId,
+            heading: `${item?.formName} - ${item?.approvalRequestIdPk}`,
+            number: item?.approvalRequestIdPk,
+          }));
           setApprovalPendingTasksList(listData);
+          setFilterPendingTasksList(listData);
         } else {
           const filterList = approvalPendingTasksData?.filter((item) => {
             return item?.subModule?.name === module?.name;
@@ -101,7 +105,6 @@ const ApprovalsListing = (props: any) => {
         }
       }
     } catch (error) {
-      console.log(module, isDealWorkflowModuleCheck(approvalType));
       setApprovalPendingTasksList([]);
     }
   }, [approvalPendingTasksData]);

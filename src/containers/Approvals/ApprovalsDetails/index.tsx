@@ -41,7 +41,7 @@ import ApprovalsActionButtons from "./ApprovalsActionButtons";
 import AttachmentModal from "./AttachmentModal";
 import WrapperContainer from "../../../components/WrapperContainer";
 import { getColorWithOpacity } from "../../../utils/helper";
-import DealsDetails from "./DealsDetails";
+import WorkflowDetails from "./WorkflowDetails";
 
 const stateSelector = createStructuredSelector({
   approvalTasksDetailsData: getApprovalTasksDetailsSelector,
@@ -67,6 +67,7 @@ const ApprovalsDetails = (props: any) => {
   const dispatch = useDispatch();
 
   const { approvalTasksDetailsData, isDarkMode } = useSelector(stateSelector);
+  console.log('isDealWorkflowModule',approvalTasksDetailsData)
 
   // approvalType is the servicemodule name
   const isYardiServiceModule = isYardiServiceModuleCheck(approvalItem);
@@ -91,7 +92,7 @@ const ApprovalsDetails = (props: any) => {
       );
     } else if (isDealWorkflowModule) {
       dispatch(
-        getWorkflowTasksDetails.trigger({ endpoint: approvalItem?.externalId })
+        getWorkflowTasksDetails.trigger({ taskId: approvalItem?.number })
       );
     } else {
       dispatch(
@@ -182,13 +183,13 @@ const ApprovalsDetails = (props: any) => {
               </TouchableOpacity>
             }
             titleText={
-              approvalItem.externalId +
-              " - " +
-              (approvalItem.subModule?.name ||
-                approvalItem.subModuleName ||
-                approvalTasksDetailsData?.customerCode ||
-                approvalTasksDetailsData?.leaseCode ||
-                "")
+              approvalItem.externalId
+                ? approvalItem.externalId +
+                  " - " +
+                  (approvalItem.subModule?.name ||
+                    approvalItem.subModuleName ||
+                    "")
+                : approvalItem?.heading
             }
             titleFont={20}
             onRightButtonClickHandler={() => {}}
@@ -205,8 +206,8 @@ const ApprovalsDetails = (props: any) => {
             }}
           >
             {isDealWorkflowModule ? (
-              <DealsDetails
-                data={approvalTasksDetailsData}
+              <WorkflowDetails
+                data={approvalTasksDetailsData?.requestData}
                 approvalType={approvalItem?.externalId}
               />
             ) : (
@@ -218,7 +219,8 @@ const ApprovalsDetails = (props: any) => {
           </ScrollView>
 
           {!isEmpty(approvalTasksDetailsData) &&
-            (approvalTasksDetailsData?.actionRequired || isDealWorkflowModule) && (
+            (approvalTasksDetailsData?.actionRequired ||
+              isDealWorkflowModule) && (
               <View
                 style={[
                   styles.bottomButtonContainer,
@@ -269,7 +271,10 @@ const ApprovalsDetails = (props: any) => {
           )}
         </View>
         <Loader
-          isLoading={!(isDealWorkflowModule && approvalTasksDetailsData) && !approvalTasksDetailsData?.html}
+          isLoading={
+            !(isDealWorkflowModule && approvalTasksDetailsData) &&
+            !approvalTasksDetailsData?.html
+          }
         />
       </SafeAreaView>
     </WrapperContainer>

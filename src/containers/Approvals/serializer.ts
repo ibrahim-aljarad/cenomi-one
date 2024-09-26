@@ -171,6 +171,89 @@ export const ACTION_TYPE_FUSION = [
   }
 ];
 
+export const ACTION_TYPE_WORKFLOW = [
+  {
+    label: localize('hrRequest.actionButton.requestInfo'),
+    id: 'request_info',
+    statusId: 0,
+    fwdType: 1,
+    actionType: 'INFO_REQUEST',
+    isPasswordNeeded: false,
+    successText: localize('hrRequest.actionButton.requestSuccessMsg'),
+    module: 'workflow',
+    image: Images.requestInfo,
+    darkImage: Images.requestInfoIconWhite,
+    textColor: Colors.coolGrey,
+    eventSuffix: '_for',
+    imageDisable: Images.requestInfoGrey,
+    isFwd: 0,
+    showApproverSection: true,
+
+    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    isCommentRequired: true,
+    buttonText: localize('hrRequest.actionButton.requestInfo')
+  },
+  // {
+  //   label: 'Reassign',
+  //   id: 'reassign',
+  //   statusId: 0,
+  //   fwdType: 2,
+  //   actionType: 'REASSIGN',
+  //   isPasswordNeeded: false,
+  //   successText: 'Reassigned Successfully',
+  //   module: 'hr',
+  //   image: Images.reassign,
+  //   textColor: Colors.colorReassign,
+  //   eventSuffix: '_rea',
+  //   imageDisable: Images.reassignGrey,
+  //   isFwd: 0,
+  // showApproverSection: true,
+  // approverSectionText:localize('hrRequest.actionButton.changeApprover'),
+  // isCommentRequired: false,buttonText:'Reassign'
+
+  // },
+  {
+    label: localize('hrRequest.actionButton.reject'),
+    id: 'reject',
+    statusId: 3,
+    fwdType: 0,
+    actionType: 'REJECT',
+    isPasswordNeeded: false,
+    successText: localize('hrRequest.actionButton.rejectSuccessMsg'),
+    module: 'workflow',
+    image: Images.reject,
+    darkImage: Images.rejectIconWhite,
+    textColor: Colors.colorReject,
+    eventSuffix: '_rej',
+    imageDisable: Images.rejectGrey,
+    isFwd: 0,
+    showApproverSection: false,
+    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    isCommentRequired: true,
+    buttonText: localize('hrRequest.actionButton.reject')
+  },
+  {
+    label: localize('hrRequest.actionButton.approve'),
+    id: 'approve',
+    statusId: 2,
+    fwdType: 0,
+    actionType: 'APPROVE',
+    isPasswordNeeded: false,
+    successText: localize('hrRequest.actionButton.arroveSuccessMsg'),
+    module: 'workflow',
+    image: Images.approve,
+    darkImage: Images.approveIconWhite,
+    textColor: Colors.colorApprove,
+    eventSuffix: '_apr',
+    imageDisable: Images.approveGrey,
+    isFwd: 0,
+    showApproverSection: false,
+
+    approverSectionText: localize('hrRequest.actionButton.changeApprover'),
+    isCommentRequired: false,
+    buttonText: localize('hrRequest.actionButton.approve')
+  }
+];
 export const PROCUREMENT_ACTION_TYPE_FUSION = [
   {
     label: localize('hrRequest.actionButton.requestInfo'),
