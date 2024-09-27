@@ -67,7 +67,6 @@ const ApprovalsDetails = (props: any) => {
   const dispatch = useDispatch();
 
   const { approvalTasksDetailsData, isDarkMode } = useSelector(stateSelector);
-  console.log('isDealWorkflowModule',approvalTasksDetailsData)
 
   // approvalType is the servicemodule name
   const isYardiServiceModule = isYardiServiceModuleCheck(approvalItem);
@@ -207,7 +206,7 @@ const ApprovalsDetails = (props: any) => {
           >
             {isDealWorkflowModule ? (
               <WorkflowDetails
-                data={approvalTasksDetailsData?.requestData}
+                data={approvalTasksDetailsData}
                 approvalType={approvalItem?.externalId}
               />
             ) : (

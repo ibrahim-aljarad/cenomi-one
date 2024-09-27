@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { CustomText } from "../../../../components";
+import { CustomRenderHtml, CustomText } from "../../../../components";
 import { View } from "react-native";
 import styles from "./styles";
 import { Colors, CommonStyles } from "../../../../theme";
@@ -8,8 +8,11 @@ import {
   contractGridDetails,
   estimatedSalesField,
   generalDetailsTermination,
+  invoiceFields,
   mallDataFields,
   renewalProposalDetailsData,
+  serenaFields,
+  taskDataFields,
   terminationGridDetails,
   terminationPortfolioData,
 } from "./serializer";
@@ -23,24 +26,26 @@ function WorkflowDetails({
   approvalType: string;
   isDarkMode?: boolean;
 }) {
-
+  const { requestData, taskData } = data || {};
   const dealCardsData = [
     {
       title: "General",
       details: generalDetailsTermination,
-      dataField: data,
+      dataField: { ...data, ...requestData, ...taskData },
     },
-    ...(data?.tenantPortFolioData || data?.tenantProtfolioData
+    ...(requestData?.tenantPortFolioData || requestData?.tenantProtfolioData
       ? [
           {
             title: "Tenant Portfolio Data",
             details: terminationPortfolioData,
-            dataField: data?.tenantPortFolioData || data?.tenantProtfolioData,
+            dataField:
+              requestData?.tenantPortFolioData ||
+              requestData?.tenantProtfolioData,
           },
         ]
       : []),
     ,
-    ...(data?.renewalProposalDetails
+    ...(requestData?.renewalProposalDetails
       ? [
           {
             title: "Renewal Proposal Details",
@@ -49,7 +54,7 @@ function WorkflowDetails({
           },
         ]
       : []),
-    ...(data?.estimatedSales
+    ...(requestData?.estimatedSales
       ? [
           {
             title: "Estimated Sales",
@@ -58,29 +63,66 @@ function WorkflowDetails({
           },
         ]
       : []),
-    ...(data?.terminationGridData || []).map((terminationItem) => ({
+
+      //for Termination Committee Approval
+    ...(requestData?.terminationGridData || []).map((terminationItem) => ({
       title: `Termination Lease: ${terminationItem?.LeaseNumber}`,
       details: terminationGridDetails,
       dataField: terminationItem,
     })),
-    ...(data?.contractInformation || []).map((contractItem) => ({
+
+    ...(requestData?.contractInformation || []).map((contractItem) => ({
       title: `Contract Lease: ${contractItem?.LeaseNumber}`,
       details: contractGridDetails,
       dataField: contractItem,
     })),
-
-    ...(data?.mallData || []).map((mallItem) => ({
+    //for Invoice Status Change,Payment Plan
+    ...(requestData?.involvedInvoicesData || []).map((invoiceItem) => ({
+      title: `Invoice: ${invoiceItem?.invoiceIdPk}`,
+      details: invoiceFields,
+      dataField: invoiceItem,
+    })),
+    ...(requestData?.mallData || []).map((mallItem) => ({
       title: `Mall: ${mallItem?.mall_Name}`,
       details: mallDataFields,
       dataField: mallItem,
     })),
+    //for Serena Invoice
+    ...(requestData?.Vendordata || []).map(({Vendor}) => ({
+      title: `Vendor`,
+      details: serenaFields,
+      dataField: Vendor,
+    })),
+    //for Serena Invoice
+    ...(requestData?.headerdata || []).map((headerItem) => ({
+      title: `Header`,
+      details: serenaFields,
+      dataField: headerItem,
+    })),
+    //for Serena Invoice
+    ...(requestData?.lineData || []).map((lineItem) => ({
+      title: `Line: ${lineItem?.LineNumber}`,
+      details: serenaFields,
+      dataField: lineItem,
+    })),
+
+    //for all
+    ...(taskData?.data || []).map((taskItem) => ({
+      title: `Task ${taskItem?.name?.trim() ? ": " + taskItem?.name : ""}`,
+      details: taskDataFields,
+      dataField: taskItem,
+    })),
   ];
 
-  console.log('JSON.stringify(data)',JSON.stringify(data))
   if (!data) return <></>;
 
   return (
     <>
+      {requestData?.memoMessage && (
+        <View style={styles.cellContainerView}>
+          <CustomRenderHtml source={requestData?.memoMessage} />
+        </View>
+      )}
       {dealCardsData?.map(({ title, details, dataField }) => (
         <View
           style={[
@@ -107,7 +149,7 @@ function WorkflowDetails({
               {title}
             </CustomText>
           </View>
-          {details?.map(({ label, key }) =>
+          {details?.map(({ label, key, method }) =>
             dataField?.[key] ? (
               <View style={styles.cellContainerView} key={key + title}>
                 <CustomText
@@ -119,7 +161,10 @@ function WorkflowDetails({
                     ...CommonStyles.regularFont400Style,
                   }}
                 >
-                  {label} : {dataField?.[key]?.join?.(", ") || dataField?.[key]}
+                  {label} :{" "}
+                  {method
+                    ? method(dataField?.[key])
+                    : dataField?.[key]?.join?.(", ") || dataField?.[key]}
                 </CustomText>
               </View>
             ) : (
@@ -155,7 +200,7 @@ function WorkflowDetails({
           </View>
           {data?.notes?.map(({ items, accPolicy, customerRequest }) => (
             <Fragment key={items + accPolicy}>
-              <View  style={styles.cellContainerView}>
+              <View style={styles.cellContainerView}>
                 <CustomText
                   fontSize={14}
                   color={Colors.white}
@@ -170,7 +215,7 @@ function WorkflowDetails({
               </View>
 
               {accPolicy && (
-                <View  style={styles.cellContainerView}>
+                <View style={styles.cellContainerView}>
                   <CustomText
                     fontSize={14}
                     color={Colors.white}
@@ -185,7 +230,7 @@ function WorkflowDetails({
                 </View>
               )}
               {customerRequest && (
-                <View  style={styles.cellContainerView}>
+                <View style={styles.cellContainerView}>
                   <CustomText
                     fontSize={14}
                     color={Colors.white}

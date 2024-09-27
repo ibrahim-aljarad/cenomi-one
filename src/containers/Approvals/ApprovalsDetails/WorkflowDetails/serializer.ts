@@ -1,8 +1,13 @@
-export const generalDetailsTermination = [
-  {
-    label: "Created Date",
-    key: "createdDate",
-  },
+import { getDateFormat } from "../../../../utils/helper";
+
+const yesOrNo = (value) => (value ? "Yes" : "No");
+const nullOrData = (value) => value || "N/A";
+type iterationType = {
+  key: string;
+  label: string;
+  method?: any;
+};
+export const generalDetailsTermination: iterationType[] = [
   {
     label: "Department",
     key: "department",
@@ -10,6 +15,15 @@ export const generalDetailsTermination = [
   {
     label: "Created By",
     key: "createdBy",
+  },
+  {
+    label: "Created Date",
+    key: "createdOn",
+    method: getDateFormat,
+  },
+  {
+    label: "Invoice Ids",
+    key: "involvedInvoicesId",
   },
   {
     label: "Requested By",
@@ -101,7 +115,7 @@ export const generalDetailsTermination = [
   },
 ];
 
-export const terminationPortfolioData = [
+export const terminationPortfolioData: iterationType[] = [
   {
     label: "No.Of Leases",
     key: "NoOfLease",
@@ -128,7 +142,7 @@ export const terminationPortfolioData = [
   },
 ];
 
-export const renewalProposalDetailsData = [
+export const renewalProposalDetailsData: iterationType[] = [
   {
     label: "No.Of Leases",
     key: "FY2023Total",
@@ -143,7 +157,7 @@ export const renewalProposalDetailsData = [
   },
 ];
 
-export const terminationGridDetails = [
+export const terminationGridDetails: iterationType[] = [
   {
     label: "Mall Name",
     key: "Mallname",
@@ -194,7 +208,7 @@ export const terminationGridDetails = [
   },
 ];
 
-export const contractGridDetails = [
+export const contractGridDetails: iterationType[] = [
   {
     label: "Lease Number",
     key: "LeaseNumber",
@@ -317,7 +331,7 @@ export const contractGridDetails = [
   },
 ];
 
-export const mallDataFields = [
+export const mallDataFields: iterationType[] = [
   {
     label: "Mall Name",
     key: "mall_Name",
@@ -408,7 +422,7 @@ export const mallDataFields = [
   },
 ];
 
-export const estimatedSalesField = [
+export const estimatedSalesField: iterationType[] = [
   {
     label: "Estimated Sales for 12 Months",
     key: "estimatedSalesFor12Months",
@@ -420,5 +434,233 @@ export const estimatedSalesField = [
   {
     label: "Sale/SQM",
     key: "sale_SQMData",
+  },
+];
+export const taskDataFields: iterationType[] = [
+  {
+    label: "Status",
+    key: "status",
+  },
+  {
+    label: "Comments",
+    key: "comments",
+  },
+  {
+    label: "Group",
+    key: "isGroup",
+    method: yesOrNo,
+  },
+  {
+    label: "Group ID",
+    key: "groupId",
+    method: nullOrData,
+  },
+  {
+    label: "Group Name",
+    key: "groupName",
+  },
+  {
+    label: "Assignee",
+    key: "assignee",
+    method: (data) => data?.id?data?.id:data
+  },
+  {
+    label: "Completed On",
+    key: "completedOn",
+    method: getDateFormat,
+  },
+  {
+    label: "Completed By",
+    key: "completedBy",
+  },
+  {
+    label: "Completed",
+    key: "isCompleted",
+    method: yesOrNo,
+  },
+  {
+    label: "Current Task",
+    key: "isCurrentTask",
+    method: yesOrNo,
+  },
+  {
+    label: "Designation",
+    key: "designation",
+  },
+  {
+    label: "Request More Info",
+    key: "requestMoreInfo",
+    method: nullOrData,
+  },
+  {
+    label: "Order",
+    key: "order",
+  },
+  {
+    label: "Orifinal Order",
+    key: "orgininalOrder",
+  },
+];
+
+export const invoiceFields: iterationType[] = [
+  {
+    label: "Lease Id",
+    key: "leaseId",
+  },
+  {
+    label: "Lease Name",
+    key: "lease",
+    method: ({ leaseNameEng }) => leaseNameEng,
+  },
+  {
+    label: "Customer Id",
+    key: "customerId",
+  },
+  {
+    label: "Customer Name",
+    key: "customer",
+    method: ({ customerNameEng }) => customerNameEng,
+  },
+  {
+    label: "Invoice Due Date",
+    key: "invoiceDueDate",
+    method: getDateFormat,
+  },
+  {
+    label: "Invoice Date",
+    key: "invoiceDate",
+    method: getDateFormat,
+  },
+  {
+    label: "Batch Number",
+    key: "batchNumber",
+  },
+  {
+    label: "Net Amount",
+    key: "netAmount",
+  },
+  {
+    label: "VAT amount",
+    key: "vatAmount",
+  },
+  {
+    label: "Total Amount",
+    key: "totalAmount",
+  },
+  {
+    label: "Total Due Amount",
+    key: "totalDueAmount",
+  },
+  {
+    label: "Unit",
+    key: "unit",
+  },
+  {
+    label: "Property ID",
+    key: "propertyId",
+  },
+  {
+    label: "Invoice Status",
+    key: "invoiveStatus",
+  },
+  {
+    label: "Invoice Type",
+    key: "invoiceType",
+  },
+  {
+    label: "Created By",
+    key: "createdBy",
+  },
+  {
+    label: "Modified by",
+    key: "modifiedBy",
+  },
+  {
+    label: "Modified On",
+    key: "modifiedOn",
+  },
+  {
+    label: "Active",
+    key: "isActive",
+    method: yesOrNo,
+  },
+  {
+    label: "Invoice Status Reason ID",
+    key: "invoiceStatusReasonId",
+  },
+  {
+    label: "Paid Amount",
+    key: "paidAmount",
+  },
+  {
+    label: "Days to due date",
+    key: "dateDifferenceBetweenTodayAndInvoiceDueDate",
+  },
+];
+
+export const serenaFields: iterationType[] = [
+  {
+    label: "Vendor Code",
+    key: "VendorCode",
+  },
+  {
+    label: "Vendor ID",
+    key: "idVendor",
+  },
+  {
+    label: "Vendor Name",
+    key: "VendorName",
+  },
+  {
+    label: "Order Number",
+    key: "OrderNumber",
+  },
+  {
+    label: "Approval Type",
+    key: "ApprovalType",
+  },
+  {
+    label: "Serina Document Id",
+    key: "SerinaDocumentId",
+  },
+  {
+    label: "Serina Invoice Number",
+    key: "SerinaInvoiceNumber",
+  },
+  {
+    label: "Serina Invoice Date",
+    key: "SerinaInvoiceDate",
+  },
+  {
+    label: "UOM Code",
+    key: "UOMCode",
+  },
+  {
+    label: "Price",
+    key: "Price",
+  },
+  {
+    label: "Description",
+    key: "Description",
+  },
+  {
+    label: "Quantity",
+    key: "Quantity",
+  },
+  {
+    label: "Requester Name",
+    key: "REQUESTER_NAME",
+  },
+  {
+    label: "Departent DFF",
+    key: "DEPARTMENT_DFF",
+  },
+  {
+    label: "Buyer Email",
+    key: "BUYER_EMAIL",
+  },
+  {
+    label: "Requester Email",
+    key: "REQUESTER_EMAIL",
   },
 ];

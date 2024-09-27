@@ -184,10 +184,12 @@ const ApprovalsListing = (props: any) => {
         const itemData1 = item?.number
           ? item?.number?.toString()?.toUpperCase()
           : "".toUpperCase();
-
+        const itemHeading = item?.heading
+        ? item?.heading.toUpperCase()
+        : "".toUpperCase();
         const textData = text.toUpperCase();
         return (
-          itemData.indexOf(textData) > -1 || itemData1?.indexOf(textData) > -1
+          itemHeading.indexOf(textData) > -1 || itemData.indexOf(textData) > -1 || itemData1?.indexOf(textData) > -1
         );
       });
       setApprovalPendingTasksList(newData);
