@@ -84,7 +84,7 @@ const Quotes = (props: any) => {
               textAlign: "center",
             }}
           >
-            {`${item?.quote.content[0].content[0].value}`}
+            {`${item?.quote?.content?.[0]?.content?.[0]?.value}`}
           </CustomText>
           <CustomText
             numberOfLines={2}
@@ -136,14 +136,14 @@ const Quotes = (props: any) => {
               style={styles.button}
               onPress={
                 () => {
-                  Linking.openURL(item?.quote.content[1].content[1].data.uri);
+                  Linking.openURL(item?.quote?.content?.[1]?.content?.[1]?.data?.uri);
                   onRequestClose();
                 }
                 // Linking.openURL(item?.quote.content[1].content[1].data.uri)
               }
             >
               <Text style={styles.buttonText}>
-                {item?.quote.content[1].content[1].content[0].value}
+                {item?.quote?.content?.[1]?.content?.[1]?.content?.[0]?.value}
               </Text>
             </TouchableOpacity>
             {/* </View> */}
