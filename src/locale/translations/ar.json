@@ -3,7 +3,8 @@
     "attachments": "المرفقات",
     "actions": "الإجراءات",
     "no_approval": "لا توجد موافقات معلقة ",
-    "commentRequired": "التعليقات مطلوبة."
+    "commentRequired": "التعليقات مطلوبة.",
+    "atLeast20": "مطلوب ما لا يقل عن 20 حرفا"
   },
   "benefits": {
     "search_benefits": " ابحث في الحوافز ",

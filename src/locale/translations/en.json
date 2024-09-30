@@ -3,7 +3,8 @@
     "attachments": "Attachments",
     "actions": "Actions",
     "no_approval": "No pending approvals",
-    "commentRequired": "Comments Required."
+    "commentRequired": "Comments Required.",
+    "atLeast20": "At least 20 letters needed"
   },
   "benefits": {
     "search_benefits": "Search benefits",

@@ -160,6 +160,10 @@ function DefaultActionModal(props) {
         alertBox("", localize("approvals.commentRequired"));
         return;
       }
+      if (isWorkflowRequest && commentValue?.trim()?.length < 20) {
+        alertBox("", localize("approvals.atLeast20"));
+        return;
+      }
       onActionClick({
         ...actionModule,
         comment: commentValue,

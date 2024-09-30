@@ -247,7 +247,7 @@ export const ACTION_TYPE_WORKFLOW = [
     showApproverSection: false,
 
     approverSectionText: localize("hrRequest.actionButton.changeApprover"),
-    isCommentRequired: false,
+    isCommentRequired: true,
     buttonText: localize("hrRequest.actionButton.approve"),
   },
 ];
