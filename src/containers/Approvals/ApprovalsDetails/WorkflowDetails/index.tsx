@@ -16,6 +16,7 @@ import {
   terminationGridDetails,
   terminationPortfolioData,
 } from "./serializer";
+import { localize } from "../../../../locale/utils";
 
 function WorkflowDetails({
   data,
@@ -119,8 +120,41 @@ function WorkflowDetails({
   return (
     <>
       {requestData?.memoMessage && (
+        <View
+          style={[
+            styles.requestCellView,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeButton
+                : getColorWithOpacity(Colors.midnightExpress, 0.24),
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.topHeader,
+              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+            ]}
+          >
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.white : Colors.white}
+              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+            >
+              {localize("Memo")}
+            </CustomText>
+          </View>
         <View style={styles.cellContainerView}>
-          <CustomRenderHtml source={requestData?.memoMessage} />
+          <CustomRenderHtml source={requestData?.memoMessage}tagsStyles={{
+                      body: {
+                        whiteSpace: 'normal',
+                        color: isDarkMode ? Colors.white : Colors.white,
+                        fontSize: 14,
+                        lineHeight: 22,
+                        ...CommonStyles.regularFont400Style
+                      }
+                    }} />
+        </View>
         </View>
       )}
       {dealCardsData?.map(({ title, details, dataField }) => (
