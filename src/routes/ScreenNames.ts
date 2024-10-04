@@ -50,6 +50,8 @@ const NavigationRouteNames = {
   DOCUMENT_DETAILS: "Document_details",
   DOCUMENT_VIEW: "Document_view",
   ORGANISATION: "Organisation",
+  DISCREPANCY_LIST: "Discrepancy_List",
+  DISCREPANCY_DETAILS: "Discrepancy_details",
 };
 
 export default NavigationRouteNames;

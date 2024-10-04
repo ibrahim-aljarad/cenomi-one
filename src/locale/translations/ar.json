@@ -183,7 +183,8 @@
     "chatGpt": "ChatGPT",
     "calendarC": "التقويم",
     "attendance": "حضور",
-    "corporateCommunication": "التواصل الشركاتي"
+    "corporateCommunication": "التواصل الشركاتي",
+    "discrepancy": "تناقض"
   },
   "hrRequest": {
     "annualLimit": "الحد السنوي",

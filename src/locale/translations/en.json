@@ -183,7 +183,8 @@
     "chatGpt": "ChatGPT",
     "calendarC": "Calendar",
     "attendance": "Attendance",
-    "corporateCommunication": "Corporate Communication"
+    "corporateCommunication": "Corporate Communication",
+    "discrepancy": "Discrepancy"
   },
   "hrRequest": {
     "annualLimit": "Annual Limit",
