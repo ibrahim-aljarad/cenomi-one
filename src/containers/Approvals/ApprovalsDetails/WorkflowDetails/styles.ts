@@ -24,8 +24,8 @@ const styles = StyleSheet.create({
   cellContainerView: {
     flex: 1,
     flexDirection: 'row',
-    paddingTop: RfH(10),
-    paddingBottom: RfH(20)
+    paddingTop: RfH(5),
+    paddingBottom: RfH(5)
   },
   imageStyle: {
     borderRadius: BorderRadius.BR0,
