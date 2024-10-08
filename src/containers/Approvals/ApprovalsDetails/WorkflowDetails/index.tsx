@@ -197,7 +197,7 @@ function WorkflowDetails({
               <CustomText
                 fontSize={16}
                 color={isDarkMode ? Colors.white : Colors.white}
-                styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+                styling={{ ...CommonStyles.mediumFontStyle, width: "95%" }}
               >
                 {title}
               </CustomText>
