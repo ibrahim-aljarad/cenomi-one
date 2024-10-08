@@ -6,11 +6,19 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { isEmpty } from "lodash";
-import { BackHandler, SafeAreaView, ScrollView, View } from "react-native";
+import {
+  BackHandler,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { isLoadingSelector } from "../../appContainer/redux/selectors";
 import {
+  CustomButton,
+  CustomImage,
   CustomRenderHtml,
   CustomText,
   CustomTextInput,
@@ -41,9 +49,10 @@ import { isDarkModeSelector } from "../redux/selectors";
 import Markdown from "react-native-markdown-display";
 import WrapperContainer from "../../components/WrapperContainer";
 import CustomDropDown from "../../components/CustomDropdown";
-import { localize } from "../../locale/utils";
+import { isRTL, localize } from "../../locale/utils";
 import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomSwitch from "../../components/CustomSwitch";
+import UploadDocument from "../../components/UploadDocument";
 
 const stateStructure = createStructuredSelector({
   corporateCommuncationDetails: getCorporateCommunicationDetailsSelector,
@@ -70,6 +79,10 @@ const DiscrepancyDetails = (props: any) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
+
+  const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
+    useState(false);
+  const onPressUploadAttachment = () => setIsShowDocumentPickerModal(true);
 
   const {
     corporateCommuncationDetails,
@@ -162,9 +175,7 @@ const DiscrepancyDetails = (props: any) => {
           <HeaderSVG
             isRightButtonVisible={true}
             isBackButtonVisible={true}
-            titleText={
-              !isEmpty(corporateCommuncationDetails) ? info?.title : ""
-            }
+            titleText="Dummy title"
             titleFont={20}
             onRightButtonClickHandler={() => {}}
             onBackPressHandler={() => backHandler()}
@@ -172,108 +183,36 @@ const DiscrepancyDetails = (props: any) => {
             onRight2BtnClick={() => {}}
             containerStyle={{ zIndex: 99999 }}
           />
-          <ScrollView>
-            
-          <View style={styles.paddingContainer}>
-            <CustomTextInput label={"Mall"} />
-          </View>
-          <View style={styles.formDropdown}>
-            <CustomDropDown
-              data={[{ label: "df", value: "sdsd" }]}
-              isCard={false}
-              label={localize("form.level")}
-              placeholder={localize("form.selectAValue")}
-              onChange={(item) => {}}
-            />
-          </View>
-          <View style={styles.formDropdown}>
-            <CustomDropDown
-              data={[{ label: "dfe", value: "sdsd" }]}
-              isCard={false}
-              label={localize("form.unit")}
-              placeholder={localize("form.selectAValue")}
-              onChange={(item) => {}}
-            />
-          </View>
-          <View style={styles.paddingContainer}>
-            {keyValuePairs?.map(({ key, label }) => (
-              <View
-                style={{
-                  marginTop: RfH(14),
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-                key={key}
-              >
-                <CustomText
-                  fontSize={14}
-                  color={Colors.white}
-                  styling={{
-                    marginStart: RfW(5),
-                    lineHeight: RfH(20),
-                    ...CommonStyles.boldFontStyle,
-                  }}
-                >
-                  {label}:
-                </CustomText>
-                <CustomText
-                  fontSize={14}
-                  color={Colors.white}
-                  styling={{
-                    marginStart: RfW(5),
-                    lineHeight: RfH(20),
-                    ...CommonStyles.regularFont400Style,
-                  }}
-                >
-                  {key}
-                </CustomText>
-              </View>
-            ))}
-          </View>
-          <View style={styles.paddingContainer}>
-            <View
-              style={{
-                marginTop: RfH(14),
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <CustomText
-                fontSize={14}
-                color={Colors.white}
-                styling={{
-                  marginStart: RfW(5),
-                  lineHeight: RfH(20),
-                  ...CommonStyles.regularFont400Style,
-                }}
-              >
-                Review Status:
-              </CustomText>
-              <CustomRadioButton
-                icon={
-                  false ? Images.radioButtonActive : Images.radioButtonInactive
-                }
-                labelText={"match" || ""}
-                containerStyle={{ width: "50%", paddingTop: RfH(10) }}
-                onSelect={() => {}}
-              />
-              <CustomRadioButton
-                icon={
-                  false ? Images.radioButtonActive : Images.radioButtonInactive
-                }
-                labelText={"mismatch" || ""}
-                containerStyle={{ width: "50%", paddingTop: RfH(10) }}
-                onSelect={() => {}}
+          <ScrollView style={styles.scrollContainer}>
+            <View style={styles.paddingContainer}>
+              <CustomTextInput label={"Mall"} />
+            </View>
+            <View style={styles.formDropdown}>
+              <CustomDropDown
+                data={[{ label: "df", value: "sdsd" }]}
+                isCard={false}
+                label={localize("form.level")}
+                placeholder={localize("form.selectAValue")}
+                onChange={(item) => {}}
               />
             </View>
-            <View>
-              {yesOrNoPairs?.map(({ label, key }) => (
+            <View style={styles.formDropdown}>
+              <CustomDropDown
+                data={[{ label: "dfe", value: "sdsd" }]}
+                isCard={false}
+                label={localize("form.unit")}
+                placeholder={localize("form.selectAValue")}
+                onChange={(item) => {}}
+              />
+            </View>
+            <View style={styles.paddingContainer}>
+              {keyValuePairs?.map(({ key, label }) => (
                 <View
                   style={{
                     marginTop: RfH(14),
                     flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: 'space-between'
+                    justifyContent: "space-between",
                   }}
                   key={key}
                 >
@@ -288,15 +227,153 @@ const DiscrepancyDetails = (props: any) => {
                   >
                     {label}:
                   </CustomText>
-                  <CustomSwitch
-                    disabled={false}
-                    onValueChange={() => {}}
-                    value={true}
-                  />
+                  <CustomText
+                    fontSize={14}
+                    color={Colors.white}
+                    styling={{
+                      marginStart: RfW(5),
+                      lineHeight: RfH(20),
+                      ...CommonStyles.regularFont400Style,
+                    }}
+                  >
+                    {key}
+                  </CustomText>
                 </View>
               ))}
             </View>
-          </View>
+            <View style={styles.paddingContainer}>
+              <View style={styles.borderSperator} />
+              <View
+                style={{
+                  marginTop: RfH(14),
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    marginStart: RfW(5),
+                    lineHeight: RfH(20),
+                    ...CommonStyles.regularFont400Style,
+                  }}
+                >
+                  Review Status:
+                </CustomText>
+                <CustomRadioButton
+                  icon={
+                    false
+                      ? Images.radioButtonActive
+                      : Images.radioButtonInactive
+                  }
+                  labelText="Match"
+                  containerStyle={{ width: "50%", paddingLeft: RfH(10) }}
+                  onSelect={() => {}}
+                />
+                <CustomRadioButton
+                  icon={
+                    false
+                      ? Images.radioButtonActive
+                      : Images.radioButtonInactive
+                  }
+                  labelText="Mismatch"
+                  containerStyle={{ width: "50%", paddingTop: RfH(0) }}
+                  onSelect={() => {}}
+                />
+              </View>
+              <View>
+                {yesOrNoPairs?.map(({ label, key }) => (
+                  <View
+                    style={{
+                      marginTop: RfH(14),
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                    key={key}
+                  >
+                    <CustomText
+                      fontSize={14}
+                      color={Colors.white}
+                      styling={{
+                        marginStart: RfW(5),
+                        lineHeight: RfH(20),
+                        ...CommonStyles.boldFontStyle,
+                      }}
+                    >
+                      {label}:
+                    </CustomText>
+                    <CustomSwitch
+                      disabled={false}
+                      onValueChange={() => {}}
+                      value={true}
+                    />
+                  </View>
+                ))}
+              </View>
+              <View>
+                <TouchableOpacity
+                  style={[
+                    styles.uploadItemContainer,
+                    { borderColor: isDarkMode ? Colors.white : Colors.black },
+                  ]}
+                  onPress={onPressUploadAttachment}
+                >
+                  <View style={styles.directionRowCenter}>
+                    <CustomImage
+                      image={Images.uploadVoilet}
+                      imageWidth={22}
+                      imageHeight={24}
+                      imageResizeMode={"contain"}
+                      displayLoader={false}
+                      containerStyling={{}}
+                      tintColor={isDarkMode ? Colors.white : Colors.black}
+                    />
+                    <CustomText
+                      fontSize={14}
+                      color={Colors.black}
+                      styling={{
+                        ...CommonStyles.regularFont500Style,
+                        lineHeight: RfH(17),
+                        marginLeft: RfW(12),
+                        marginTop: RfH(2),
+                      }}
+                    >
+                      {localize("components.uploadAttachment")}
+                    </CustomText>
+                  </View>
+
+                  <CustomImage
+                    image={isRTL() ? Images.arrowLeft : Images.arrowRight}
+                    imageWidth={15}
+                    imageHeight={15}
+                    imageResizeMode={"contain"}
+                    displayLoader={false}
+                    containerStyling={{}}
+                    tintColor={isDarkMode ? Colors.white : Colors.black}
+                  />
+                </TouchableOpacity>
+                <UploadDocument
+                  title={localize("components.documents")}
+                  isVisible={isShowDocumentPickerModal}
+                  isFilePickerVisible={true}
+                  handleClose={() => setIsShowDocumentPickerModal(false)}
+                  isUploadFileOnServer={false}
+                  handleUpload={(data) => {
+                    const { filename, name } = data || {};
+                    console.log(data);
+                  }}
+                />
+              </View>
+              <View>
+                <CustomButton
+                  buttonText="Save"
+                  btnContainerStyle={styles.buttonStyle}
+                  handleOnSubmit={() => {}}
+                />
+              </View>
+            </View>
           </ScrollView>
         </View>
         {/* <Loader isLoading={isLoading || partialLoading} /> */}
