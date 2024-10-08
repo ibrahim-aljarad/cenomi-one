@@ -34,6 +34,16 @@ function WorkflowDetails({
       details: generalDetailsTermination,
       dataField: { ...data, ...requestData, ...taskData },
     },
+    ...(requestData?.memoMessage
+      ? [
+          {
+            title: "Memo",
+            details: {},
+            component: true,
+          },
+        ]
+      : []),
+    ,
     ...(requestData?.tenantPortFolioData || requestData?.tenantProtfolioData
       ? [
           {
@@ -51,7 +61,7 @@ function WorkflowDetails({
           {
             title: "Renewal Proposal Details",
             details: renewalProposalDetailsData,
-            dataField: data?.renewalProposalDetails,
+            dataField: requestData?.renewalProposalDetails,
           },
         ]
       : []),
@@ -60,12 +70,12 @@ function WorkflowDetails({
           {
             title: "Estimated Sales",
             details: estimatedSalesField,
-            dataField: data?.estimatedSales,
+            dataField: requestData?.estimatedSales,
           },
         ]
       : []),
 
-      //for Termination Committee Approval
+    //for Termination Committee Approval
     ...(requestData?.terminationGridData || []).map((terminationItem) => ({
       title: `Termination Lease: ${terminationItem?.LeaseNumber}`,
       details: terminationGridDetails,
@@ -89,7 +99,7 @@ function WorkflowDetails({
       dataField: mallItem,
     })),
     //for Serena Invoice
-    ...(requestData?.Vendordata || []).map(({Vendor}) => ({
+    ...(requestData?.Vendordata || []).map(({ Vendor }) => ({
       title: `Vendor`,
       details: serenaFields,
       dataField: Vendor,
@@ -109,7 +119,7 @@ function WorkflowDetails({
 
     //for all
     ...(taskData?.data || []).map((taskItem) => ({
-      title: `Task ${taskItem?.name?.trim() ? ": " + taskItem?.name : ""}`,
+      title: `Approver ${taskItem?.name?.trim() ? ": " + taskItem?.name : ""}`,
       details: taskDataFields,
       dataField: taskItem,
     })),
@@ -117,96 +127,108 @@ function WorkflowDetails({
 
   if (!data) return <></>;
 
+  const renderComponent = (requestData) => {
+    return (
+      <View
+        style={[
+          styles.requestCellView,
+          {
+            backgroundColor: isDarkMode
+              ? Colors.darkModeButton
+              : getColorWithOpacity(Colors.midnightExpress, 0.24),
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.topHeader,
+            { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+          ]}
+        >
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.white : Colors.white}
+            styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+          >
+            {localize("Memo")}
+          </CustomText>
+        </View>
+        <View style={styles.cellContainerView}>
+          <CustomRenderHtml
+            source={requestData?.memoMessage}
+            tagsStyles={{
+              body: {
+                whiteSpace: "normal",
+                color: isDarkMode ? Colors.white : Colors.white,
+                fontSize: 14,
+                lineHeight: 22,
+                ...CommonStyles.regularFont400Style,
+              },
+            }}
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <>
-      {requestData?.memoMessage && (
-        <View
-          style={[
-            styles.requestCellView,
-            {
-              backgroundColor: isDarkMode
-                ? Colors.darkModeButton
-                : getColorWithOpacity(Colors.midnightExpress, 0.24),
-            },
-          ]}
-        >
+      {dealCardsData?.map(({ title, details, dataField, component }) =>
+        component ? (
+          renderComponent(requestData)
+        ) : (
           <View
             style={[
-              styles.topHeader,
-              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+              styles.requestCellView,
+              {
+                backgroundColor: isDarkMode
+                  ? Colors.darkModeButton
+                  : getColorWithOpacity(Colors.midnightExpress, 0.24),
+              },
             ]}
+            key={title}
           >
-            <CustomText
-              fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
-              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+            <View
+              style={[
+                styles.topHeader,
+                { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+              ]}
             >
-              {localize("Memo")}
-            </CustomText>
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.white : Colors.white}
+                styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+              >
+                {title}
+              </CustomText>
+            </View>
+            <View style={{ paddingVertical: RfH(5) }}>
+              {details?.map(({ label, key, method }) =>
+                dataField?.[key] ? (
+                  <View style={styles.cellContainerView} key={key + title}>
+                    <CustomText
+                      fontSize={14}
+                      color={Colors.white}
+                      styling={{
+                        marginStart: RfW(5),
+                        lineHeight: RfH(20),
+                        ...CommonStyles.regularFont400Style,
+                      }}
+                    >
+                      {label} :{" "}
+                      {method
+                        ? method(dataField?.[key])
+                        : dataField?.[key]?.join?.(", ") || dataField?.[key]}
+                    </CustomText>
+                  </View>
+                ) : (
+                  <></>
+                )
+              )}
+            </View>
           </View>
-        <View style={styles.cellContainerView}>
-          <CustomRenderHtml source={requestData?.memoMessage}tagsStyles={{
-                      body: {
-                        whiteSpace: 'normal',
-                        color: isDarkMode ? Colors.white : Colors.white,
-                        fontSize: 14,
-                        lineHeight: 22,
-                        ...CommonStyles.regularFont400Style
-                      }
-                    }} />
-        </View>
-        </View>
+        )
       )}
-      {dealCardsData?.map(({ title, details, dataField }) => (
-        <View
-          style={[
-            styles.requestCellView,
-            {
-              backgroundColor: isDarkMode
-                ? Colors.darkModeButton
-                : getColorWithOpacity(Colors.midnightExpress, 0.24),
-            },
-          ]}
-          key={title}
-        >
-          <View
-            style={[
-              styles.topHeader,
-              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
-            ]}
-          >
-            <CustomText
-              fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
-              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
-            >
-              {title}
-            </CustomText>
-          </View>
-          {details?.map(({ label, key, method }) =>
-            dataField?.[key] ? (
-              <View style={styles.cellContainerView} key={key + title}>
-                <CustomText
-                  fontSize={14}
-                  color={Colors.white}
-                  styling={{
-                    marginStart: RfW(5),
-                    lineHeight: RfH(20),
-                    ...CommonStyles.regularFont400Style,
-                  }}
-                >
-                  {label} :{" "}
-                  {method
-                    ? method(dataField?.[key])
-                    : dataField?.[key]?.join?.(", ") || dataField?.[key]}
-                </CustomText>
-              </View>
-            ) : (
-              <></>
-            )
-          )}
-        </View>
-      ))}
       {Array.isArray(data?.notes) ? (
         <View
           style={[

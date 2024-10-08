@@ -28,6 +28,7 @@ export const generalDetailsTermination: iterationType[] = [
   {
     label: "Requested By",
     key: "requetedBy",
+    method: (data) => data?.[0]?.id,
   },
   {
     label: "Requested By",
@@ -446,23 +447,9 @@ export const taskDataFields: iterationType[] = [
     key: "comments",
   },
   {
-    label: "Group",
-    key: "isGroup",
-    method: yesOrNo,
-  },
-  {
-    label: "Group ID",
-    key: "groupId",
-    method: nullOrData,
-  },
-  {
-    label: "Group Name",
-    key: "groupName",
-  },
-  {
-    label: "Assignee",
+    label: "Email",
     key: "assignee",
-    method: (data) => data?.id?data?.id:data
+    method: (data) => (data?.id ? data?.id : data),
   },
   {
     label: "Completed On",
@@ -491,14 +478,6 @@ export const taskDataFields: iterationType[] = [
     label: "Request More Info",
     key: "requestMoreInfo",
     method: nullOrData,
-  },
-  {
-    label: "Order",
-    key: "order",
-  },
-  {
-    label: "Orifinal Order",
-    key: "orgininalOrder",
   },
 ];
 
