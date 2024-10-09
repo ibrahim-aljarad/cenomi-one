@@ -4,7 +4,7 @@ import {
   CustomRenderHtml,
   CustomText,
 } from "../../../../components";
-import { View } from "react-native";
+import { FlatList, View } from "react-native";
 import styles from "./styles";
 import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
@@ -21,6 +21,7 @@ import {
   terminationPortfolioData,
 } from "./serializer";
 import { localize } from "../../../../locale/utils";
+import { sortBy } from "lodash";
 
 function WorkflowDetails({
   data,
@@ -80,28 +81,49 @@ function WorkflowDetails({
       : []),
 
     //for Termination Committee Approval
-    ...(requestData?.terminationGridData || []).map((terminationItem) => ({
-      title: `Termination Lease: ${terminationItem?.LeaseNumber}`,
-      details: terminationGridDetails,
-      dataField: terminationItem,
-    })),
-
-    ...(requestData?.contractInformation || []).map((contractItem) => ({
-      title: `Contract Lease: ${contractItem?.LeaseNumber}`,
-      details: contractGridDetails,
-      dataField: contractItem,
-    })),
+    ...(requestData?.terminationGridData
+      ? [
+          {
+            title: `Termination Data Table`,
+            details: terminationGridDetails,
+            dataField: requestData?.terminationGridData,
+            component: "table",
+          },
+        ]
+      : []),
+    //renewal committee
+    ...(requestData?.contractInformation
+      ? [
+          {
+            title: `Contract Lease Table`,
+            details: contractGridDetails,
+            dataField: requestData?.contractInformation,
+            component: "table",
+          },
+        ]
+      : []),
     //for Invoice Status Change,Payment Plan
-    ...(requestData?.involvedInvoicesData || []).map((invoiceItem) => ({
-      title: `Invoice: ${invoiceItem?.invoiceIdPk}`,
-      details: invoiceFields,
-      dataField: invoiceItem,
-    })),
-    ...(requestData?.mallData || []).map((mallItem) => ({
-      title: `Mall: ${mallItem?.mall_Name}`,
-      details: mallDataFields,
-      dataField: mallItem,
-    })),
+    ...(requestData?.involvedInvoicesData
+      ? [
+          {
+            title: `Invoice Table`,
+            details: invoiceFields,
+            dataField: requestData?.involvedInvoicesData,
+            component: "table",
+          },
+        ]
+      : []),
+    //new lease committee
+    ...(requestData?.mallData
+      ? [
+          {
+            title: `Mall Data Table`,
+            details: mallDataFields,
+            dataField: requestData?.mallData,
+            component: "table",
+          },
+        ]
+      : []),
     //for Serena Invoice
     ...(requestData?.Vendordata || []).map(({ Vendor }) => ({
       title: `Vendor`,
@@ -122,17 +144,78 @@ function WorkflowDetails({
     })),
 
     //for all
-    ...(taskData?.data || []).map((taskItem) => ({
-      title: `Approver ${taskItem?.name?.trim() ? ": " + taskItem?.name : ""}`,
+    ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem) => ({
+      title: `Approver:  ${
+        taskItem?.name?.trim() ? taskItem?.name : taskItem?.completedBy
+      }`,
       icon: !!taskItem?.isCompleted ? Images.tickUploadDoc : null,
       details: taskDataFields,
       dataField: taskItem,
     })),
   ];
 
-  if (!data) return <></>;
+  const horizontalDataConversion = ({ details, dataField }) =>
+    details?.map(({ label, key, method }) => ([
+      label,
+      ...dataField?.map((item) =>
+        method
+          ? method(item?.[key])
+          : item?.[key]?.join?.(", ") || item?.[key] || "--"
+      ),
+    ]));
 
-  const renderComponent = (requestData) => {
+  const renderComponent = ({ title, details, dataField, component, icon }) => {
+    if (component === "table")
+      return (
+        <View style={styles.tableContainer}>
+          <View
+            style={[
+              styles.topHeader,
+              {
+                borderColor: getColorWithOpacity(Colors.white, 0.2),
+                paddingTop: RfH(0),
+                ...styles.tableHead,
+              },
+            ]}
+          >
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.white : Colors.white}
+              styling={{
+                ...CommonStyles.mediumFontStyle,
+                width: "80%",
+              }}
+            >
+              {title}
+            </CustomText>
+          </View>
+          <FlatList
+            data={horizontalDataConversion( { details, dataField })}
+            horizontal
+            renderItem={({ item }) => (
+              <View style={styles.tableRow}>
+                {item?.map((text) => (
+                  <View style={styles.tableCell} key={text}>
+                    <CustomText
+                      fontSize={14}
+                      color={Colors.white}
+                      styling={{
+                        marginHorizontal: RfW(5),
+                        lineHeight: RfH(20),
+                        ...CommonStyles.regularFont400Style,
+                      }}
+                    >
+                      {text}
+                    </CustomText>
+                  </View>
+                ))}
+              </View>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+      );
+
     return (
       <View
         style={[
@@ -176,11 +259,19 @@ function WorkflowDetails({
     );
   };
 
+  if (!data) return <></>;
+
+  const isContentAvailable = (dataValue) => {
+    if (!dataValue) return;
+    if (Array.isArray(dataValue)) return !!dataValue?.length;
+    return true;
+  };
+
   return (
     <>
       {dealCardsData?.map(({ title, details, dataField, component, icon }) =>
         component ? (
-          renderComponent(requestData)
+          renderComponent({ title, details, dataField, component, icon })
         ) : (
           <View
             style={[
@@ -222,7 +313,7 @@ function WorkflowDetails({
             </View>
             <View style={{ paddingVertical: RfH(5) }}>
               {details?.map(({ label, key, method }) =>
-                dataField?.[key] ? (
+                isContentAvailable(dataField?.[key]) ? (
                   <View style={styles.cellContainerView} key={key + title}>
                     <CustomText
                       fontSize={14}

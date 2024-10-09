@@ -160,6 +160,10 @@ export const renewalProposalDetailsData: iterationType[] = [
 
 export const terminationGridDetails: iterationType[] = [
   {
+    label: "Lease Number",
+    key: "LeaseNumber",
+  },
+  {
     label: "Mall Name",
     key: "Mallname",
   },
@@ -439,10 +443,6 @@ export const estimatedSalesField: iterationType[] = [
 ];
 export const taskDataFields: iterationType[] = [
   {
-    label: "Status",
-    key: "status",
-  },
-  {
     label: "Comments",
     key: "comments",
   },
@@ -472,6 +472,10 @@ export const taskDataFields: iterationType[] = [
 ];
 
 export const invoiceFields: iterationType[] = [
+  {
+    label: "Invoice Id",
+    key: "invoiceIdPk",
+  },
   {
     label: "Lease Id",
     key: "leaseId",
