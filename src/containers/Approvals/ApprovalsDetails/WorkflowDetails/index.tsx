@@ -14,6 +14,7 @@ import {
   generalDetailsTermination,
   invoiceFields,
   mallDataFields,
+  noteFields,
   renewalProposalDetailsData,
   serenaFields,
   taskDataFields,
@@ -142,6 +143,17 @@ function WorkflowDetails({
       details: serenaFields,
       dataField: lineItem,
     })),
+    //for note values
+    ...(Array.isArray(requestData?.notes)
+      ? [
+          {
+            title: `Notes`,
+            details: noteFields,
+            dataField: requestData?.notes,
+            component: "table",
+          },
+        ]
+      : []),
 
     //for all
     ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem) => ({
@@ -155,14 +167,14 @@ function WorkflowDetails({
   ];
 
   const horizontalDataConversion = ({ details, dataField }) =>
-    details?.map(({ label, key, method }) => ([
+    details?.map(({ label, key, method }) => [
       label,
       ...dataField?.map((item) =>
         method
           ? method(item?.[key])
           : item?.[key]?.join?.(", ") || item?.[key] || "--"
       ),
-    ]));
+    ]);
 
   const renderComponent = ({ title, details, dataField, component, icon }) => {
     if (component === "table")
@@ -190,11 +202,11 @@ function WorkflowDetails({
             </CustomText>
           </View>
           <FlatList
-            data={horizontalDataConversion( { details, dataField })}
+            data={horizontalDataConversion({ details, dataField })}
             horizontal
             renderItem={({ item }) => (
               <View style={styles.tableRow}>
-                {item?.map((text) => (
+                {item?.map((text, inx) => (
                   <View style={styles.tableCell} key={text}>
                     <CustomText
                       fontSize={14}
@@ -202,7 +214,7 @@ function WorkflowDetails({
                       styling={{
                         marginHorizontal: RfW(5),
                         lineHeight: RfH(20),
-                        ...CommonStyles.regularFont400Style,
+                        ...CommonStyles[!inx?'boldFontStyle':'regularFont400Style'],
                       }}
                     >
                       {text}
@@ -211,7 +223,7 @@ function WorkflowDetails({
                 ))}
               </View>
             )}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item, index) => `${index}${title}`}
           />
         </View>
       );
@@ -338,84 +350,7 @@ function WorkflowDetails({
           </View>
         )
       )}
-      {Array.isArray(data?.notes) ? (
-        <View
-          style={[
-            styles.requestCellView,
-            {
-              backgroundColor: isDarkMode
-                ? Colors.darkModeButton
-                : getColorWithOpacity(Colors.midnightExpress, 0.24),
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.topHeader,
-              { borderColor: getColorWithOpacity(Colors.white, 0.2) },
-            ]}
-          >
-            <CustomText
-              fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
-              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
-            >
-              Notes
-            </CustomText>
-          </View>
-          {data?.notes?.map(({ items, accPolicy, customerRequest }) => (
-            <Fragment key={items + accPolicy}>
-              <View style={styles.cellContainerView}>
-                <CustomText
-                  fontSize={14}
-                  color={Colors.white}
-                  styling={{
-                    marginStart: RfW(5),
-                    lineHeight: RfH(20),
-                    ...CommonStyles.regularFont400Style,
-                  }}
-                >
-                  Items : {items}
-                </CustomText>
-              </View>
-
-              {accPolicy && (
-                <View style={styles.cellContainerView}>
-                  <CustomText
-                    fontSize={14}
-                    color={Colors.white}
-                    styling={{
-                      marginStart: RfW(5),
-                      lineHeight: RfH(20),
-                      ...CommonStyles.regularFont400Style,
-                    }}
-                  >
-                    Acc Policy : {accPolicy}
-                  </CustomText>
-                </View>
-              )}
-              {customerRequest && (
-                <View style={styles.cellContainerView}>
-                  <CustomText
-                    fontSize={14}
-                    color={Colors.white}
-                    styling={{
-                      marginStart: RfW(5),
-                      lineHeight: RfH(20),
-                      ...CommonStyles.regularFont400Style,
-                    }}
-                  >
-                    Customer Request : {customerRequest}
-                  </CustomText>
-                </View>
-              )}
-              <View style={{ height: RfH(20) }} />
-            </Fragment>
-          ))}
-        </View>
-      ) : (
-        <></>
-      )}
+      
       <View style={{ height: RfH(30) }} />
     </>
   );

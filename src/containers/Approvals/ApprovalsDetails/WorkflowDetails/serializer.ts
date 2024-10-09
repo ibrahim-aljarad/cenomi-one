@@ -637,3 +637,18 @@ export const serenaFields: iterationType[] = [
     key: "REQUESTER_EMAIL",
   },
 ];
+
+export const noteFields = [
+  {
+    label: "Items",
+    key: "items",
+  },
+  {
+    label: "CC Policy",
+    key: "accPolicy",
+  },
+  {
+    label: "Customer Request",
+    key: "customerRequest",
+  },
+];
