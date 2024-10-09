@@ -461,16 +461,6 @@ export const taskDataFields: iterationType[] = [
     key: "completedBy",
   },
   {
-    label: "Completed",
-    key: "isCompleted",
-    method: yesOrNo,
-  },
-  {
-    label: "Current Task",
-    key: "isCurrentTask",
-    method: yesOrNo,
-  },
-  {
     label: "Designation",
     key: "designation",
   },

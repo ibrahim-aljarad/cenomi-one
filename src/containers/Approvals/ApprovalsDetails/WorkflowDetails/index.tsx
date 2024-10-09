@@ -1,8 +1,12 @@
 import React, { Fragment } from "react";
-import { CustomRenderHtml, CustomText } from "../../../../components";
+import {
+  CustomImage,
+  CustomRenderHtml,
+  CustomText,
+} from "../../../../components";
 import { View } from "react-native";
 import styles from "./styles";
-import { Colors, CommonStyles } from "../../../../theme";
+import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
   contractGridDetails,
@@ -120,6 +124,7 @@ function WorkflowDetails({
     //for all
     ...(taskData?.data || []).map((taskItem) => ({
       title: `Approver ${taskItem?.name?.trim() ? ": " + taskItem?.name : ""}`,
+      icon: !!taskItem?.isCompleted ? Images.tickUploadDoc : null,
       details: taskDataFields,
       dataField: taskItem,
     })),
@@ -173,7 +178,7 @@ function WorkflowDetails({
 
   return (
     <>
-      {dealCardsData?.map(({ title, details, dataField, component }) =>
+      {dealCardsData?.map(({ title, details, dataField, component, icon }) =>
         component ? (
           renderComponent(requestData)
         ) : (
@@ -197,10 +202,23 @@ function WorkflowDetails({
               <CustomText
                 fontSize={16}
                 color={isDarkMode ? Colors.white : Colors.white}
-                styling={{ ...CommonStyles.mediumFontStyle, width: "95%" }}
+                styling={{
+                  ...CommonStyles.mediumFontStyle,
+                  width: icon ? "80%" : "95%",
+                }}
               >
                 {title}
               </CustomText>
+
+              {icon && (
+                <CustomImage
+                  image={icon}
+                  imageWidth={30}
+                  imageHeight={30}
+                  imageResizeMode={"contain"}
+                  styling={{ marginRight: RfW(1) }}
+                />
+              )}
             </View>
             <View style={{ paddingVertical: RfH(5) }}>
               {details?.map(({ label, key, method }) =>
