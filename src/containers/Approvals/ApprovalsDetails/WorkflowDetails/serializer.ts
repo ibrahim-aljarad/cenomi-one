@@ -103,6 +103,14 @@ export const generalDetailsTermination: iterationType[] = [
     key: "brandName",
   },
   {
+    label: "First Payment Required",
+    key: "firstPayment",
+  },
+  {
+    label: "Promissory Note Required",
+    key: "promissoryNote",
+  },
+  {
     label: "5% Of Budget",
     key: "5% Of Budget",
   },
@@ -159,6 +167,10 @@ export const renewalProposalDetailsData: iterationType[] = [
 ];
 
 export const terminationGridDetails: iterationType[] = [
+  {
+    label: "Lease Number",
+    key: "LeaseNumber",
+  },
   {
     label: "Mall Name",
     key: "Mallname",
@@ -439,10 +451,6 @@ export const estimatedSalesField: iterationType[] = [
 ];
 export const taskDataFields: iterationType[] = [
   {
-    label: "Status",
-    key: "status",
-  },
-  {
     label: "Comments",
     key: "comments",
   },
@@ -461,16 +469,6 @@ export const taskDataFields: iterationType[] = [
     key: "completedBy",
   },
   {
-    label: "Completed",
-    key: "isCompleted",
-    method: yesOrNo,
-  },
-  {
-    label: "Current Task",
-    key: "isCurrentTask",
-    method: yesOrNo,
-  },
-  {
     label: "Designation",
     key: "designation",
   },
@@ -482,6 +480,10 @@ export const taskDataFields: iterationType[] = [
 ];
 
 export const invoiceFields: iterationType[] = [
+  {
+    label: "Invoice Id",
+    key: "invoiceIdPk",
+  },
   {
     label: "Lease Id",
     key: "leaseId",
@@ -643,3 +645,119 @@ export const serenaFields: iterationType[] = [
     key: "REQUESTER_EMAIL",
   },
 ];
+
+export const lineDataFields = [
+  {
+    label: "Line Number",
+    key: "LineNumber",
+  },
+  {
+    label: "Order Number",
+    key: "OrderNumber",
+  },
+  {
+    label: "UOM Code",
+    key: "UOMCode",
+  },
+  {
+    label: "Price",
+    key: "Price",
+  },
+  {
+    label: "Description",
+    key: "Description",
+  },
+  {
+    label: "Quantity",
+    key: "Quantity",
+  },
+  {
+    label: "Requester Name",
+    key: "REQUESTER_NAME",
+  },
+  {
+    label: "Departent DFF",
+    key: "DEPARTMENT_DFF",
+  },
+  {
+    label: "Buyer Email",
+    key: "BUYER_EMAIL",
+  },
+  {
+    label: "Requester Email",
+    key: "REQUESTER_EMAIL",
+  },
+];
+
+export const noteFields = [
+  {
+    label: "Items",
+    key: "items",
+  },
+  {
+    label: "CC Policy",
+    key: "accPolicy",
+  },
+  {
+    label: "Customer Request",
+    key: "customerRequest",
+  },
+];
+
+export const salesDataColor = ({
+  customerRequestLen,
+  accPolicy,
+  customerRequest,
+}) =>
+  customerRequestLen > 1 ||
+  parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
+    ? "red"
+    : "green";
+
+export const annualEscalationDataColor = ({
+  customerRequestLen,
+  accPolicy,
+  customerRequest,
+}) =>
+  customerRequestLen > 1 ||
+  parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
+    ? "red"
+    : "green";
+
+/*
+color condition for notes colors on customer request cell
+
+1. Sales(%)
+-No color: CC policy= customerRequest
+-Red Color: or(
+customerRequest &lt; CC policy,
+customerRequestLen &gt;1
+)
+-Else green color
+2. Annual Escalation
+-No color: or(CC policy= customerRequest,
+CC Policy exists in customerRequest,
+customerRequest = NO ESCALATIONS
+)
+-Else red color
+3. Service Charge (%)
+-No color: CC policy = customerRequest,
+-Else red color
+4. Free Months Period
+-No color: CC policy= customerRequest,
+-Else red color
+5. Electricity
+-No color: CC policy= customerRequest,
+-Else red color
+6. First Payment Required
+-No color: CC policy= customerRequest,
+-Else red color
+7. Promissory Note Required
+-No color:CC policy= customerRequest,
+
+-Else red color
+8. Billing Frequency
+-No color: CC policy= customerRequest,
+-Else red color
+
+*/
