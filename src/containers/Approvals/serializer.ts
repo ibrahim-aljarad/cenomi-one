@@ -76,9 +76,9 @@ export const isProcurementServiceModuleCheck = (item) => {
 };
 export const isDealWorkflowModuleCheck = (item) => {
   if (
-    item?.featureModule?.toString()?.indexOf("_workflow") > -1 ||
-    item?.serviceModule?.toString()?.indexOf("_workflow") > -1 ||
-    item?.toString()?.indexOf("_workflow") > -1
+    item?.featureModule?.toString()?.indexOf("_it") > -1 ||
+    item?.serviceModule?.toString()?.indexOf("_it") > -1 ||
+    item?.toString()?.indexOf("_it") > -1
   ) {
     return true;
   }

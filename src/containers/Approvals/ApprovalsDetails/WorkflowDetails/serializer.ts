@@ -715,14 +715,12 @@ export const salesDataColor = ({
     : "green";
 
 export const annualEscalationDataColor = ({
-  customerRequestLen,
   accPolicy,
   customerRequest,
 }) =>
-  customerRequestLen > 1 ||
-  parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
-    ? "red"
-    : "green";
+  customerRequest.includes(accPolicy)
+    ? null
+    : "red";
 
 /*
 color condition for notes colors on customer request cell
