@@ -137,7 +137,7 @@ const Calendar = () => {
       if (item.value === CalendarTypes.REPORTEES_CALENDAR) {
         return {
           ...item,
-          isVisible: organizationStructureData?.reportees.length > 0,
+          isVisible: organizationStructureData?.reportees?.length > 0,
         };
       }
       return item;
@@ -422,8 +422,6 @@ const Calendar = () => {
 
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
             paddingTop: RfH(10),
           }}
         >
@@ -446,7 +444,6 @@ const Calendar = () => {
               styling={{
                 ...CommonStyles.regularFont400Style,
                 lineHeight: RfH(16.8),
-                textAlign: "right",
               }}
             >
               {`${convertHoursToHoursAndMinutes(
