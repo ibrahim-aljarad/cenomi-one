@@ -652,3 +652,61 @@ export const noteFields = [
     key: "customerRequest",
   },
 ];
+
+export const salesDataColor = ({
+  customerRequestLen,
+  accPolicy,
+  customerRequest,
+}) =>
+  customerRequestLen > 1 ||
+  parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
+    ? "red"
+    : "green";
+
+export const annualEscalationDataColor = ({
+  customerRequestLen,
+  accPolicy,
+  customerRequest,
+}) =>
+  customerRequestLen > 1 ||
+  parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
+    ? "red"
+    : "green";
+
+/*
+color condition for notes colors on customer request cell
+
+1. Sales(%)
+-No color: CC policy= customerRequest
+-Red Color: or(
+customerRequest &lt; CC policy,
+customerRequestLen &gt;1
+)
+-Else green color
+2. Annual Escalation
+-No color: or(CC policy= customerRequest,
+CC Policy exists in customerRequest,
+customerRequest = NO ESCALATIONS
+)
+-Else red color
+3. Service Charge (%)
+-No color: CC policy = customerRequest,
+-Else red color
+4. Free Months Period
+-No color: CC policy= customerRequest,
+-Else red color
+5. Electricity
+-No color: CC policy= customerRequest,
+-Else red color
+6. First Payment Required
+-No color: CC policy= customerRequest,
+-Else red color
+7. Promissory Note Required
+-No color:CC policy= customerRequest,
+
+-Else red color
+8. Billing Frequency
+-No color: CC policy= customerRequest,
+-Else red color
+
+*/
