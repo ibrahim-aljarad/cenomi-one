@@ -71,33 +71,12 @@ export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
               myProfileDetails?.config?.config,
               item?.feature,
               featureModuleData
-            ) &&
-            item.feature !== "approvals_it"
+            ) 
         )
         ?.slice()
         ?.sort((a, b) => a.order - b.order);
 
-      setList([
-        ...filteredData,
-        {
-          externalIntegration: "appian",
-          externalUrl: "https://cenomi-dev.appiancloud.com/suite/webapi",
-          feature: "approvals_workflow",
-          iconUrl:
-            "https://images.ctfassets.net/01phmrb9fsp7/51fCAtPYPKFyw0fHuPvO41/8031c8984d2394e4157d190aaaa856da/approvals-it.png",
-          id: 5,
-          isActive: true,
-          isDeleted: false,
-          isLive: true,
-          name: "Workflow",
-          order: 5,
-          organizationId: 1,
-          redirectToExternalUrl: false,
-          showInMore: true,
-          updatedDate: "2024-04-30T09:05:39.958Z",
-          version: 2,
-        },
-      ]);
+      setList(filteredData);
     }
   }, [approvalFeatureModulesData]);
 

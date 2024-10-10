@@ -9,6 +9,7 @@ import styles from "./styles";
 import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
+  annualEscalationDataColor,
   contractGridDetails,
   estimatedSalesField,
   generalDetailsTermination,
@@ -193,6 +194,12 @@ function WorkflowDetails({
     if (items === "Sales (%)") {
       return salesDataColor({
         customerRequestLen,
+        accPolicy,
+        customerRequest,
+      });
+    }
+    if (items === "Annual Escalation") {
+      return annualEscalationDataColor({
         accPolicy,
         customerRequest,
       });
