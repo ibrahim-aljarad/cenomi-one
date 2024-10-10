@@ -13,6 +13,7 @@ import {
   estimatedSalesField,
   generalDetailsTermination,
   invoiceFields,
+  lineDataFields,
   mallDataFields,
   noteFields,
   renewalProposalDetailsData,
@@ -127,10 +128,10 @@ function WorkflowDetails({
         ]
       : []),
     //for Serena Invoice
-    ...(requestData?.Vendordata || []).map(({ Vendor }) => ({
+    ...(requestData?.Vendordata || []).map((data) => ({
       title: `Vendor`,
       details: serenaFields,
-      dataField: Vendor,
+      dataField: data?.[0]?.Vendor,
     })),
     //for Serena Invoice
     ...(requestData?.headerdata || []).map((headerItem) => ({
@@ -139,11 +140,16 @@ function WorkflowDetails({
       dataField: headerItem,
     })),
     //for Serena Invoice
-    ...(requestData?.lineData || []).map((lineItem) => ({
-      title: `Line: ${lineItem?.LineNumber}`,
-      details: serenaFields,
-      dataField: lineItem,
-    })),
+    ...(requestData?.lineData
+      ? [
+          {
+            title: `Line Data Table`,
+            details: lineDataFields,
+            dataField: requestData?.lineData,
+            component: "table",
+          },
+        ]
+      : []),
     //for note values
     ...(Array.isArray(requestData?.notes)
       ? [
@@ -234,6 +240,7 @@ function WorkflowDetails({
           </View>
           <FlatList
             data={horizontalDataConversion({ details, dataField })}
+            // style={styles.tableCell}
             horizontal
             renderItem={({ item }) => (
               <View style={styles.tableRow}>

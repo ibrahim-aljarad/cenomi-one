@@ -103,6 +103,14 @@ export const generalDetailsTermination: iterationType[] = [
     key: "brandName",
   },
   {
+    label: "First Payment Required",
+    key: "firstPayment",
+  },
+  {
+    label: "Promissory Note Required",
+    key: "promissoryNote",
+  },
+  {
     label: "5% Of Budget",
     key: "5% Of Budget",
   },
@@ -603,6 +611,49 @@ export const serenaFields: iterationType[] = [
   {
     label: "Serina Invoice Date",
     key: "SerinaInvoiceDate",
+  },
+  {
+    label: "UOM Code",
+    key: "UOMCode",
+  },
+  {
+    label: "Price",
+    key: "Price",
+  },
+  {
+    label: "Description",
+    key: "Description",
+  },
+  {
+    label: "Quantity",
+    key: "Quantity",
+  },
+  {
+    label: "Requester Name",
+    key: "REQUESTER_NAME",
+  },
+  {
+    label: "Departent DFF",
+    key: "DEPARTMENT_DFF",
+  },
+  {
+    label: "Buyer Email",
+    key: "BUYER_EMAIL",
+  },
+  {
+    label: "Requester Email",
+    key: "REQUESTER_EMAIL",
+  },
+];
+
+export const lineDataFields = [
+  {
+    label: "Line Number",
+    key: "LineNumber",
+  },
+  {
+    label: "Order Number",
+    key: "OrderNumber",
   },
   {
     label: "UOM Code",
