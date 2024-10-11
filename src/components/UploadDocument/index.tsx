@@ -58,7 +58,8 @@ function UploadDocument(props) {
     maxFileSize,
     isCopyRequired,
     isUploadFileOnServer = false,
-    isAvatarVisible
+    isAvatarVisible,
+    cropping = false,
   } = props;
   const [imageSet, updateImageSet] = useState([]);
   const [isEnableUploadDocument, setIsEnableUploadDocument] = useState(false);
@@ -132,9 +133,9 @@ function UploadDocument(props) {
   const openCamera = () => {
     ImagePicker.openCamera({
       // compressImageQuality: imageCompressionQuality,
-      mediaType: 'photo'
+      mediaType: 'photo',
       // includeBase64: true,
-      // cropping: true,
+      cropping: cropping,
     })
       .then((image) => {
         handleClose();
@@ -468,7 +469,8 @@ UploadDocument.propTypes = {
   fileNameWithTimeStamp: PropTypes.bool,
   isUploadFileOnServer: PropTypes.bool,
   title: PropTypes.string,
-  isAvatarVisible: PropTypes.bool
+  isAvatarVisible: PropTypes.bool,
+  cropping: PropTypes.bool,
 };
 
 UploadDocument.defaultProps = {

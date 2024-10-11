@@ -152,7 +152,8 @@
     "cameraPermissionMsg": "يرجى منح الإذن للوصول إلى الكاميرا ",
     "galleryPermissonMsg": " يرجى منح الإذن للوصول إلى معرض الصور",
     "uploadDocument": "تحميل المستند ",
-    "uploadAttachment": " تحميل المستند "
+    "uploadAttachment": " تحميل المستند ",
+    "uploadPhoto": "تحميل الصورة"
   },
   "home": {
     "cenomiBenefits": "حوافز سينومي",

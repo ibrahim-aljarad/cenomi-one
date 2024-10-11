@@ -7,6 +7,28 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1
   },
+  stepperNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: RfH(20),
+    paddingHorizontal: RfW(100)
+  },
+  stepperButton: {
+    margin:20,
+    width: RfW(30),
+    height: RfW(30),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 1000,
+  },
+  stepperText: {
+    color: 'white'
+  },
+  stepperTextActive: {
+    color: 'black'
+  },
   item_con: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -57,6 +79,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   buttonStyle: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: WIDTH.W20,
+    marginHorizontal: 0,
+  },
+  continueButtonStyle: {
     backgroundColor: Colors.primary,
     paddingHorizontal: WIDTH.W20,
     marginHorizontal: 0,

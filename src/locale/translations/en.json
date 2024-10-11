@@ -152,7 +152,8 @@
     "cameraPermissionMsg": "Please grant permission to access camera",
     "galleryPermissonMsg": "Please grant permission to access photo gallery",
     "uploadDocument": "Upload document",
-    "uploadAttachment": "Upload attachment"
+    "uploadAttachment": "Upload attachment",
+    "uploadPhoto": "Upload Photo"
   },
 
   "home": {
