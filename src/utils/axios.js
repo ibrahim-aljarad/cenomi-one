@@ -57,7 +57,6 @@ appianInstance.interceptors.request.use(
     await httpMetric.start();
 
     config.headers['Appian-API-Key'] = Config.APPIAN_KEY;
-    config.headers.Cookie = `JSESSIONID=${Config.APPIAN_COOKIE}`;
     config.baseURL = Config.APPIAN_URL;
 
     return config;
