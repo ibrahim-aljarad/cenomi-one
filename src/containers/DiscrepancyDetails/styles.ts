@@ -87,6 +87,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingHorizontal: WIDTH.W20,
     marginHorizontal: 0,
+  },
+  takeImage: {
+    flex: 1,
+    marginVertical: RfH(25),
+    alignSelf: 'center'
   }
 });
 

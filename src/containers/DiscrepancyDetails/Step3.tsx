@@ -12,6 +12,8 @@ import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomSwitch from "../../components/CustomSwitch";
 import UploadDocument from "../../components/UploadDocument";
 import { isDarkModeSelector } from "../redux/selectors";
+import CustomModal from "../../components/CustomModal";
+import AppPrimaryButton from "../../components/AppPrimaryButton";
 
 const yesOrNoPairs = [
   { key: "unit_status", label: "Store Closed" },
@@ -27,8 +29,16 @@ function Step3() {
   const { isDarkMode } = useSelector(stateStructure);
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
     useState(false);
+  const [imageModal, setImageModal] = useState(null);
+  const [imageList, setImageList] = useState<any>([]);
   const onPressUploadAttachment = () => setIsShowDocumentPickerModal(true);
-  const [reviewStatus, setReviewStatus] = useState('');
+  const [reviewStatus, setReviewStatus] = useState("");
+
+  const handleRemoveImage = (index) => {
+    setImageList(imageList.filter((item,inx) => inx !==index));
+    setImageModal(null);
+  }
+
   return (
     <View style={styles.paddingContainer}>
       {/* <View style={styles.borderSperator} /> */}
@@ -51,52 +61,84 @@ function Step3() {
           Review Status:
         </CustomText>
         <CustomRadioButton
-          icon={reviewStatus === "match" ? Images.radioButtonActive : Images.radioButtonInactive}
+          icon={
+            reviewStatus === "match"
+              ? Images.radioButtonActive
+              : Images.radioButtonInactive
+          }
           labelText="Match"
-          labelStyle={{color: 'white'}}
+          labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingLeft: RfH(10) }}
           onSelect={() => setReviewStatus("match")}
         />
         <CustomRadioButton
-          icon={reviewStatus === "mismatch" ? Images.radioButtonActive : Images.radioButtonInactive}
+          icon={
+            reviewStatus === "mismatch"
+              ? Images.radioButtonActive
+              : Images.radioButtonInactive
+          }
           labelText="Mismatch"
-          labelStyle={{color: 'white'}}
+          labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingTop: RfH(0) }}
           onSelect={() => setReviewStatus("mismatch")}
-
         />
       </View>
       <View>
-        {reviewStatus === "mismatch"?yesOrNoPairs?.map(({ label, key }) => (
-          <View
-            style={{
-              marginTop: RfH(14),
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-            key={key}
-          >
-            <CustomText
-              fontSize={14}
-              color={Colors.white}
-              styling={{
-                marginStart: RfW(5),
-                lineHeight: RfH(20),
-                ...CommonStyles.boldFontStyle,
+        {reviewStatus === "mismatch" ? (
+          yesOrNoPairs?.map(({ label, key }) => (
+            <View
+              style={{
+                marginTop: RfH(14),
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
+              key={key}
             >
-              {label}:
-            </CustomText>
-            <CustomSwitch
-              disabled={false}
-              onValueChange={() => {}}
-              value={true}
+              <CustomText
+                fontSize={14}
+                color={Colors.white}
+                styling={{
+                  marginStart: RfW(5),
+                  lineHeight: RfH(20),
+                  ...CommonStyles.boldFontStyle,
+                }}
+              >
+                {label}:
+              </CustomText>
+              <CustomSwitch
+                disabled={false}
+                onValueChange={() => {}}
+                value={true}
+              />
+            </View>
+          ))
+        ) : (
+          <View style={{ height: 100 }} />
+        )}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        {imageList.map((data, inx) => (
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              margin: RfW(5),
+              alignItems: "center",
+            }}
+            key={`img${inx}`}
+            onPress={() => setImageModal(inx+1)}
+          >
+            <CustomImage
+              sourceObject={{ uri: data?.path }}
+              imageHeight={RfH(70)}
+              imageWidth={RfH(70)}
+              imageResizeMode="contain"
+              // tintColor={isDarkMode ? Colors.white : Colors.white}
             />
-          </View>
-        )): <View style={{height: 100}} />}
+          </TouchableOpacity>
+        ))}
       </View>
       <View>
         <TouchableOpacity
@@ -126,7 +168,7 @@ function Step3() {
                 marginTop: RfH(2),
               }}
             >
-              {localize("components.uploadPhoto")}
+              {localize("common.takeAPhoto")}
             </CustomText>
           </View>
 
@@ -146,11 +188,14 @@ function Step3() {
           handleClose={() => setIsShowDocumentPickerModal(false)}
           isUploadFileOnServer={false}
           cropping
-          handleUpload={(data) => {
+          handleUpload={(data: any) => {
             const { filename, name } = data || {};
+            setImageList([...imageList, data]);
             console.log(data);
           }}
           isFilePickerVisible={false}
+          openCameraDefault
+          imageCompressionQuality={0.6}
         />
       </View>
       <View>
@@ -160,6 +205,36 @@ function Step3() {
           handleOnSubmit={() => {}}
         />
       </View>
+      {imageModal ? (
+        <CustomModal modalVisible={!!imageModal} onRequestClose={() => setImageModal(null)}>
+          <>
+            <CustomImage
+              sourceObject={{uri: imageList[0]}}
+              imageWidth={220}
+              imageHeight={220}
+              imageResizeMode={'contain'}
+              displayLoader={false}
+              containerStyling={{ paddingVertical: RfH(25) }}
+            />
+            <CustomText
+              fontSize={20}
+              styling={{
+                ...CommonStyles.regularFont500Style,
+                lineHeight: RfH(22),
+                top: -RfH(10)
+              }}>
+              remove
+            </CustomText>
+
+            <View style={{ marginTop: RfH(22), width: '100%' }}>
+              <AppPrimaryButton
+                buttonText={localize('common.remove')}
+                onPress={()=> handleRemoveImage(imageModal-1)}
+              />
+            </View>
+          </>
+        </CustomModal>
+      ) : null}
     </View>
   );
 }
