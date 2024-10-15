@@ -22,18 +22,18 @@ const getLeaseStatusColor = ({ LeaseStatusID }) => {
   return LeaseStatusID && LeaseStatusID !== 1 ? "red" : "";
 };
 
-const ejarColor = ({EjarStatus, LeaseNumber},key,isLastIndex) => {
-  if(isLastIndex) {
-    return ''
+const ejarColor = ({ EjarStatus, LeaseNumber }, key, isLastIndex) => {
+  if (isLastIndex) {
+    return "";
   }
-  if(EjarStatus){
-    return 'green'
+  if (EjarStatus) {
+    return "green";
   }
-  if(LeaseNumber !== 'Overall'){
-    return 'red'
+  if (LeaseNumber !== "Overall") {
+    return "red";
   }
-  return '';
-}
+  return "";
+};
 export const generalDetailsTermination: iterationType[] = [
   {
     label: "Title",
@@ -57,7 +57,7 @@ export const generalDetailsTermination: iterationType[] = [
     key: "formType",
   },
   {
-    label: "Lease Code",
+    label: "Lease Number",
     key: "leaseCode",
   },
   {
@@ -93,6 +93,14 @@ export const generalDetailsTermination: iterationType[] = [
     key: "customerType",
   },
   {
+    label: "Contract Type",
+    key: "contractType",
+  },
+  {
+    label: "Serial No",
+    key: "seraialNumber",
+  },
+  {
     label: "Created By",
     key: "createdBy",
   },
@@ -114,14 +122,6 @@ export const generalDetailsTermination: iterationType[] = [
     key: "requestedByEmailName",
   },
   {
-    label: "Key Account",
-    key: "keyAccount",
-  },
-  {
-    label: "Serial No",
-    key: "seraialNumber",
-  },
-  {
     label: "Proposed Brand",
     key: "proposedBrand",
   },
@@ -137,18 +137,18 @@ export const generalDetailsTermination: iterationType[] = [
     label: "Promissory Note Required",
     key: "promissoryNote",
   },
-  {
-    label: "5% Of Budget",
-    key: "5% Of Budget",
-  },
-  {
-    label: "10% Of Budget",
-    key: "10% Of Budget",
-  },
-  {
-    label: "JJ/JR mall",
-    key: "JJ/JR mall",
-  },
+  // {
+  //   label: "5% Of Budget",
+  //   key: "5% Of Budget",
+  // },
+  // {
+  //   label: "10% Of Budget",
+  //   key: "10% Of Budget",
+  // },
+  // {
+  //   label: "JJ/JR mall",
+  //   key: "JJ/JR mall",
+  // },
 ];
 
 export const terminationPortfolioData: iterationType[] = [
@@ -169,12 +169,32 @@ export const terminationPortfolioData: iterationType[] = [
     key: "totalDue",
   },
   {
+    label: "No.Of Locations",
+    key: "leasecount",
+  },
+  {
+    label: "Total Base Rent",
+    key: "yearlyRent",
+  },
+  {
+    label: "Total Area",
+    key: "leaseArea",
+  },
+  {
+    label: "Total Due Amount",
+    key: "outstanding",
+  },
+  {
     label: "Due from 0-90 Days",
     key: "due0to90days",
   },
   {
     label: "60 days due",
     key: "due0to60days",
+  },
+  {
+    label: "Total V/S 90 Days(%)",
+    key: "totalVS90days",
   },
 ];
 
@@ -301,10 +321,6 @@ export const terminationGridDetails: iterationType[] = [
 
 export const contractGridDetails: iterationType[] = [
   {
-    label: "Lease Number",
-    key: "LeaseNumber",
-  },
-  {
     label: "Mall Name",
     key: "Mallname",
   },
@@ -422,94 +438,134 @@ export const contractGridDetails: iterationType[] = [
   },
 ];
 
+const nullYellow = (item, key) => {
+  if (item?.mall_Name !== "Total" && !item?.[key]) return "yellow";
+  return "";
+};
+
+const getMallTypeColor = ({ mall_Type, proposedBrandName }) => {
+  if (mall_Type && !proposedBrandName) return "yellow";
+  return "";
+};
+
+const getMallUnitColor = ({ mall_Name, unit, newBaseRent }) => {
+  if (mall_Name !== "Total" && (!unit || !newBaseRent)) return "yellow";
+  return "";
+};
+
+const getMallAreaColor = ({ mall_Name, area_Sqm, newBaseRent }) => {
+  if (mall_Name !== "Total" && (!area_Sqm || !newBaseRent)) return "yellow";
+  return "";
+};
+
+const getBaseRentColor = ({ mall_Name, newBaseRent }) => {
+  if (!newBaseRent || !parseInt(newBaseRent)) return "yellow";
+  return "";
+};
+
+const getBudgetBaseRentColor = ({ mall_Name, budgetBaseRent }) => {
+  if (!budgetBaseRent || !parseInt(budgetBaseRent)) return "yellow";
+  return "";
+};
+
+const getPriceListColor = ({ mall_Name, newBaseRent, priceList }) => {
+  if (!newBaseRent) return "yellow";
+  const parsePrice = parseFloat(priceList);
+  if(parsePrice < 0) return 'red';
+  if(parsePrice > 0) return 'green';
+
+  return "";
+};
+
+const getFreeperiodColor = ({ mall_Name, newBaseRent,priceList, freePeriodMonths }) => {
+  if (!newBaseRent) return "yellow";
+  if (!priceList) return "yellow";
+  const parseData = parseFloat(freePeriodMonths);
+  if(parseData < 0) return 'red';
+  if(parseData > 0) return 'grey';
+
+  return "";
+};
+
+const getFreePeriodAmntColor = ({ freePeriodAmount, newBaseRent }) => {
+  if (!newBaseRent) return "yellow";
+  return "";
+};
+
+const getNewBaserentValueSAR = (newBaserentValueSAR) => newBaserentValueSAR ? (newBaserentValueSAR): '0';
+
 export const mallDataFields: iterationType[] = [
   {
     label: "Mall Name",
     key: "mall_Name",
-  },
-  {
-    label: "Budget",
-    key: "budget",
-  },
-  {
-    label: "Budget Price List",
-    key: "budgetPriceList",
+    colorMethod: nullYellow,
   },
   {
     label: "Mall Type",
     key: "mall_Type",
+    colorMethod: getMallTypeColor,
   },
   {
     label: "Proposed Brand Name",
     key: "proposedBrandName",
+    colorMethod: nullYellow,
   },
   {
     label: "Activity",
     key: "activity",
+    colorMethod: nullYellow,
   },
   {
-    label: "Unit",
+    label: "Unit#",
     key: "unit",
+    colorMethod: getMallUnitColor,
   },
   {
     label: "Unit Class",
     key: "unitClass",
   },
   {
-    label: "Area(SQM)",
+    label: "Area(Sqm)",
     key: "area_Sqm",
+    colorMethod: getMallAreaColor,
   },
   {
-    label: "New Base Rent",
+    label: "New Base Rent (SAR/Sqm)",
     key: "newBaseRent",
+    colorMethod: getBaseRentColor,
   },
   {
-    label: "Budget Base Rent",
+    label: `Budget FY'${new Date().getFullYear()%2000} Base Rent If Not Available Price List (SAR/sqm)`,
     key: "budgetBaseRent",
+    colorMethod: getBudgetBaseRentColor,
   },
   {
-    label: "Price List",
+    label: `New Proposed Rent VS Budget FY'${new Date().getFullYear()%2000} Or Price List (%)`,
     key: "priceList",
+    colorMethod: getPriceListColor,
   },
   {
     label: "Free Period Months",
     key: "freePeriodMonths",
+    colorMethod: getFreeperiodColor,
   },
   {
     label: "Free Period Amount",
     key: "freePeriodAmount",
+    colorMethod: getFreePeriodAmntColor,
   },
   {
-    label: "New Base Rent Value(SAR)",
+    label: "New Base Rent Value (SAR)",
     key: "newBaserentValueSAR",
+    method: getNewBaserentValueSAR
   },
   {
-    label: "Budget Price(SAR)",
+    label: "Budget Price (SAR) Or Price List Base Rent Value (SAR)",
     key: "budgetPriceSAR",
   },
   {
-    label: "Estimated Sales",
-    key: "estimatedSales",
-  },
-  {
-    label: "Sales/SQM",
-    key: "sales_SQM",
-  },
-  {
-    label: "Estimated OCR",
-    key: "estimatedOCR",
-  },
-  {
-    label: "Sales Density",
-    key: "salesDensity",
-  },
-  {
-    label: "Target OCR",
+    label: "Target OCR (%)",
     key: "targetOCR",
-  },
-  {
-    label: "Billing Freq.",
-    key: "Billingfreq",
   },
 ];
 

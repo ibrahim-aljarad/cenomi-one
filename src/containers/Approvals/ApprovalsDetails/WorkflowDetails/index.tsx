@@ -140,7 +140,7 @@ function WorkflowDetails({
             dataField: [
               requestData?.tenantPortFolioData||
       requestData?.tenantProtfolioData||
-      requestData?.tenantPortfolio,
+      requestData?.tenantPortfolio?.[0],
             ],
             component: "table",
           },
@@ -214,7 +214,7 @@ function WorkflowDetails({
   };
 
   const horizontalDataConversion = ({ details, dataField }) =>
-    details?.filter(({key}) => dataField?.some((item) => item?.[key]))?.map(({ label, key, method, colorMethod = (a, b, c) => null }) => [
+    details?.filter(({key}) => dataField?.some((item) => item?.[key] || item?.[key] === 0))?.map(({ label, key, method, colorMethod = (a, b, c) => null }) => [
       { text: label },
       ...dataField?.map((item, inx) =>
         method
@@ -319,7 +319,6 @@ function WorkflowDetails({
             {localize("Memo")}
           </CustomText>
         </View>
-        <View style={styles.cellContainerView}>
           <CustomRenderHtml
             source={requestData?.memoMessage}
             tagsStyles={{
@@ -332,7 +331,6 @@ function WorkflowDetails({
               },
             }}
           />
-        </View>
       </View>
     );
   };
