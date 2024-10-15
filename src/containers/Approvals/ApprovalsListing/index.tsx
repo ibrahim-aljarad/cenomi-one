@@ -90,7 +90,7 @@ const ApprovalsListing = (props: any) => {
             date: item?.createdOn,
             featureModule: approvalType,
             externalId: module?.externalId,
-            heading: `${item?.formName} - ${item?.approvalRequestIdPk}`,
+            heading: `${item?.serialNumber} - ${item?.approvalRequestIdPk}`,
             number: item?.approvalRequestIdPk,
           }));
           setApprovalPendingTasksList(listData);

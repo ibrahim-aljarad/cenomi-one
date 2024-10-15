@@ -12,7 +12,6 @@ const Config = {
   WEBSITE_BASEURL: env.WEBSITE_BASEURL,
   APPIAN_URL: env.APPIAN_URL,
   APPIAN_KEY: env.APPIAN_KEY,
-  APPIAN_COOKIE: env.APPIAN_COOKIE,
 };
 
 export default Config;

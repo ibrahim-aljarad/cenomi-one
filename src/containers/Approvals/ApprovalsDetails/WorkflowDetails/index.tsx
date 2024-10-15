@@ -53,33 +53,12 @@ function WorkflowDetails({
         ]
       : []),
     ,
-    ...(requestData?.tenantPortFolioData || requestData?.tenantProtfolioData
-      ? [
-          {
-            title: "Tenant Portfolio Data",
-            details: terminationPortfolioData,
-            dataField:
-              requestData?.tenantPortFolioData ||
-              requestData?.tenantProtfolioData,
-          },
-        ]
-      : []),
-    ,
     ...(requestData?.renewalProposalDetails
       ? [
           {
             title: "Renewal Proposal Details",
             details: renewalProposalDetailsData,
             dataField: requestData?.renewalProposalDetails,
-          },
-        ]
-      : []),
-    ...(requestData?.estimatedSales
-      ? [
-          {
-            title: "Estimated Sales",
-            details: estimatedSalesField,
-            dataField: requestData?.estimatedSales,
           },
         ]
       : []),
@@ -151,6 +130,33 @@ function WorkflowDetails({
           },
         ]
       : []),
+    ...(requestData?.tenantPortFolioData||
+      requestData?.tenantProtfolioData||
+      requestData?.tenantPortfolio
+      ? [
+          {
+            title: "Tenant Portfolio Data",
+            details: terminationPortfolioData,
+            dataField: [
+              requestData?.tenantPortFolioData||
+      requestData?.tenantProtfolioData||
+      requestData?.tenantPortfolio?.[0],
+            ],
+            component: "table",
+          },
+        ]
+      : []),
+      ...(requestData?.estimatedSales
+        ? [
+            {
+              title: "Estimated Sales",
+              details: estimatedSalesField,
+              dataField: [requestData?.estimatedSales],
+              component: "table",
+            },
+          ]
+        : []),
+    ,
     //for note values
     ...(Array.isArray(requestData?.notes)
       ? [
@@ -208,14 +214,17 @@ function WorkflowDetails({
   };
 
   const horizontalDataConversion = ({ details, dataField }) =>
-    details?.map(({ label, key, method }) => [
+    details?.filter(({key}) => dataField?.some((item) => item?.[key] || item?.[key] === 0))?.map(({ label, key, method, colorMethod = (a, b, c) => null }) => [
       { text: label },
-      ...dataField?.map((item) =>
+      ...dataField?.map((item, inx) =>
         method
           ? { text: method(item?.[key]) }
           : {
-              text: item?.[key]?.join?.(", ") || item?.[key] || "--",
-              bgColor: key === "customerRequest" ? colorValue({ ...item }) : "",
+              text: item?.[key]?.join?.(", ") ?? item?.[key] ?? "     ",
+              bgColor:
+                key === "customerRequest"
+                  ? colorValue({ ...item })
+                  : colorMethod(item, key, inx===dataField?.length),
             }
       ),
     ]);
@@ -310,7 +319,6 @@ function WorkflowDetails({
             {localize("Memo")}
           </CustomText>
         </View>
-        <View style={styles.cellContainerView}>
           <CustomRenderHtml
             source={requestData?.memoMessage}
             tagsStyles={{
@@ -323,7 +331,6 @@ function WorkflowDetails({
               },
             }}
           />
-        </View>
       </View>
     );
   };
