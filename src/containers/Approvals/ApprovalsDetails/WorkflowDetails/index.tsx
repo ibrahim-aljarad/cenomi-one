@@ -53,16 +53,6 @@ function WorkflowDetails({
         ]
       : []),
     ,
-    ...(requestData?.renewalProposalDetails
-      ? [
-          {
-            title: "Renewal Proposal Details",
-            details: renewalProposalDetailsData,
-            dataField: requestData?.renewalProposalDetails,
-          },
-        ]
-      : []),
-
     //for Termination Committee Approval
     ...(requestData?.terminationGridData
       ? [
@@ -82,6 +72,7 @@ function WorkflowDetails({
             details: contractGridDetails,
             dataField: requestData?.contractInformation,
             component: "table",
+            maxWidth: RfW(300),
           },
         ]
       : []),
@@ -104,6 +95,7 @@ function WorkflowDetails({
             details: mallDataFields,
             dataField: requestData?.mallData,
             component: "table",
+            maxWidth: RfW(300),
           },
         ]
       : []),
@@ -130,32 +122,41 @@ function WorkflowDetails({
           },
         ]
       : []),
-    ...(requestData?.tenantPortFolioData||
-      requestData?.tenantProtfolioData||
-      requestData?.tenantPortfolio
+    ...(requestData?.tenantPortFolioData ||
+    requestData?.tenantProtfolioData ||
+    requestData?.tenantPortfolio
       ? [
           {
             title: "Tenant Portfolio Data",
             details: terminationPortfolioData,
             dataField: [
-              requestData?.tenantPortFolioData||
-      requestData?.tenantProtfolioData||
-      requestData?.tenantPortfolio?.[0],
+              requestData?.tenantPortFolioData ||
+                requestData?.tenantProtfolioData ||
+                requestData?.tenantPortfolio?.[0],
             ],
             component: "table",
           },
         ]
       : []),
-      ...(requestData?.estimatedSales
-        ? [
-            {
-              title: "Estimated Sales",
-              details: estimatedSalesField,
-              dataField: [requestData?.estimatedSales],
-              component: "table",
-            },
-          ]
-        : []),
+    ...(requestData?.renewalProposalDetails
+      ? [
+          {
+            details: renewalProposalDetailsData,
+            dataField: [requestData?.renewalProposalDetails],
+            component: "table",
+          },
+        ]
+      : []),
+    ...(requestData?.estimatedSales
+      ? [
+          {
+            title: "Estimated Sales",
+            details: estimatedSalesField,
+            dataField: [requestData?.estimatedSales],
+            component: "table",
+          },
+        ]
+      : []),
     ,
     //for note values
     ...(Array.isArray(requestData?.notes)
@@ -214,53 +215,78 @@ function WorkflowDetails({
   };
 
   const horizontalDataConversion = ({ details, dataField }) =>
-    details?.filter(({key}) => dataField?.some((item) => item?.[key] || item?.[key] === 0))?.map(({ label, key, method, colorMethod = (a, b, c) => null }) => [
-      { text: label },
-      ...dataField?.map((item, inx) =>
-        method
-          ? { text: method(item?.[key]) }
-          : {
-              text: item?.[key]?.join?.(", ") ?? item?.[key] ?? "     ",
-              bgColor:
-                key === "customerRequest"
-                  ? colorValue({ ...item })
-                  : colorMethod(item, key, inx===dataField?.length),
-            }
-      ),
-    ]);
+    details
+      ?.filter(({ key }) =>
+        dataField?.some((item) => item?.[key] || item?.[key] === 0)
+      )
+      ?.map(
+        ({
+          label,
+          key,
+          method,
+          colorMethod = (a, b, c) => null,
+          textColorMethod = (a, b, c) => null,
+        }) => [
+          { text: label },
+          ...dataField?.map((item, inx) =>
+            method
+              ? { text: method(item?.[key]) }
+              : {
+                  text: item?.[key]?.join?.(", ") ?? item?.[key] ?? "     ",
+                  bgColor:
+                    key === "customerRequest"
+                      ? colorValue({ ...item })
+                      : colorMethod(item, key, inx === dataField?.length),
+                  textColor: textColorMethod(
+                    item,
+                    key,
+                    inx === dataField?.length
+                  ),
+                }
+          ),
+        ]
+      );
 
-  const renderComponent = ({ title, details, dataField, component, icon }) => {
+  const renderComponent = ({
+    title,
+    details,
+    dataField,
+    component,
+    maxWidth,
+  }) => {
     if (component === "table")
       return (
         <View style={styles.tableContainer}>
-          <View
-            style={[
-              styles.topHeader,
-              {
-                borderColor: getColorWithOpacity(Colors.white, 0.2),
-                paddingTop: RfH(0),
-                ...styles.tableHead,
-              },
-            ]}
-          >
-            <CustomText
-              fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
-              styling={{
-                ...CommonStyles.mediumFontStyle,
-                width: "80%",
-              }}
+          {!!title && (
+            <View
+              style={[
+                styles.topHeader,
+                {
+                  borderColor: getColorWithOpacity(Colors.white, 0.2),
+                  paddingTop: RfH(0),
+                  ...styles.tableHead,
+                },
+              ]}
             >
-              {title}
-            </CustomText>
-          </View>
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.white : Colors.white}
+                styling={{
+                  ...CommonStyles.mediumFontStyle,
+                  width: "80%",
+                }}
+              >
+                {title}
+              </CustomText>
+            </View>
+          )}
           <FlatList
             data={horizontalDataConversion({ details, dataField })}
-            // style={styles.tableCell}
+            style={styles.tableList}
             horizontal
             renderItem={({ item }) => (
               <View style={styles.tableRow}>
-                {item?.map(({ text, bgColor }, inx) => (
+                {item?.map(({ text, bgColor, textColor }, inx) => (
                   <View
                     style={[
                       styles.tableCell,
@@ -269,12 +295,14 @@ function WorkflowDetails({
                             backgroundColor: bgColor,
                           }
                         : {},
+                      maxWidth ? { maxWidth } : {},
+                      maxWidth && inx === 0 ? { height: RfH(40) } : {},
                     ]}
                     key={text}
                   >
                     <CustomText
                       fontSize={14}
-                      color={Colors.white}
+                      color={textColor || Colors.white}
                       styling={{
                         marginHorizontal: RfW(5),
                         lineHeight: RfH(20),
@@ -290,6 +318,8 @@ function WorkflowDetails({
               </View>
             )}
             keyExtractor={(item, index) => `${index}${title}`}
+            showsHorizontalScrollIndicator
+            persistentScrollbar
           />
         </View>
       );
@@ -319,18 +349,18 @@ function WorkflowDetails({
             {localize("Memo")}
           </CustomText>
         </View>
-          <CustomRenderHtml
-            source={requestData?.memoMessage}
-            tagsStyles={{
-              body: {
-                whiteSpace: "normal",
-                color: isDarkMode ? Colors.white : Colors.white,
-                fontSize: 14,
-                lineHeight: 22,
-                ...CommonStyles.regularFont400Style,
-              },
-            }}
-          />
+        <CustomRenderHtml
+          source={requestData?.memoMessage}
+          tagsStyles={{
+            body: {
+              whiteSpace: "normal",
+              color: isDarkMode ? Colors.white : Colors.white,
+              fontSize: 14,
+              lineHeight: 22,
+              ...CommonStyles.regularFont400Style,
+            },
+          }}
+        />
       </View>
     );
   };
@@ -345,9 +375,9 @@ function WorkflowDetails({
 
   return (
     <>
-      {dealCardsData?.map(({ title, details, dataField, component, icon }) =>
+      {dealCardsData?.map(({ title, details, dataField, component, icon, maxWidth }) =>
         component ? (
-          renderComponent({ title, details, dataField, component, icon })
+          renderComponent({ title, details, dataField, component, maxWidth })
         ) : (
           <View
             style={[

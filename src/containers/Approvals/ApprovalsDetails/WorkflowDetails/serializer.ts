@@ -1,3 +1,4 @@
+import { Colors } from "../../../../theme";
 import { getDateFormat } from "../../../../utils/helper";
 
 const yesOrNo = (value) => (value ? "Yes" : "No");
@@ -7,19 +8,20 @@ type iterationType = {
   label: string;
   method?: any;
   colorMethod?: any;
+  textColorMethod?: any;
 };
 
 const getLeaseCodeColor = ({ permatureORCanellation }) => {
   const colors = {
-    Mature: "green",
-    Premature: "orange",
-    Cancellation: "red",
+    Mature: Colors.green,
+    Premature: Colors.orange,
+    Cancellation: Colors.red,
   };
   return colors[permatureORCanellation] || "";
 };
 
 const getLeaseStatusColor = ({ LeaseStatusID }) => {
-  return LeaseStatusID && LeaseStatusID !== 1 ? "red" : "";
+  return LeaseStatusID && LeaseStatusID !== 1 ? Colors.red : "";
 };
 
 const ejarColor = ({ EjarStatus, LeaseNumber }, key, isLastIndex) => {
@@ -27,10 +29,10 @@ const ejarColor = ({ EjarStatus, LeaseNumber }, key, isLastIndex) => {
     return "";
   }
   if (EjarStatus) {
-    return "green";
+    return Colors.green;
   }
   if (LeaseNumber !== "Overall") {
-    return "red";
+    return Colors.red;
   }
   return "";
 };
@@ -200,15 +202,15 @@ export const terminationPortfolioData: iterationType[] = [
 
 export const renewalProposalDetailsData: iterationType[] = [
   {
-    label: "No.Of Leases",
+    label: `FY'${new Date().getFullYear() % 2000} Total`,
     key: "FY2023Total",
   },
   {
-    label: "Prposal BR FY-2023 Total",
+    label: `Prposal BR FY'${new Date().getFullYear() % 2000} Total`,
     key: "prposalBRFY2023Total",
   },
   {
-    label: "Budget BR FY-2023 Total",
+    label: `Budget BR FY'${new Date().getFullYear() % 2000} Total`,
     key: "budgetBRFY2023Total",
   },
 ];
@@ -319,7 +321,22 @@ export const terminationGridDetails: iterationType[] = [
   },
 ];
 
+const getPropVsBudgetColor = ({PropVsBudget}) => {
+  if(parseFloat(PropVsBudget) < 0 ) return Colors.peach;
+  if(parseFloat(PropVsBudget) > 0 ) return Colors.green;
+  return ''
+};
+
+const getPropVsBudgetTextColor = ({PropVsBudget}) => {
+  if(parseFloat(PropVsBudget) < 0 ) return Colors.red;
+  return ''
+};
+
 export const contractGridDetails: iterationType[] = [
+  {
+    label: "Lease Number",
+    key: "LeaseNumber",
+  },
   {
     label: "Mall Name",
     key: "Mallname",
@@ -341,7 +358,7 @@ export const contractGridDetails: iterationType[] = [
     key: "Category",
   },
   {
-    label: "Units",
+    label: "Unit#",
     key: "Units",
   },
   {
@@ -349,16 +366,34 @@ export const contractGridDetails: iterationType[] = [
     key: "ActualExpiryDate",
   },
   {
-    label: "Area(SQM)",
+    label: "Area",
     key: "AreaSQM",
   },
   {
-    label: "Current BR",
+    label: "Current BR (SAR/Sqm)",
     key: "CurrentBR",
   },
   {
-    label: "Proposal BR",
+    label: "Proposed BR From Tenant",
     key: "ProposalBR",
+    colorMethod: () => Colors.yellow,
+  },
+  {
+    label: `Budget FY'${
+      new Date().getFullYear() % 2000
+    } Base Rent If Not Available Price List (SAR/Sqm)`,
+    key: "Budget_FY_BaseRent",
+    colorMethod: () => Colors.peach,
+  },
+  {
+    label: "Prop V/S Budget (%)",
+    key: "PropVsBudget",
+    colorMethod: getPropVsBudgetColor,
+    textColorMethod: getPropVsBudgetTextColor
+  },
+  {
+    label: "Sales Type",
+    key: "Salestype",
   },
   {
     label: "Sales Per SQM",
@@ -389,14 +424,6 @@ export const contractGridDetails: iterationType[] = [
     key: "SalesValue12Month",
   },
   {
-    label: "Sales Type",
-    key: "Salestype",
-  },
-  {
-    label: "Budget FY Base Rent",
-    key: "Budget_FY_BaseRent",
-  },
-  {
     label: "Renewal Duration",
     key: "RenewalDuration",
   },
@@ -421,10 +448,6 @@ export const contractGridDetails: iterationType[] = [
     key: "BudgetFY23BR",
   },
   {
-    label: "Prop vs Budget",
-    key: "PropVsBudget",
-  },
-  {
     label: "Sales Month",
     key: "salesMonth",
   },
@@ -439,60 +462,66 @@ export const contractGridDetails: iterationType[] = [
 ];
 
 const nullYellow = (item, key) => {
-  if (item?.mall_Name !== "Total" && !item?.[key]) return "yellow";
+  if (item?.mall_Name !== "Total" && !item?.[key]) return Colors.yellowLight;
   return "";
 };
 
 const getMallTypeColor = ({ mall_Type, proposedBrandName }) => {
-  if (mall_Type && !proposedBrandName) return "yellow";
+  if (mall_Type && !proposedBrandName) return Colors.yellowLight;
   return "";
 };
 
 const getMallUnitColor = ({ mall_Name, unit, newBaseRent }) => {
-  if (mall_Name !== "Total" && (!unit || !newBaseRent)) return "yellow";
+  if (mall_Name !== "Total" && (!unit || !newBaseRent)) return Colors.yellowLight;
   return "";
 };
 
 const getMallAreaColor = ({ mall_Name, area_Sqm, newBaseRent }) => {
-  if (mall_Name !== "Total" && (!area_Sqm || !newBaseRent)) return "yellow";
+  if (mall_Name !== "Total" && (!area_Sqm || !newBaseRent)) return Colors.yellowLight;
   return "";
 };
 
 const getBaseRentColor = ({ mall_Name, newBaseRent }) => {
-  if (!newBaseRent || !parseInt(newBaseRent)) return "yellow";
+  if (!newBaseRent || !parseInt(newBaseRent)) return Colors.yellowLight;
   return "";
 };
 
 const getBudgetBaseRentColor = ({ mall_Name, budgetBaseRent }) => {
-  if (!budgetBaseRent || !parseInt(budgetBaseRent)) return "yellow";
+  if (!budgetBaseRent || !parseInt(budgetBaseRent)) return Colors.yellowLight;
   return "";
 };
 
 const getPriceListColor = ({ mall_Name, newBaseRent, priceList }) => {
-  if (!newBaseRent) return "yellow";
+  if (!newBaseRent) return Colors.yellowLight;
   const parsePrice = parseFloat(priceList);
-  if(parsePrice < 0) return 'red';
-  if(parsePrice > 0) return 'green';
+  if (parsePrice < 0) return Colors.red;
+  if (parsePrice > 0) return Colors.green;
 
   return "";
 };
 
-const getFreeperiodColor = ({ mall_Name, newBaseRent,priceList, freePeriodMonths }) => {
-  if (!newBaseRent) return "yellow";
-  if (!priceList) return "yellow";
+const getFreeperiodColor = ({
+  mall_Name,
+  newBaseRent,
+  priceList,
+  freePeriodMonths,
+}) => {
+  if (!newBaseRent) return Colors.yellowLight;
+  if (!priceList) return Colors.yellowLight;
   const parseData = parseFloat(freePeriodMonths);
-  if(parseData < 0) return 'red';
-  if(parseData > 0) return 'grey';
+  if (parseData < 0) return Colors.red;
+  if (parseData > 0) return Colors.grey;
 
   return "";
 };
 
 const getFreePeriodAmntColor = ({ freePeriodAmount, newBaseRent }) => {
-  if (!newBaseRent) return "yellow";
+  if (!newBaseRent) return Colors.yellowLight;
   return "";
 };
 
-const getNewBaserentValueSAR = (newBaserentValueSAR) => newBaserentValueSAR ? (newBaserentValueSAR): '0';
+const getNewBaserentValueSAR = (newBaserentValueSAR) =>
+  newBaserentValueSAR ? newBaserentValueSAR : "0";
 
 export const mallDataFields: iterationType[] = [
   {
@@ -535,12 +564,16 @@ export const mallDataFields: iterationType[] = [
     colorMethod: getBaseRentColor,
   },
   {
-    label: `Budget FY'${new Date().getFullYear()%2000} Base Rent If Not Available Price List (SAR/sqm)`,
+    label: `Budget FY'${
+      new Date().getFullYear() % 2000
+    } Base Rent If Not Available Price List (SAR/sqm)`,
     key: "budgetBaseRent",
     colorMethod: getBudgetBaseRentColor,
   },
   {
-    label: `New Proposed Rent VS Budget FY'${new Date().getFullYear()%2000} Or Price List (%)`,
+    label: `New Proposed Rent VS Budget FY'${
+      new Date().getFullYear() % 2000
+    } Or Price List (%)`,
     key: "priceList",
     colorMethod: getPriceListColor,
   },
@@ -557,7 +590,7 @@ export const mallDataFields: iterationType[] = [
   {
     label: "New Base Rent Value (SAR)",
     key: "newBaserentValueSAR",
-    method: getNewBaserentValueSAR
+    method: getNewBaserentValueSAR,
   },
   {
     label: "Budget Price (SAR) Or Price List Base Rent Value (SAR)",
@@ -845,11 +878,11 @@ export const salesDataColor = ({
 }) =>
   customerRequestLen > 1 ||
   parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
-    ? "red"
-    : "green";
+    ? Colors.red
+    : Colors.green;
 
 export const annualEscalationDataColor = ({ accPolicy, customerRequest }) =>
-  customerRequest.includes(accPolicy) ? null : "red";
+  customerRequest.includes(accPolicy) ? null : Colors.red;
 
 /*
 color condition for notes colors on customer request cell
