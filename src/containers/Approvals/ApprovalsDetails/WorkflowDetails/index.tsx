@@ -95,7 +95,6 @@ function WorkflowDetails({
             details: mallDataFields,
             dataField: requestData?.mallData,
             component: "table",
-            maxWidth: RfW(300),
           },
         ]
       : []),

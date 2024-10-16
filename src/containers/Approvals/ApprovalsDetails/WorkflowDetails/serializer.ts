@@ -321,15 +321,47 @@ export const terminationGridDetails: iterationType[] = [
   },
 ];
 
-const getPropVsBudgetColor = ({PropVsBudget}) => {
-  if(parseFloat(PropVsBudget) < 0 ) return Colors.peach;
-  if(parseFloat(PropVsBudget) > 0 ) return Colors.green;
-  return ''
+const getPropVsBudgetColor = ({ PropVsBudget }) => {
+  if (parseFloat(PropVsBudget) < 0) return Colors.peach;
+  if (parseFloat(PropVsBudget) > 0) return Colors.green;
+  return "";
 };
 
-const getPropVsBudgetTextColor = ({PropVsBudget}) => {
-  if(parseFloat(PropVsBudget) < 0 ) return Colors.red;
-  return ''
+const getPropVsBudgetTextColor = ({ PropVsBudget }) => {
+  if (parseFloat(PropVsBudget) < 0) return Colors.red;
+  return "";
+};
+
+const getSaletypeTextColor = ({ SalesMonths, Salestype }) => {
+  if (parseFloat(SalesMonths) <= 1 && parseFloat(SalesMonths) >= 0.5)
+    return Colors.red;
+  return "";
+};
+const getSaletypeBGColor = ({ Salestype }) => {
+  if (Salestype === "") return Colors.peach;
+  return "";
+};
+const getCrOCRTextColor = ({ CurrentOCR, SubCat_Sales }) => {
+  if (!SubCat_Sales || !CurrentOCR) return "";
+  if (CurrentOCR > SubCat_Sales) return Colors.red;
+  return "";
+};
+const getCrOCRBGColor = ({ CurrentOCR, SubCat_Sales }) => {
+  if (!SubCat_Sales || !CurrentOCR) return "";
+  if (CurrentOCR > SubCat_Sales) return Colors.peach;
+  if (CurrentOCR < SubCat_Sales) return Colors.green;
+  return "";
+};
+const getNewOCRTextColor = ({ NEWOCR, SubCat_Sales }) => {
+  if (!SubCat_Sales || !NEWOCR) return "";
+  if (NEWOCR > SubCat_Sales) return Colors.red;
+  return "";
+};
+const getNewOCRBGColor = ({ NEWOCR, SubCat_Sales }) => {
+  if (!SubCat_Sales || !NEWOCR) return "";
+  if (NEWOCR > SubCat_Sales) return Colors.peach;
+  if (NEWOCR < SubCat_Sales) return Colors.green;
+  return "";
 };
 
 export const contractGridDetails: iterationType[] = [
@@ -389,30 +421,44 @@ export const contractGridDetails: iterationType[] = [
     label: "Prop V/S Budget (%)",
     key: "PropVsBudget",
     colorMethod: getPropVsBudgetColor,
-    textColorMethod: getPropVsBudgetTextColor
+    textColorMethod: getPropVsBudgetTextColor,
   },
   {
     label: "Sales Type",
     key: "Salestype",
+    colorMethod: getSaletypeBGColor,
+    textColorMethod: getSaletypeTextColor,
   },
   {
-    label: "Sales Per SQM",
+    label: "Sales Value 12 Month (in 1,000)",
+    key: "SalesValue12Month",
+  },
+  {
+    label: "Sales Per Sqm",
     key: "SalesPerSQM",
   },
   {
-    label: "New OCR",
-    key: "NEWOCR",
+    label: "Mall Sales Density",
+    key: "SALESDENSITY",
   },
   {
-    label: "Current OCR",
+    label: "Current OCR (%)",
     key: "CurrentOCR",
+    colorMethod: getCrOCRBGColor,
+    textColorMethod: getCrOCRTextColor,
+  },
+  {
+    label: "New OCR (%)",
+    key: "NEWOCR",
+    colorMethod: getNewOCRBGColor,
+    textColorMethod: getNewOCRTextColor,
   },
   {
     label: "Target OCR",
     key: "TargetOCR",
   },
   {
-    label: "TOR",
+    label: "TOR (%)",
     key: "TOR",
   },
   {
@@ -420,44 +466,32 @@ export const contractGridDetails: iterationType[] = [
     key: "LeaseStatus",
   },
   {
-    label: "Sales Value 12 Month",
-    key: "SalesValue12Month",
-  },
-  {
-    label: "Renewal Duration",
-    key: "RenewalDuration",
-  },
-  {
-    label: "Outstanding",
+    label: "Current Due Amount",
     key: "OutStanding",
   },
   {
     label: "BR Rent Proposed",
     key: "BRRentProposed",
+    colorMethod: () => Colors.yellow,
   },
   {
-    label: "BR Budget Price",
+    label: "Budget Price BR",
     key: "BRBudgetPrice",
+    colorMethod: () => Colors.grey,
   },
   {
-    label: "FY-23 BR",
+    label: `FY'${new Date().getFullYear() % 2000} BR`,
     key: "FY23BR",
+    colorMethod: () => Colors.grey,
   },
   {
-    label: "Budget FY-23 BR",
+    label: `Budget FY'${new Date().getFullYear() % 2000} BR`,
     key: "BudgetFY23BR",
+    colorMethod: () => Colors.peach,
   },
   {
-    label: "Sales Month",
-    key: "salesMonth",
-  },
-  {
-    label: "Sub Lease Type",
-    key: "subleaseType",
-  },
-  {
-    label: "Price List",
-    key: "priceList",
+    label: "Renewal Duration",
+    key: "RenewalDuration",
   },
 ];
 
@@ -472,12 +506,14 @@ const getMallTypeColor = ({ mall_Type, proposedBrandName }) => {
 };
 
 const getMallUnitColor = ({ mall_Name, unit, newBaseRent }) => {
-  if (mall_Name !== "Total" && (!unit || !newBaseRent)) return Colors.yellowLight;
+  if (mall_Name !== "Total" && (!unit || !newBaseRent))
+    return Colors.yellowLight;
   return "";
 };
 
 const getMallAreaColor = ({ mall_Name, area_Sqm, newBaseRent }) => {
-  if (mall_Name !== "Total" && (!area_Sqm || !newBaseRent)) return Colors.yellowLight;
+  if (mall_Name !== "Total" && (!area_Sqm || !newBaseRent))
+    return Colors.yellowLight;
   return "";
 };
 
