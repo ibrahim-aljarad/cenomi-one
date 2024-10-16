@@ -91,7 +91,7 @@ const ApprovalsDetails = (props: any) => {
       );
     } else if (isDealWorkflowModule) {
       dispatch(
-        getWorkflowTasksDetails.trigger({ taskId: approvalItem?.number })
+        getWorkflowTasksDetails.trigger({ taskId: approvalItem?.number, })
       );
     } else {
       dispatch(
@@ -208,6 +208,7 @@ const ApprovalsDetails = (props: any) => {
               <WorkflowDetails
                 data={approvalTasksDetailsData}
                 approvalType={approvalItem?.externalId}
+                formName={approvalItem?.formName}
               />
             ) : (
               <CustomRenderHtml

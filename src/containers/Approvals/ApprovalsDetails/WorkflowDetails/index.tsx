@@ -13,13 +13,11 @@ import {
   contractGridDetails,
   estimatedSalesField,
   generalDetailsTermination,
-  invoiceFields,
-  lineDataFields,
+  getGenaralDetailsCard,
   mallDataFields,
   noteFields,
   renewalProposalDetailsData,
   salesDataColor,
-  serenaFields,
   taskDataFields,
   terminationGridDetails,
   terminationPortfolioData,
@@ -31,16 +29,18 @@ function WorkflowDetails({
   data,
   approvalType,
   isDarkMode,
+  formName,
 }: {
   data: any;
   approvalType: string;
   isDarkMode?: boolean;
+  formName?: string;
 }) {
   const { requestData, taskData } = data || {};
-  const dealCardsData = [
+  const dealCardsData: any = [
     {
       title: "General",
-      details: generalDetailsTermination,
+      details: getGenaralDetailsCard(formName) ||generalDetailsTermination,
       dataField: { ...data, ...requestData, ...taskData },
     },
     ...(requestData?.memoMessage
@@ -76,17 +76,6 @@ function WorkflowDetails({
           },
         ]
       : []),
-    //for Invoice Status Change,Payment Plan
-    ...(requestData?.involvedInvoicesData
-      ? [
-          {
-            title: `Invoice Table`,
-            details: invoiceFields,
-            dataField: requestData?.involvedInvoicesData,
-            component: "table",
-          },
-        ]
-      : []),
     //new lease committee
     ...(requestData?.mallData
       ? [
@@ -94,29 +83,6 @@ function WorkflowDetails({
             title: `Mall Data Table`,
             details: mallDataFields,
             dataField: requestData?.mallData,
-            component: "table",
-          },
-        ]
-      : []),
-    //for Serena Invoice
-    ...(requestData?.Vendordata || []).map((data) => ({
-      title: `Vendor`,
-      details: serenaFields,
-      dataField: data?.[0]?.Vendor,
-    })),
-    //for Serena Invoice
-    ...(requestData?.headerdata || []).map((headerItem) => ({
-      title: `Header`,
-      details: serenaFields,
-      dataField: headerItem,
-    })),
-    //for Serena Invoice
-    ...(requestData?.lineData
-      ? [
-          {
-            title: `Line Data Table`,
-            details: lineDataFields,
-            dataField: requestData?.lineData,
             component: "table",
           },
         ]
@@ -167,7 +133,13 @@ function WorkflowDetails({
             component: "table",
           },
         ]
-      : []),
+      : requestData?.notes ? [
+        {
+          title: `Additional Notes`,
+          details: [{key:'notes' }],
+          dataField: requestData,
+        },
+      ]:[]),
 
     //for all
     ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem) => ({
@@ -297,7 +269,7 @@ function WorkflowDetails({
                       maxWidth ? { maxWidth } : {},
                       maxWidth && inx === 0 ? { height: RfH(40) } : {},
                     ]}
-                    key={text}
+                    key={`${text}${inx}`}
                   >
                     <CustomText
                       fontSize={14}
@@ -429,7 +401,7 @@ function WorkflowDetails({
                         ...CommonStyles.regularFont400Style,
                       }}
                     >
-                      {label} :{" "}
+                      {label ? `${label}: `:''}
                       {method
                         ? method(dataField?.[key])
                         : dataField?.[key]?.join?.(", ") || dataField?.[key]}
