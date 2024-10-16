@@ -18,7 +18,7 @@ export const generalRenewal = [
   },
   {
     label: "Initiated By",
-    key: "initiatedByCust",
+    key: "createdByName",
   },
   {
     label: "Initiated On",
