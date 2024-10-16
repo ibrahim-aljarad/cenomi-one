@@ -321,6 +321,8 @@ export const terminationGridDetails: iterationType[] = [
   },
 ];
 
+const CPSA_LEASE_STATUS_COMPARE = 'HoldOver';
+
 const getPropVsBudgetColor = ({ PropVsBudget }) => {
   if (parseFloat(PropVsBudget) < 0) return Colors.peach;
   if (parseFloat(PropVsBudget) > 0) return Colors.green;
@@ -338,7 +340,7 @@ const getSaletypeTextColor = ({ SalesMonths, Salestype }) => {
   return "";
 };
 const getSaletypeBGColor = ({ Salestype }) => {
-  if (Salestype === "") return Colors.peach;
+  if (Salestype === CPSA_LEASE_STATUS_COMPARE) return Colors.peach;
   return "";
 };
 const getCrOCRTextColor = ({ CurrentOCR, SubCat_Sales }) => {
@@ -363,6 +365,7 @@ const getNewOCRBGColor = ({ NEWOCR, SubCat_Sales }) => {
   if (NEWOCR < SubCat_Sales) return Colors.green;
   return "";
 };
+
 
 export const contractGridDetails: iterationType[] = [
   {
@@ -464,6 +467,8 @@ export const contractGridDetails: iterationType[] = [
   {
     label: "Lease Status",
     key: "LeaseStatus",
+    colorMethod: getSaletypeBGColor,
+    textColorMethod: getSaletypeTextColor,
   },
   {
     label: "Current Due Amount",
