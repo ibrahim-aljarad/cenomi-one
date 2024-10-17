@@ -60,6 +60,8 @@ const ApprovalsActionButtons = (props) => {
 
   const dispatch = useDispatch();
 
+  const taskData = detailData?.taskData?.data || [];
+
   useEffect(() => {
     if (!isEmpty(approvalActionData?.data)) {
       setShowDefaultActionModal(false);
@@ -127,18 +129,26 @@ const ApprovalsActionButtons = (props) => {
   const workflowAction = async (actionPayload) => {
     const initiator = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
     setSuccessText(actionPayload?.successText);
+    const currentAction =
+      taskData?.find(
+        ({ isCurrentTask, isCompleted }) => !isCompleted && isCurrentTask
+      ) || {};
     const data = {
-      originalOrderId: 1,
+      originalOrderId: currentAction?.orgininalOrder,
       requestId: actionPayload?.user?.requestIdPk,
       remarks: actionPayload?.comment,
       decisionLookupId: workflowDesicionLookupIdEnum[actionPayload?.id],
-      initiatedBy: JSON.parse(initiator||'{}')?.username,
-      currentOrder: 1,
-      assignTo:
-        getUserName(actionPayload.user) || actionPayload.user?.createdBy,
+      initiatedBy: JSON.parse(initiator || "{}")?.username,
+      currentOrder: currentAction?.order,
+      ...(actionPayload?.id === "request_info"
+        ? {
+            assignTo:
+              getUserName(actionPayload.user) || actionPayload.user?.createdBy,
+          }
+        : {}),
     };
-    dispatch(doWorkflowTakeAction.trigger(data))
-  }
+    dispatch(doWorkflowTakeAction.trigger(data));
+  };
 
   const handleOnActionClick = (actionPayload) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_ACTION_SUBMIT, {
@@ -191,6 +201,11 @@ const ApprovalsActionButtons = (props) => {
     }
   };
 
+  const workFlowFilter = (item) =>
+    detailData?.taskData?.currentUserApprovalDecision?.some(
+      ({ decisionLookupId }) => item?.decisionLookupId === decisionLookupId
+    );
+
   return (
     <View>
       {/* select actionListType */}
@@ -208,7 +223,7 @@ const ApprovalsActionButtons = (props) => {
         </View>
       ) : isDealWorkflowModuleCheck(approvalItem) ? (
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-          {ACTION_TYPE_WORKFLOW?.map((action, index) =>
+          {ACTION_TYPE_WORKFLOW?.filter(workFlowFilter)?.map((action, index) =>
             renderActionButton(action, index)
           )}
         </View>
