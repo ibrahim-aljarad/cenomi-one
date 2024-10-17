@@ -198,6 +198,7 @@ export const estimatedSalesField: iterationType[] = [
     key: "sale_SQMData",
   },
 ];
+
 export const taskDataFields: iterationType[] = [
   {
     label: "Comments",
@@ -243,17 +244,13 @@ export const noteFields = [
   },
 ];
 
-export const salesDataColor = ({
-  customerRequestLen,
-  accPolicy,
-  customerRequest,
-}) =>
+const salesDataColor = ({ customerRequestLen, accPolicy, customerRequest }) =>
   customerRequestLen > 1 ||
   parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
     ? Colors.red
     : Colors.green;
 
-export const annualEscalationDataColor = ({ accPolicy, customerRequest }) =>
+const annualEscalationDataColor = ({ accPolicy, customerRequest }) =>
   customerRequest.includes(accPolicy) ? null : Colors.red;
 
 const allGenaralDetailCards = {
@@ -261,12 +258,47 @@ const allGenaralDetailCards = {
   "New Lease Committee Approval Form": generalNewLease,
   "Termination Committee Approval": generalTermination,
 };
-export const getGenaralDetailsCard = (formType) =>
-  allGenaralDetailCards[formType];
+
+const getGenaralDetailsCard = (formType) => allGenaralDetailCards[formType];
+
+//color value according to conditions specified in ./serializer.ts
+const colorValue = ({
+  items,
+  accPolicy,
+  customerRequest,
+  customerRequestLen,
+}) => {
+  if (accPolicy === customerRequest) return null;
+  const coloredItems = [
+    "Service Charge (%)",
+    "Electricity",
+    "Free Months Period",
+    "First Payment Required",
+    "Promissory Note Required",
+    "Billing Frequency",
+  ];
+  if (coloredItems.includes(items)) return "red";
+  if (items === "Sales (%)") {
+    return salesDataColor({
+      customerRequestLen,
+      accPolicy,
+      customerRequest,
+    });
+  }
+  if (items === "Annual Escalation") {
+    return annualEscalationDataColor({
+      accPolicy,
+      customerRequest,
+    });
+  }
+  return null;
+};
 
 export {
   contractGridDetails,
   terminationGridDetails,
   mallDataFields,
   renewalProposalDetailsData,
+  colorValue,
+  getGenaralDetailsCard,
 };

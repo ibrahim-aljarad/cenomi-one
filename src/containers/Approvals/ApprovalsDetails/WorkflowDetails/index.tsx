@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import {
   CustomImage,
   CustomRenderHtml,
@@ -9,7 +9,7 @@ import styles from "./styles";
 import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
-  annualEscalationDataColor,
+  colorValue,
   contractGridDetails,
   estimatedSalesField,
   generalDetailsTermination,
@@ -17,7 +17,6 @@ import {
   mallDataFields,
   noteFields,
   renewalProposalDetailsData,
-  salesDataColor,
   taskDataFields,
   terminationGridDetails,
   terminationPortfolioData,
@@ -27,12 +26,11 @@ import { sortBy } from "lodash";
 
 function WorkflowDetails({
   data,
-  approvalType,
   isDarkMode,
   formName,
 }: {
   data: any;
-  approvalType: string;
+  approvalType?: string;
   isDarkMode?: boolean;
   formName?: string;
 }) {
@@ -154,38 +152,6 @@ function WorkflowDetails({
     })),
   ];
 
-  //color value according to conditions specified in ./serializer.ts
-  const colorValue = ({
-    items,
-    accPolicy,
-    customerRequest,
-    customerRequestLen,
-  }) => {
-    if (accPolicy === customerRequest) return null;
-    const coloredItems = [
-      "Service Charge (%)",
-      "Electricity",
-      "Free Months Period",
-      "First Payment Required",
-      "Promissory Note Required",
-      "Billing Frequency",
-    ];
-    if (coloredItems.includes(items)) return "red";
-    if (items === "Sales (%)") {
-      return salesDataColor({
-        customerRequestLen,
-        accPolicy,
-        customerRequest,
-      });
-    }
-    if (items === "Annual Escalation") {
-      return annualEscalationDataColor({
-        accPolicy,
-        customerRequest,
-      });
-    }
-    return null;
-  };
 
   const horizontalDataConversion = ({ details, dataField }) =>
     details
