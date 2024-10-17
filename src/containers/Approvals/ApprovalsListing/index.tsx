@@ -87,6 +87,7 @@ const ApprovalsListing = (props: any) => {
           const listData = approvalPendingTasksData?.map((item) => ({
             createdBy: item?.createdBy,
             title: item?.formTitle,
+            formName: item?.formName,
             date: item?.createdOn,
             featureModule: approvalType,
             externalId: module?.externalId,
@@ -185,11 +186,13 @@ const ApprovalsListing = (props: any) => {
           ? item?.number?.toString()?.toUpperCase()
           : "".toUpperCase();
         const itemHeading = item?.heading
-        ? item?.heading.toUpperCase()
-        : "".toUpperCase();
+          ? item?.heading.toUpperCase()
+          : "".toUpperCase();
         const textData = text.toUpperCase();
         return (
-          itemHeading.indexOf(textData) > -1 || itemData.indexOf(textData) > -1 || itemData1?.indexOf(textData) > -1
+          itemHeading.indexOf(textData) > -1 ||
+          itemData.indexOf(textData) > -1 ||
+          itemData1?.indexOf(textData) > -1
         );
       });
       setApprovalPendingTasksList(newData);

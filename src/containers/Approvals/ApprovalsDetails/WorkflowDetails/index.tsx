@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import {
   CustomImage,
   CustomRenderHtml,
@@ -9,17 +9,14 @@ import styles from "./styles";
 import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
-  annualEscalationDataColor,
+  colorValue,
   contractGridDetails,
   estimatedSalesField,
   generalDetailsTermination,
-  invoiceFields,
-  lineDataFields,
+  getGenaralDetailsCard,
   mallDataFields,
   noteFields,
   renewalProposalDetailsData,
-  salesDataColor,
-  serenaFields,
   taskDataFields,
   terminationGridDetails,
   terminationPortfolioData,
@@ -29,18 +26,20 @@ import { sortBy } from "lodash";
 
 function WorkflowDetails({
   data,
-  approvalType,
   isDarkMode,
+  formName,
 }: {
   data: any;
-  approvalType: string;
+  approvalType?: string;
   isDarkMode?: boolean;
+  formName?: string;
 }) {
+  
   const { requestData, taskData } = data || {};
-  const dealCardsData = [
+  const dealCardsData: any = [
     {
       title: "General",
-      details: generalDetailsTermination,
+      details: getGenaralDetailsCard(formName) ||generalDetailsTermination,
       dataField: { ...data, ...requestData, ...taskData },
     },
     ...(requestData?.memoMessage
@@ -53,16 +52,6 @@ function WorkflowDetails({
         ]
       : []),
     ,
-    ...(requestData?.renewalProposalDetails
-      ? [
-          {
-            title: "Renewal Proposal Details",
-            details: renewalProposalDetailsData,
-            dataField: requestData?.renewalProposalDetails,
-          },
-        ]
-      : []),
-
     //for Termination Committee Approval
     ...(requestData?.terminationGridData
       ? [
@@ -82,17 +71,7 @@ function WorkflowDetails({
             details: contractGridDetails,
             dataField: requestData?.contractInformation,
             component: "table",
-          },
-        ]
-      : []),
-    //for Invoice Status Change,Payment Plan
-    ...(requestData?.involvedInvoicesData
-      ? [
-          {
-            title: `Invoice Table`,
-            details: invoiceFields,
-            dataField: requestData?.involvedInvoicesData,
-            component: "table",
+            maxWidth: RfW(300),
           },
         ]
       : []),
@@ -104,58 +83,45 @@ function WorkflowDetails({
             details: mallDataFields,
             dataField: requestData?.mallData,
             component: "table",
+            maxWidth: RfW(300),
           },
         ]
       : []),
-    //for Serena Invoice
-    ...(requestData?.Vendordata || []).map((data) => ({
-      title: `Vendor`,
-      details: serenaFields,
-      dataField: data?.[0]?.Vendor,
-    })),
-    //for Serena Invoice
-    ...(requestData?.headerdata || []).map((headerItem) => ({
-      title: `Header`,
-      details: serenaFields,
-      dataField: headerItem,
-    })),
-    //for Serena Invoice
-    ...(requestData?.lineData
-      ? [
-          {
-            title: `Line Data Table`,
-            details: lineDataFields,
-            dataField: requestData?.lineData,
-            component: "table",
-          },
-        ]
-      : []),
-    ...(requestData?.tenantPortFolioData||
-      requestData?.tenantProtfolioData||
-      requestData?.tenantPortfolio
+    ...(requestData?.tenantPortFolioData ||
+    requestData?.tenantProtfolioData ||
+    requestData?.tenantPortfolio
       ? [
           {
             title: "Tenant Portfolio Data",
             details: terminationPortfolioData,
             dataField: [
-              requestData?.tenantPortFolioData||
-      requestData?.tenantProtfolioData||
-      requestData?.tenantPortfolio?.[0],
+              requestData?.tenantPortFolioData ||
+                requestData?.tenantProtfolioData ||
+                requestData?.tenantPortfolio?.[0],
             ],
             component: "table",
           },
         ]
       : []),
-      ...(requestData?.estimatedSales
-        ? [
-            {
-              title: "Estimated Sales",
-              details: estimatedSalesField,
-              dataField: [requestData?.estimatedSales],
-              component: "table",
-            },
-          ]
-        : []),
+    ...(requestData?.renewalProposalDetails
+      ? [
+          {
+            details: renewalProposalDetailsData,
+            dataField: [requestData?.renewalProposalDetails],
+            component: "table",
+          },
+        ]
+      : []),
+    ...(requestData?.estimatedSales
+      ? [
+          {
+            title: "Estimated Sales",
+            details: estimatedSalesField,
+            dataField: [requestData?.estimatedSales],
+            component: "table",
+          },
+        ]
+      : []),
     ,
     //for note values
     ...(Array.isArray(requestData?.notes)
@@ -167,7 +133,13 @@ function WorkflowDetails({
             component: "table",
           },
         ]
-      : []),
+      : requestData?.notes ? [
+        {
+          title: `Additional Notes`,
+          details: [{key:'notes' }],
+          dataField: requestData,
+        },
+      ]:[]),
 
     //for all
     ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem) => ({
@@ -180,87 +152,80 @@ function WorkflowDetails({
     })),
   ];
 
-  //color value according to conditions specified in ./serializer.ts
-  const colorValue = ({
-    items,
-    accPolicy,
-    customerRequest,
-    customerRequestLen,
-  }) => {
-    if (accPolicy === customerRequest) return null;
-    const coloredItems = [
-      "Service Charge (%)",
-      "Electricity",
-      "Free Months Period",
-      "First Payment Required",
-      "Promissory Note Required",
-      "Billing Frequency",
-    ];
-    if (coloredItems.includes(items)) return "red";
-    if (items === "Sales (%)") {
-      return salesDataColor({
-        customerRequestLen,
-        accPolicy,
-        customerRequest,
-      });
-    }
-    if (items === "Annual Escalation") {
-      return annualEscalationDataColor({
-        accPolicy,
-        customerRequest,
-      });
-    }
-    return null;
-  };
 
   const horizontalDataConversion = ({ details, dataField }) =>
-    details?.filter(({key}) => dataField?.some((item) => item?.[key] || item?.[key] === 0))?.map(({ label, key, method, colorMethod = (a, b, c) => null }) => [
-      { text: label },
-      ...dataField?.map((item, inx) =>
-        method
-          ? { text: method(item?.[key]) }
-          : {
-              text: item?.[key]?.join?.(", ") ?? item?.[key] ?? "     ",
-              bgColor:
-                key === "customerRequest"
-                  ? colorValue({ ...item })
-                  : colorMethod(item, key, inx===dataField?.length),
-            }
-      ),
-    ]);
+    details
+      ?.filter(({ key }) =>
+        dataField?.some((item) => item?.[key] || item?.[key] === 0)
+      )
+      ?.map(
+        ({
+          label,
+          key,
+          method,
+          colorMethod = (a, b, c) => null,
+          textColorMethod = (a, b, c) => null,
+        }) => [
+          { text: label },
+          ...dataField?.map((item, inx) =>
+            method
+              ? { text: method(item?.[key]) }
+              : {
+                  text: item?.[key]?.join?.(", ") ?? item?.[key] ?? "     ",
+                  bgColor:
+                    key === "customerRequest"
+                      ? colorValue({ ...item })
+                      : colorMethod(item, key, inx === dataField?.length),
+                  textColor: textColorMethod(
+                    item,
+                    key,
+                    inx === dataField?.length
+                  ),
+                }
+          ),
+        ]
+      );
 
-  const renderComponent = ({ title, details, dataField, component, icon }) => {
+  const renderComponent = ({
+    title,
+    details,
+    dataField,
+    component,
+    maxWidth,
+  }) => {
     if (component === "table")
       return (
         <View style={styles.tableContainer}>
-          <View
-            style={[
-              styles.topHeader,
-              {
-                borderColor: getColorWithOpacity(Colors.white, 0.2),
-                paddingTop: RfH(0),
-                ...styles.tableHead,
-              },
-            ]}
-          >
-            <CustomText
-              fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
-              styling={{
-                ...CommonStyles.mediumFontStyle,
-                width: "80%",
-              }}
+          {!!title && (
+            <View
+              style={[
+                styles.topHeader,
+                {
+                  borderColor: getColorWithOpacity(Colors.white, 0.2),
+                  paddingTop: RfH(0),
+                  ...styles.tableHead,
+                },
+              ]}
             >
-              {title}
-            </CustomText>
-          </View>
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.white : Colors.white}
+                styling={{
+                  ...CommonStyles.mediumFontStyle,
+                  width: "80%",
+                }}
+              >
+                {title}
+              </CustomText>
+            </View>
+          )}
           <FlatList
             data={horizontalDataConversion({ details, dataField })}
-            // style={styles.tableCell}
+            style={styles.tableList}
             horizontal
             renderItem={({ item }) => (
               <View style={styles.tableRow}>
-                {item?.map(({ text, bgColor }, inx) => (
+                {item?.map(({ text, bgColor, textColor }, inx) => (
                   <View
                     style={[
                       styles.tableCell,
@@ -269,12 +234,14 @@ function WorkflowDetails({
                             backgroundColor: bgColor,
                           }
                         : {},
+                      maxWidth ? { maxWidth } : {},
+                      maxWidth && inx === 0 ? { height: RfH(40) } : {},
                     ]}
-                    key={text}
+                    key={`${text}${inx}`}
                   >
                     <CustomText
                       fontSize={14}
-                      color={Colors.white}
+                      color={textColor || Colors.white}
                       styling={{
                         marginHorizontal: RfW(5),
                         lineHeight: RfH(20),
@@ -290,6 +257,8 @@ function WorkflowDetails({
               </View>
             )}
             keyExtractor={(item, index) => `${index}${title}`}
+            showsHorizontalScrollIndicator
+            persistentScrollbar
           />
         </View>
       );
@@ -319,18 +288,18 @@ function WorkflowDetails({
             {localize("Memo")}
           </CustomText>
         </View>
-          <CustomRenderHtml
-            source={requestData?.memoMessage}
-            tagsStyles={{
-              body: {
-                whiteSpace: "normal",
-                color: isDarkMode ? Colors.white : Colors.white,
-                fontSize: 14,
-                lineHeight: 22,
-                ...CommonStyles.regularFont400Style,
-              },
-            }}
-          />
+        <CustomRenderHtml
+          source={requestData?.memoMessage}
+          tagsStyles={{
+            body: {
+              whiteSpace: "normal",
+              color: isDarkMode ? Colors.white : Colors.white,
+              fontSize: 14,
+              lineHeight: 22,
+              ...CommonStyles.regularFont400Style,
+            },
+          }}
+        />
       </View>
     );
   };
@@ -345,9 +314,9 @@ function WorkflowDetails({
 
   return (
     <>
-      {dealCardsData?.map(({ title, details, dataField, component, icon }) =>
+      {dealCardsData?.map(({ title, details, dataField, component, icon, maxWidth }) =>
         component ? (
-          renderComponent({ title, details, dataField, component, icon })
+          renderComponent({ title, details, dataField, component, maxWidth })
         ) : (
           <View
             style={[
@@ -400,7 +369,7 @@ function WorkflowDetails({
                         ...CommonStyles.regularFont400Style,
                       }}
                     >
-                      {label} :{" "}
+                      {label ? `${label}: `:''}
                       {method
                         ? method(dataField?.[key])
                         : dataField?.[key]?.join?.(", ") || dataField?.[key]}

@@ -108,5 +108,10 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 1,
   },
+  tableList: {
+    paddingBottom: RfH(10),
+    borderBottomWidth: 4,
+    borderBottomColor: getColorWithOpacity(Colors.white, 0.24),
+  },
 });
 export default styles;
