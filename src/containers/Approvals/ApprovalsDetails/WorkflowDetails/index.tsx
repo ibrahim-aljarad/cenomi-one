@@ -36,6 +36,7 @@ function WorkflowDetails({
   isDarkMode?: boolean;
   formName?: string;
 }) {
+  
   const { requestData, taskData } = data || {};
   const dealCardsData: any = [
     {
@@ -84,6 +85,7 @@ function WorkflowDetails({
             details: mallDataFields,
             dataField: requestData?.mallData,
             component: "table",
+            maxWidth: RfW(300),
           },
         ]
       : []),

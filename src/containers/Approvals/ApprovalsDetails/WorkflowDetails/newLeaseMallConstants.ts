@@ -1,5 +1,79 @@
 import { Colors } from "../../../../theme";
+import { getDateFormat } from "../../../../utils/helper";
 import { iterationType } from "./serializer";
+
+const yesOrNo = (value) => (value ? "Yes" : "No");
+
+export const generalNewLease = [
+  {
+    label: "Title",
+    key: "formTitle",
+  },
+  {
+    label: "Department",
+    key: "department",
+    required: true,
+  },
+  {
+    label: "Initiated By",
+    key: "createdByName",
+  },
+  {
+    label: "Initiated On",
+    key: "createdOn",
+    method: getDateFormat,
+  },
+  {
+    label: "Lease Code",
+    key: "leaseCodeBrandName",
+  },
+  {
+    label: "Customer Code",
+    key: "customerCode",
+  },
+  {
+    label: "Customer Group",
+    key: "customerGroup",
+  },
+  {
+    label: "Customer Name",
+    key: "customerName",
+  },
+  {
+    label: "First Payment Required",
+    key: "firstPayment",
+    method: yesOrNo,
+  },
+  {
+    label: "Promissory Note Required",
+    key: "promissoryNote",
+    method: yesOrNo,
+  },
+  {
+    label: "Contract Type",
+    key: "contractType",
+  },
+  {
+    label: "Serial Number",
+    key: "serialNumber",
+  },
+  {
+    label: "Proposed Brand",
+    key: "proposedBrand",
+  },
+  {
+    label: "Lease Created On",
+    key: "createdDate",
+  },
+  {
+    label: "Requested By",
+    key: "requestedByEmailName",
+  },
+  {
+    label: "Lease Type",
+    key: "leaseType",
+  },
+];
 
 const nullYellow = (item, key) => {
   if (item?.mall_Name !== "Total" && !item?.[key]) return Colors.yellowLight;

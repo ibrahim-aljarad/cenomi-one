@@ -1,12 +1,15 @@
 import { Colors } from "../../../../theme";
 import { getDateFormat } from "../../../../utils/helper";
-import { mallDataFields } from "./newLeaseMallConstants";
+import { generalNewLease, mallDataFields } from "./newLeaseMallConstants";
 import {
   contractGridDetails,
   generalRenewal,
   renewalProposalDetailsData,
 } from "./renewalConstants";
-import { terminationGridDetails } from "./terminationConstants";
+import {
+  generalTermination,
+  terminationGridDetails,
+} from "./terminationConstants";
 
 const nullOrData = (value) => value || "N/A";
 export type iterationType = {
@@ -254,12 +257,14 @@ export const annualEscalationDataColor = ({ accPolicy, customerRequest }) =>
   customerRequest.includes(accPolicy) ? null : Colors.red;
 
 const allGenaralDetailCards = {
-  'Renewal Committee Approval': generalRenewal
-}
-export const getGenaralDetailsCard = (formType) => allGenaralDetailCards[formType];
+  "Renewal Committee Approval": generalRenewal,
+  "New Lease Committee Approval Form": generalNewLease,
+  "Termination Committee Approval": generalTermination,
+};
+export const getGenaralDetailsCard = (formType) =>
+  allGenaralDetailCards[formType];
 
 export {
-  generalRenewal,
   contractGridDetails,
   terminationGridDetails,
   mallDataFields,

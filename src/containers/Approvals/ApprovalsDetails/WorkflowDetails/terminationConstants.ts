@@ -1,5 +1,60 @@
 import { Colors } from "../../../../theme";
+import { getDateFormat } from "../../../../utils/helper";
 import { iterationType } from "./serializer";
+
+const yesOrNo = (value) => (value ? "Yes" : "No");
+export const generalTermination = [
+  {
+    label: "Title",
+    key: "formTitle",
+  },
+  {
+    label: "Department",
+    key: "department",
+    required: true,
+  },
+  {
+    label: "Initiated By",
+    key: "createdByName",
+  },
+  {
+    label: "Initiated On",
+    key: "createdOn",
+    method: getDateFormat,
+  },
+  {
+    label: "Customer/Lease",
+    key: "formType",
+  },
+  {
+    label: "Lease Code",
+    key: "leaseCodeBrandName",
+  },
+  {
+    label: "Customer Code",
+    key: "customerCode",
+  },
+  {
+    label: "Customer Name",
+    key: "customerName",
+  },
+  {
+    label: "Customer Group",
+    key: "customerGroup",
+  },
+  {
+    label: "Lease Type",
+    key: "leaseType",
+  },
+  {
+    label: "Requested By",
+    key: "requestedByEmailName",
+  },
+  {
+    label: "Created By",
+    key: "createdBy",
+  },
+];
 
 const getLeaseStatusColor = ({ LeaseStatusID }) => {
   return LeaseStatusID && LeaseStatusID !== 1 ? Colors.red : "";
