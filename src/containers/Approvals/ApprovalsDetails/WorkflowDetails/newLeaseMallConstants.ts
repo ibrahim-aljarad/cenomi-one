@@ -173,11 +173,13 @@ export const mallDataFields: iterationType[] = [
     label: "Area(Sqm)",
     key: "area_Sqm",
     colorMethod: getMallAreaColor,
+    alignItems: 'flex-end',
   },
   {
     label: "New Base Rent (SAR/Sqm)",
     key: "newBaseRent",
     colorMethod: getBaseRentColor,
+    alignItems: 'flex-end',
   },
   {
     label: `Budget FY'${
@@ -185,6 +187,7 @@ export const mallDataFields: iterationType[] = [
     } Base Rent If Not Available Price List (SAR/sqm)`,
     key: "budgetBaseRent",
     colorMethod: getBudgetBaseRentColor,
+    alignItems: 'flex-end',
   },
   {
     label: `New Proposed Rent VS Budget FY'${
@@ -192,28 +195,34 @@ export const mallDataFields: iterationType[] = [
     } Or Price List (%)`,
     key: "priceList",
     colorMethod: getPriceListColor,
+    alignItems: 'flex-end',
   },
   {
     label: "Free Period Months",
     key: "freePeriodMonths",
     colorMethod: getFreeperiodColor,
+    alignItems: 'flex-end',
   },
   {
     label: "Free Period Amount",
     key: "freePeriodAmount",
     colorMethod: getFreePeriodAmntColor,
+    alignItems: 'flex-end',
   },
   {
     label: "New Base Rent Value (SAR)",
     key: "newBaserentValueSAR",
     method: getNewBaserentValueSAR,
+    alignItems: 'flex-end',
   },
   {
     label: "Budget Price (SAR) Or Price List Base Rent Value (SAR)",
     key: "budgetPriceSAR",
+    alignItems: 'flex-end',
   },
   {
     label: "Target OCR (%)",
     key: "targetOCR",
+    alignItems: 'flex-end',
   },
 ];

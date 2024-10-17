@@ -4,7 +4,6 @@ import { iterationType } from "./serializer";
 
 const CPSA_LEASE_STATUS_COMPARE = "HoldOver";
 
-const yesOrNo = (value) => (value ? "Yes" : "No");
 
 export const generalRenewal = [
   {
@@ -138,15 +137,18 @@ export const contractGridDetails: iterationType[] = [
   {
     label: "Area",
     key: "AreaSQM",
+    alignItems: 'flex-end',
   },
   {
     label: "Current BR (SAR/Sqm)",
     key: "CurrentBR",
+    alignItems: 'flex-end',
   },
   {
     label: "Proposed BR From Tenant",
     key: "ProposalBR",
     colorMethod: () => Colors.yellow,
+    alignItems: 'flex-end',
   },
   {
     label: `Budget FY'${
@@ -154,12 +156,14 @@ export const contractGridDetails: iterationType[] = [
     } Base Rent If Not Available Price List (SAR/Sqm)`,
     key: "Budget_FY_BaseRent",
     colorMethod: () => Colors.peach,
+    alignItems: 'flex-end',
   },
   {
     label: "Prop V/S Budget (%)",
     key: "PropVsBudget",
     colorMethod: getPropVsBudgetColor,
     textColorMethod: getPropVsBudgetTextColor,
+    alignItems: 'flex-end',
   },
   {
     label: "Sales Type",
@@ -170,34 +174,41 @@ export const contractGridDetails: iterationType[] = [
   {
     label: "Sales Value 12 Month (in 1,000)",
     key: "SalesValue12Month",
+    alignItems: 'flex-end',
   },
   {
     label: "Sales Per Sqm",
     key: "SalesPerSQM",
+    alignItems: 'flex-end',
   },
   {
     label: "Mall Sales Density",
     key: "SALESDENSITY",
+    alignItems: 'flex-end',
   },
   {
     label: "Current OCR (%)",
     key: "CurrentOCR",
     colorMethod: getCrOCRBGColor,
     textColorMethod: getCrOCRTextColor,
+    alignItems: 'flex-end',
   },
   {
     label: "New OCR (%)",
     key: "NEWOCR",
     colorMethod: getNewOCRBGColor,
     textColorMethod: getNewOCRTextColor,
+    alignItems: 'flex-end',
   },
   {
     label: "Target OCR",
     key: "TargetOCR",
+    alignItems: 'flex-end',
   },
   {
     label: "TOR (%)",
     key: "TOR",
+    alignItems: 'flex-end',
   },
   {
     label: "Lease Status",
@@ -208,26 +219,31 @@ export const contractGridDetails: iterationType[] = [
   {
     label: "Current Due Amount",
     key: "OutStanding",
+    alignItems: 'flex-end',
   },
   {
     label: "BR Rent Proposed",
     key: "BRRentProposed",
     colorMethod: () => Colors.yellow,
+    alignItems: 'flex-end',
   },
   {
     label: "Budget Price BR",
     key: "BRBudgetPrice",
     colorMethod: () => Colors.grey,
+    alignItems: 'flex-end',
   },
   {
     label: `FY'${new Date().getFullYear() % 2000} BR`,
     key: "FY23BR",
     colorMethod: () => Colors.grey,
+    alignItems: 'flex-end',
   },
   {
     label: `Budget FY'${new Date().getFullYear() % 2000} BR`,
     key: "BudgetFY23BR",
     colorMethod: () => Colors.peach,
+    alignItems: 'flex-end',
   },
   {
     label: "Renewal Duration",
@@ -239,13 +255,16 @@ export const renewalProposalDetailsData: iterationType[] = [
   {
     label: `FY'${new Date().getFullYear() % 2000} Total`,
     key: "FY2023Total",
+    alignItems: 'flex-end',
   },
   {
     label: `Prposal BR FY'${new Date().getFullYear() % 2000} Total`,
     key: "prposalBRFY2023Total",
+    alignItems: 'flex-end',
   },
   {
     label: `Budget BR FY'${new Date().getFullYear() % 2000} Total`,
     key: "budgetBRFY2023Total",
+    alignItems: 'flex-end',
   },
 ];
