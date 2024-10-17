@@ -29,8 +29,10 @@ export const FUSION_STATE = {
 
 export const workflowDesicionLookupIdEnum = {
   reject: 2,
-  approve: 4,
+  approve: 1,
   request_info: 3,
+  review_approve: 4,
+  submit: 5,
 };
 
 export const getName = (item) => {
@@ -170,8 +172,9 @@ export const ACTION_TYPE_FUSION = [
 
 export const ACTION_TYPE_WORKFLOW = [
   {
-    label: localize("hrRequest.actionButton.requestInfo"),
+    label: localize("hrRequest.actionButton.requestInfoWorkflow"),
     id: "request_info",
+    decisionLookupId: 3,
     statusId: 0,
     fwdType: 1,
     actionType: "INFO_REQUEST",
@@ -188,30 +191,13 @@ export const ACTION_TYPE_WORKFLOW = [
 
     approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
+    commentLength: 20,
     buttonText: localize("hrRequest.actionButton.requestInfo"),
   },
-  // {
-  //   label: 'Reassign',
-  //   id: 'reassign',
-  //   statusId: 0,
-  //   fwdType: 2,
-  //   actionType: 'REASSIGN',
-  //   isPasswordNeeded: false,
-  //   successText: 'Reassigned Successfully',
-  //   module: 'hr',
-  //   image: Images.reassign,
-  //   textColor: Colors.colorReassign,
-  //   eventSuffix: '_rea',
-  //   imageDisable: Images.reassignGrey,
-  //   isFwd: 0,
-  // showApproverSection: true,
-  // approverSectionText:localize('hrRequest.actionButton.changeApprover'),
-  // isCommentRequired: false,buttonText:'Reassign'
-
-  // },
   {
-    label: localize("hrRequest.actionButton.reject"),
+    label: localize("hrRequest.actionButton.rejectWorkflow"),
     id: "reject",
+    decisionLookupId: 2,
     statusId: 3,
     fwdType: 0,
     actionType: "REJECT",
@@ -227,11 +213,13 @@ export const ACTION_TYPE_WORKFLOW = [
     showApproverSection: false,
     approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
+    commentLength: 20,
     buttonText: localize("hrRequest.actionButton.reject"),
   },
   {
-    label: localize("hrRequest.actionButton.approve"),
-    id: "approve",
+    label: localize("hrRequest.actionButton.approveWorkflow"),
+    id: "review_approve",
+    decisionLookupId: 4,
     statusId: 2,
     fwdType: 0,
     actionType: "APPROVE",
@@ -245,7 +233,27 @@ export const ACTION_TYPE_WORKFLOW = [
     imageDisable: Images.approveGrey,
     isFwd: 0,
     showApproverSection: false,
-
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
+    isCommentRequired: true,
+    buttonText: localize("hrRequest.actionButton.approve"),
+  },
+  {
+    label: localize("hrRequest.actionButton.approve"),
+    id: "approve",
+    decisionLookupId: 1,
+    statusId: 2,
+    fwdType: 0,
+    actionType: "APPROVE",
+    isPasswordNeeded: false,
+    successText: localize("hrRequest.actionButton.arroveSuccessMsg"),
+    module: "workflow",
+    image: Images.approve,
+    darkImage: Images.approveIconWhite,
+    textColor: Colors.colorApprove,
+    eventSuffix: "_apr",
+    imageDisable: Images.approveGrey,
+    isFwd: 0,
+    showApproverSection: false,
     approverSectionText: localize("hrRequest.actionButton.changeApprover"),
     isCommentRequired: true,
     buttonText: localize("hrRequest.actionButton.approve"),
