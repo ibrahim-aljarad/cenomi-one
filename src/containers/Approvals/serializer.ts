@@ -29,8 +29,10 @@ export const FUSION_STATE = {
 
 export const workflowDesicionLookupIdEnum = {
   reject: 2,
-  approve: 4,
+  approve: 1,
   request_info: 3,
+  review_approve: 4,
+  submit: 5,
 };
 
 export const getName = (item) => {
@@ -216,8 +218,29 @@ export const ACTION_TYPE_WORKFLOW = [
   },
   {
     label: localize("hrRequest.actionButton.approveWorkflow"),
-    id: "approve",
+    id: "review_approve",
     decisionLookupId: 4,
+    statusId: 2,
+    fwdType: 0,
+    actionType: "APPROVE",
+    isPasswordNeeded: false,
+    successText: localize("hrRequest.actionButton.arroveSuccessMsg"),
+    module: "workflow",
+    image: Images.approve,
+    darkImage: Images.approveIconWhite,
+    textColor: Colors.colorApprove,
+    eventSuffix: "_apr",
+    imageDisable: Images.approveGrey,
+    isFwd: 0,
+    showApproverSection: false,
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
+    isCommentRequired: true,
+    buttonText: localize("hrRequest.actionButton.approve"),
+  },
+  {
+    label: localize("hrRequest.actionButton.approve"),
+    id: "approve",
+    decisionLookupId: 1,
     statusId: 2,
     fwdType: 0,
     actionType: "APPROVE",

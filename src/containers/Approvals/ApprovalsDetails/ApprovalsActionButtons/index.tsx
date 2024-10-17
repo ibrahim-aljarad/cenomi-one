@@ -131,8 +131,12 @@ const ApprovalsActionButtons = (props) => {
     setSuccessText(actionPayload?.successText);
     const currentAction =
       taskData?.find(
+        ({ isCurrentTask, requestMoreInfo }) => requestMoreInfo && isCurrentTask
+      ) ||
+      taskData?.find(
         ({ isCurrentTask, isCompleted }) => !isCompleted && isCurrentTask
-      ) || {};
+      ) ||
+      {};
     const data = {
       originalOrderId: currentAction?.orgininalOrder,
       requestId: actionPayload?.user?.requestIdPk,

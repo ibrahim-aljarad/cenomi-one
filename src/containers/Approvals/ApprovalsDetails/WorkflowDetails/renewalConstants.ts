@@ -4,7 +4,6 @@ import { iterationType } from "./serializer";
 
 const CPSA_LEASE_STATUS_COMPARE = "HoldOver";
 
-const yesOrNo = (value) => (value ? "Yes" : "No");
 
 export const generalRenewal = [
   {

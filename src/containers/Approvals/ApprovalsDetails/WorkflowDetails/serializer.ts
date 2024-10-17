@@ -12,6 +12,7 @@ import {
 } from "./terminationConstants";
 
 const nullOrData = (value) => value || "N/A";
+const yesOrNo = (value) => (value ? "Yes" : "No");
 export type iterationType = {
   key: string;
   label: string;
@@ -240,7 +241,7 @@ export const taskDataFields: iterationType[] = [
   {
     label: "Request More Info",
     key: "requestMoreInfo",
-    method: nullOrData,
+    method: yesOrNo,
   },
 ];
 
