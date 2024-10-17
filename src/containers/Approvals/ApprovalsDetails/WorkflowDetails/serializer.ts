@@ -18,6 +18,7 @@ export type iterationType = {
   method?: any;
   colorMethod?: any;
   textColorMethod?: any;
+  alignItems?: string;
 };
 
 export const generalDetailsTermination: iterationType[] = [
@@ -141,46 +142,57 @@ export const terminationPortfolioData: iterationType[] = [
   {
     label: "No.Of Lease",
     key: "NoOfLease",
+    alignItems: 'flex-end',
   },
   {
     label: "Total Area",
     key: "TotalArea",
+    alignItems: 'flex-end',
   },
   {
     label: "Base Rent",
     key: "BaseRent",
+    alignItems: 'flex-end',
   },
   {
     label: "Total Due",
     key: "totalDue",
+    alignItems: 'flex-end',
   },
   {
     label: "No.Of Locations",
     key: "leasecount",
+    alignItems: 'flex-end',
   },
   {
     label: "Total Base Rent",
     key: "yearlyRent",
+    alignItems: 'flex-end',
   },
   {
     label: "Total Area",
     key: "leaseArea",
+    alignItems: 'flex-end',
   },
   {
     label: "Total Due Amount",
     key: "outstanding",
+    alignItems: 'flex-end',
   },
   {
     label: "Due from 0-90 Days",
     key: "due0to90days",
+    alignItems: 'flex-end',
   },
   {
     label: "60 days due",
     key: "due0to60days",
+    alignItems: 'flex-end',
   },
   {
     label: "Total V/S 90 Days(%)",
     key: "totalVS90days",
+    alignItems: 'flex-end',
   },
 ];
 
@@ -188,14 +200,17 @@ export const estimatedSalesField: iterationType[] = [
   {
     label: "Estimated Sales for 12 Months",
     key: "estimatedSalesFor12Months",
+    alignItems: 'flex-end',
   },
   {
     label: "Estimated OCR",
     key: "estimatedOCR",
+    alignItems: 'flex-end',
   },
   {
     label: "Sale/SQM",
     key: "sale_SQMData",
+    alignItems: 'flex-end',
   },
 ];
 

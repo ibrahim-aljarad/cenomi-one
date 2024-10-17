@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
   tableCell: {
     borderColor: "white",
     borderWidth: 1,
+    paddingHorizontal: RfW(5),
   },
   tableList: {
     paddingBottom: RfH(10),
