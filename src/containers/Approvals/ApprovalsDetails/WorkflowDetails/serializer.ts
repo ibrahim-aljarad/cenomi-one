@@ -22,6 +22,13 @@ export type iterationType = {
   alignItems?: string;
 };
 
+export const numericalFix = (value) => {
+  if(value){
+    return value?.split('.')?.[0]
+  }
+  return value;
+};
+
 export const generalDetailsTermination: iterationType[] = [
   {
     label: "Title",

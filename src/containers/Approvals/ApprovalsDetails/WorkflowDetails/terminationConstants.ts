@@ -1,6 +1,6 @@
 import { Colors } from "../../../../theme";
 import { getDateFormat } from "../../../../utils/helper";
-import { iterationType } from "./serializer";
+import { iterationType, numericalFix } from "./serializer";
 
 const yesOrNo = (value) => (value ? "Yes" : "No");
 export const generalTermination = [
@@ -143,26 +143,32 @@ export const terminationGridDetails: iterationType[] = [
   {
     label: "Current Rent",
     key: "OrignalBR",
+    alignItems: 'flex-end',
   },
   {
     label: "Estimated Financial Impact",
     key: "EstFinImpact",
+    alignItems: 'flex-end',
   },
   {
     label: `Estimated Financial Impact "Penalty"`,
     key: "EstFinImpactPent",
+    alignItems: 'flex-end',
   },
   {
     label: "Holdover Aging",
     key: "HoldoverAging",
+    alignItems: 'flex-end',
   },
   {
     label: `OCR(%)"`,
     key: "ocrPect",
+    alignItems: 'flex-end',
   },
   {
     label: `GLA Impact(%)`,
     key: "GLAImpact",
+    alignItems: 'flex-end',
   },
   {
     label: "Reasons",
@@ -180,9 +186,11 @@ export const terminationGridDetails: iterationType[] = [
   {
     label: "Due Amount",
     key: "OutstandingAmount",
+    alignItems: 'flex-end',
   },
   {
     label: "DiscountAmt",
     key: "DiscountAmt",
+    alignItems: 'flex-end',
   },
 ];
