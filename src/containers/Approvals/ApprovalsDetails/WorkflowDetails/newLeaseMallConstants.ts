@@ -1,6 +1,6 @@
 import { Colors } from "../../../../theme";
 import { getDateFormat } from "../../../../utils/helper";
-import { iterationType } from "./serializer";
+import { iterationType, numericalFix } from "./serializer";
 
 const yesOrNo = (value) => (value ? "Yes" : "No");
 
@@ -137,7 +137,7 @@ const getFreePeriodAmntColor = ({ freePeriodAmount, newBaseRent }) => {
 };
 
 const getNewBaserentValueSAR = (newBaserentValueSAR) =>
-  newBaserentValueSAR ? newBaserentValueSAR : "0";
+  newBaserentValueSAR ? numericalFix(newBaserentValueSAR) : "0";
 
 export const mallDataFields: iterationType[] = [
   {
@@ -174,12 +174,14 @@ export const mallDataFields: iterationType[] = [
     key: "area_Sqm",
     colorMethod: getMallAreaColor,
     alignItems: 'flex-end',
+    method: numericalFix,
   },
   {
     label: "New Base Rent (SAR/Sqm)",
     key: "newBaseRent",
     colorMethod: getBaseRentColor,
     alignItems: 'flex-end',
+    method: numericalFix,
   },
   {
     label: `Budget FY'${
@@ -188,6 +190,7 @@ export const mallDataFields: iterationType[] = [
     key: "budgetBaseRent",
     colorMethod: getBudgetBaseRentColor,
     alignItems: 'flex-end',
+    method: numericalFix,
   },
   {
     label: `New Proposed Rent VS Budget FY'${
@@ -208,6 +211,7 @@ export const mallDataFields: iterationType[] = [
     key: "freePeriodAmount",
     colorMethod: getFreePeriodAmntColor,
     alignItems: 'flex-end',
+    method: numericalFix,
   },
   {
     label: "New Base Rent Value (SAR)",
@@ -219,6 +223,7 @@ export const mallDataFields: iterationType[] = [
     label: "Budget Price (SAR) Or Price List Base Rent Value (SAR)",
     key: "budgetPriceSAR",
     alignItems: 'flex-end',
+    method: numericalFix,
   },
   {
     label: "Target OCR (%)",
