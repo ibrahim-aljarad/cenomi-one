@@ -225,28 +225,41 @@ const Calendar = () => {
     }
 
     if (attendanceData?.length > 0) {
-      formattedData = attendanceData.reduce((acc, item) => {
-        const date = item.DateTime.split("T")[0]; // Extract date part
-        const time = formatTime(item.DateTime); // Extract time part
+        const uniqueEntries = new Map();
 
-        if (!acc[date]) {
-          acc[date] = {
-            marked: true,
-            dots: [
-              {
-                key: "customDot",
-                color: Colors.green,
-              },
-            ],
-            timestamps: [],
-          };
-        }
+        attendanceData.forEach(item => {
+          const date = item.DateTime.split("T")[0];
+          const time = formatTime(item.DateTime);
+          const key = `${date}-${time}`; // Creates a unique key for each date-time combination
+          if (!uniqueEntries.has(key)) {
+            uniqueEntries.set(key, {
+              date,
+              time,
+              EMPLOYEEID: item.EMPLOYEEID,
+              MATCHINGSCORE: item.MATCHINGSCORE
+            });
+          }
+        });
 
-        acc[date].timestamps.push(time); // Add the time to the timestamps array
+        formattedData = Array.from(uniqueEntries.values()).reduce((acc, item) => {
+          if (!acc[item.date]) {
+            acc[item.date] = {
+              marked: true,
+              dots: [
+                {
+                  key: "customDot",
+                  color: Colors.green,
+                },
+              ],
+              timestamps: [],
+            };
+          }
 
-        return acc;
-      }, {});
-    }
+          acc[item.date].timestamps.push(item.time);
+          return acc;
+        }, {});
+      }
+
     const updatedData = calculateTimestampDifferences(
       formattedData,
       selectedMonth
