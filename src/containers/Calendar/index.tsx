@@ -272,25 +272,29 @@ const Calendar = () => {
         moment(date?.dateString).format("YYYY-MM-DD") <= info?.endDate
     );
 
-    const attendenceDatas =
-      eventDateList[moment(date?.dateString).format("YYYY-MM-DD")];
+    const attendenceDatas = eventDateList[temp];
 
-    if (filteredData.length > 0 && attendenceDatas.dots.length > 0) {
-      setSelectedDateEventList([...filteredData, attendenceDatas]);
+    let selectedDateEvents = [];
+    if (filteredData.length > 0 && attendenceDatas?.dots?.length > 0) {
+      selectedDateEvents = [...filteredData, attendenceDatas];
     } else if (filteredData.length > 0) {
-      setSelectedDateEventList(filteredData);
-    } else {
-      setSelectedDateEventList(attendenceDatas);
+      selectedDateEvents = filteredData;
+    } else if (attendenceDatas) {
+      selectedDateEvents = [attendenceDatas];
     }
+
+    setSelectedDateEventList(selectedDateEvents);
+
     const modifiedEventList = {
       ...getEventList(),
       [temp]: {
+        ...eventDateList[temp],
         selected: true,
       },
     };
-    setEventDateList({ ...modifiedEventList });
-    setIsClearFilter(true);
 
+    setEventDateList(modifiedEventList);
+    setIsClearFilter(true);
     setSelectedDate(date?.dateString);
   };
 
@@ -384,14 +388,18 @@ const Calendar = () => {
   };
 
   const renderAttendance = ({ item }) => {
+    if (!item) {
+      return null;
+    }
+
     const title = getStatusTitle({
-      timestampDifferences: Math.abs(item?.timestampDifferences[0]),
-      timestamps: item?.timestamps,
+      timestampDifferences: Math.abs(item.timestampDifferences?.[0] ?? 0),
+      timestamps: item.timestamps,
     });
 
-    const startTime = item?.timestamps[0];
-    const endTime = item?.timestamps[1] ? item?.timestamps[1] : "";
-    let duration = item?.timestampDifferences[0];
+    const startTime = item.timestamps?.[0];
+    const endTime = item.timestamps?.[1] ?? "";
+    let duration = item.timestampDifferences?.[0];
 
     return (
       <View style={[styles.listContainer, darkCard]}>
@@ -404,7 +412,7 @@ const Calendar = () => {
               lineHeight: RfH(19.2),
             }}
           >
-            {title + "  " + item?.date || ""}
+            {`${title}  ${item.date || ""}`}
           </CustomText>
           <View
             style={[
@@ -437,9 +445,9 @@ const Calendar = () => {
           >
             {startTime === undefined
               ? ""
-              : `${startTime} ${endTime ? "to " + endTime : ""}`}
+              : `${startTime}${endTime ? " to " + endTime : ""}`}
           </CustomText>
-          {!isNaN(duration) ? (
+          {duration !== undefined && !isNaN(duration) ? (
             <CustomText
               fontSize={14}
               color={Colors.white}
@@ -449,9 +457,7 @@ const Calendar = () => {
                 textAlign: "right",
               }}
             >
-              {`${convertHoursToHoursAndMinutes(
-                item?.timestampDifferences[0].toFixed(2)
-              )} hours` || ""}
+              {`${convertHoursToHoursAndMinutes(duration.toFixed(2))} hours`}
             </CustomText>
           ) : null}
         </View>
