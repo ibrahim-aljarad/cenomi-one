@@ -19,7 +19,8 @@ import {
   GET_USEFUL_APPS,
   ORGANIZATION_STRUCTURE,
   SET_NOTIFICATION_COUNT,
-  SUBMIT_ACKNOWLEDGE
+  SUBMIT_ACKNOWLEDGE,
+  GET_TENANT_LOGIN,
 } from './constants';
 
 export const getCorporateCommunication = createRoutine(GET_CORPORATE_COMMUNICATION);
@@ -41,3 +42,4 @@ export const cancelAcknowledge = createRoutine(CANCEL_ACKNOWLEDGE);
 export const organizationStructure = createRoutine(ORGANIZATION_STRUCTURE);
 export const getPendingAcknowledgement = createRoutine(GET_PENDING_ACKNOWLEDGEMENT);
 export const setNotificationCount = createRoutine(SET_NOTIFICATION_COUNT);
+export const getTenantLogin = createRoutine(GET_TENANT_LOGIN);

@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { setGlobalError } from '../../../appContainer/redux/actions';
-import { api } from '../../../utils/axios';
+import { api, tenantCentralApi } from '../../../utils/axios';
 
 import { urlSlugify } from '../../../utils/helpers';
 import {
@@ -18,6 +18,7 @@ import {
   getPendingAcknowledgement,
   getQoutes,
   getSurvey,
+  getTenantLogin,
   getUsefulApps,
   getknowledgeHubCategories,
   organizationStructure,
@@ -40,6 +41,7 @@ const CREATE_ACKNOWLEDGE_URL = 'acknowledgement/create';
 const ACKNOWLEDGE_URL = 'acknowledgement';
 const ORGANIZATION_STRUCTURE_URL = 'user/organization-structure';
 const PENDING_ACKNOWLEDGEMENT_URL = 'acknowledgement/pending-items';
+const LOGIN_END = 'master-data';
 
 const getCorporateCommunicationRequestApiCall = () =>
   api({
@@ -149,6 +151,12 @@ const getPendingAcknowledgementApiCall = () =>
     url: `${PENDING_ACKNOWLEDGEMENT_URL}`
   });
 
+const getTenantLoginApiCall = () =>
+  tenantCentralApi({
+    method: 'GET',
+    url: `${LOGIN_END}`
+  });
+  
 function* getCorporateCommunicationRequest(action: any) {
   try {
     // change for skeleton loader
@@ -491,6 +499,25 @@ function* getPendingAcknowledgementRequest(action: any) {
     yield put(getPendingAcknowledgement.fulfill({ isLoading: false }));
   }
 }
+function* getTenantLoginRequest(action: any) {
+  try {
+    yield put(getTenantLogin.request({ isLoading: true }));
+    const response = yield call(getTenantLoginApiCall);
+    if (response.success) {
+      const { data } = response;
+      yield put(getTenantLogin.success({ data }));
+    } else {
+      yield put(getTenantLogin.failure());
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    console.log('sdsdsdsd', error)
+    yield put(getTenantLogin.failure());
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(getTenantLogin.fulfill({ isLoading: false }));
+  }
+}
 
 export default function* homeSaga() {
   yield takeLatest(getCorporateCommunication.TRIGGER, getCorporateCommunicationRequest);
@@ -514,4 +541,5 @@ export default function* homeSaga() {
   yield takeLatest(cancelAcknowledge.TRIGGER, cancelAcknowledgeRequest);
   yield takeLatest(organizationStructure.TRIGGER, organizationStructureRequest);
   yield takeLatest(getPendingAcknowledgement.TRIGGER, getPendingAcknowledgementRequest);
+  yield takeLatest(getTenantLogin.TRIGGER, getTenantLoginRequest);
 }

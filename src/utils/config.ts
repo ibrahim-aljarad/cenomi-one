@@ -12,6 +12,7 @@ const Config = {
   WEBSITE_BASEURL: env.WEBSITE_BASEURL,
   APPIAN_URL: env.APPIAN_URL,
   APPIAN_KEY: env.APPIAN_KEY,
+  TENANT_CENTRAL_URL: env.TENANT_CENTRAL_BASEURL,
 };
 
 export default Config;
