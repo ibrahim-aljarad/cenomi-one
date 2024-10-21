@@ -1,27 +1,27 @@
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { FlatList, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RfH, getUserConfigData } from '../../../utils/helpers';
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { FlatList, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { RfH, getUserConfigData } from "../../../utils/helpers";
 import {
   getApprovalFeatureModulesSelector,
-  getFeatureModuleDataSelector
-} from '../redux/selectors';
+  getFeatureModuleDataSelector,
+} from "../redux/selectors";
 
-import { isEmpty } from 'lodash';
-import { createStructuredSelector } from 'reselect';
-import ApprovalRequestGridItem from '../../../components/ApprovalRequestGridItem';
-import { ApprovalsGridSkeleton } from '../../../components/SkeletonLoader';
-import NavigationRouteNames from '../../../routes/ScreenNames';
-import { Colors } from '../../../theme';
-import { getApprovalTasksCount } from '../../Approvals/redux/actions';
-import { getApprovalTasksCountSelector } from '../../Approvals/redux/selectors';
-import { getTaskCountByModule } from '../../Approvals/serializer';
-import { getMyProfileDetailsSelector } from '../../LoginHome/redux/selectors';
-import { isDarkModeSelector } from '../../redux/selectors';
-import { getApprovalFeatureModules } from '../redux/actions';
-import styles from '../styles';
-import HeaderCateRow from './HeaderCateRow';
+import { isEmpty } from "lodash";
+import { createStructuredSelector } from "reselect";
+import ApprovalRequestGridItem from "../../../components/ApprovalRequestGridItem";
+import { ApprovalsGridSkeleton } from "../../../components/SkeletonLoader";
+import NavigationRouteNames from "../../../routes/ScreenNames";
+import { Colors } from "../../../theme";
+import { getApprovalTasksCount } from "../../Approvals/redux/actions";
+import { getApprovalTasksCountSelector } from "../../Approvals/redux/selectors";
+import { getTaskCountByModule } from "../../Approvals/serializer";
+import { getMyProfileDetailsSelector } from "../../LoginHome/redux/selectors";
+import { isDarkModeSelector } from "../../redux/selectors";
+import { getApprovalFeatureModules } from "../redux/actions";
+import styles from "../styles";
+import HeaderCateRow from "./HeaderCateRow";
 
 type ApprovalsSectionProps = {
   handleClick: Function;
@@ -32,7 +32,7 @@ const stateSelector = createStructuredSelector({
   approvalTasksCountData: getApprovalTasksCountSelector,
   isDarkMode: isDarkModeSelector,
   myProfileDetails: getMyProfileDetailsSelector,
-  featureModuleData: getFeatureModuleDataSelector
+  featureModuleData: getFeatureModuleDataSelector,
 });
 
 export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
@@ -46,7 +46,7 @@ export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
     approvalTasksCountData,
     isDarkMode,
     myProfileDetails,
-    featureModuleData
+    featureModuleData,
   } = useSelector(stateSelector);
 
   const [list, setList] = useState([]);
@@ -59,12 +59,19 @@ export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
   }, [isFocused]);
 
   useEffect(() => {
-    if (!isEmpty(approvalFeatureModulesData) && approvalFeatureModulesData?.length > 0) {
+    if (
+      !isEmpty(approvalFeatureModulesData) &&
+      approvalFeatureModulesData?.length > 0
+    ) {
       const filteredData = approvalFeatureModulesData
         ?.filter(
           (item) =>
             item?.isActive &&
-            getUserConfigData(myProfileDetails?.config?.config, item?.feature, featureModuleData)
+            getUserConfigData(
+              myProfileDetails?.config?.config,
+              item?.feature,
+              featureModuleData
+            ) 
         )
         ?.slice()
         ?.sort((a, b) => a.order - b.order);
@@ -82,8 +89,11 @@ export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
       style={{
         paddingTop: RfH(12),
         paddingBottom: RfH(5),
-        backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-      }}>
+        backgroundColor: isDarkMode
+          ? Colors.darkModeBackground
+          : Colors.transparent,
+      }}
+    >
       {list?.length > 0 ? (
         <HeaderCateRow
           categoryName={`Approvals`}
@@ -103,7 +113,10 @@ export function ApprovalsSection(props: ApprovalsSectionProps): JSX.Element {
             <ApprovalRequestGridItem
               onPress={() => handleClick(item)}
               icon={item?.iconUrl}
-              badgeCount={getTaskCountByModule(item?.feature, approvalTasksCountData)}
+              badgeCount={getTaskCountByModule(
+                item?.feature,
+                approvalTasksCountData
+              )}
               text={item?.name}
               fontSize={15}
               iconHeight={RfH(32)}

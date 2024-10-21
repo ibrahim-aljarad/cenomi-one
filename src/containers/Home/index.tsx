@@ -263,11 +263,19 @@ const Home = () => {
 
       const filteredData = lastViewedDatetime
         ? sortedData?.filter((item) => {
+            if (!item?.quote?.content) {
+              return;
+            }
             if (new Date(item?.createdAt) > new Date(lastViewedDatetime)) {
               return item;
             }
           })
-        : sortedData;
+        : sortedData?.filter((item) => {
+            if (!item?.quote?.content) {
+              return;
+            }
+            return true;
+          });
 
       const slicedData = filteredData.slice(0, 4) || [];
 
@@ -279,7 +287,7 @@ const Home = () => {
       );
 
       setIsVisibleQuotes((isActiveQoutes && slicedData?.length > 0) || false);
-      console.log(" pprofile details", qoutesList);
+      // console.log(" pprofile details", qoutesList);
     });
   }, [qoutesList]);
 
@@ -460,7 +468,7 @@ const Home = () => {
     const actions = checkFusionActionsApproval();
     navigation.navigate(NavigationRouteNames.APPROVALS_LISTING, {
       module: item,
-      approvalType: selectedItem?.feature,
+      approvalType: item?.feature || selectedItem?.feature,
       redirectToExternalUrl: selectedItem?.redirectToExternalUrl,
     });
   };

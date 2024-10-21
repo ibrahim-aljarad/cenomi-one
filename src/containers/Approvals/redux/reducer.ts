@@ -5,6 +5,7 @@ import {
   DoApprovalActionDone,
   doLeasingTakeAction,
   doProucurementAction,
+  doWorkflowTakeAction,
   getApprovalPendingTasks,
   getApprovalTasksCount,
   getApprovalTasksDetails,
@@ -12,7 +13,10 @@ import {
   getLeasingTasksDetails,
   getProcurementPendingTask,
   getProcurementTaskDetails,
-  getUserSearchList
+  getUserSearchList,
+  getWorkflowPendingTasks,
+  getWorkflowTasksDetails,
+  getWorkflowUserList
 } from './actions';
 
 export const initialState = {
@@ -22,6 +26,7 @@ export const initialState = {
 
   approvalActionData: [],
   userSearchListData: [],
+  workflowUserListData: [],
   approvalTasksCountData: [],
   approvalTasksCountDataLoading: false
 };
@@ -149,6 +154,54 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         break;
       }
 
+      case getWorkflowPendingTasks.TRIGGER: {
+        draft.approvalPendingTasksData = undefined;
+        break;
+      }
+      case getWorkflowPendingTasks.SUCCESS: {
+        draft.approvalPendingTasksData = action.payload?.data?.result;
+        break;
+      }
+      case getWorkflowPendingTasks.FAILURE: {
+        draft.approvalPendingTasksData = [];
+        break;
+      }
+
+      case getWorkflowTasksDetails.TRIGGER: {
+        draft.approvalTasksDetailsData = undefined;
+        break;
+      }
+      case getWorkflowTasksDetails.SUCCESS: {
+        draft.approvalTasksDetailsData = action.payload?.data?.result;
+        break;
+      }
+      case getWorkflowTasksDetails.FAILURE: {
+        draft.approvalTasksDetailsData = [];
+        break;
+      }
+
+      case getWorkflowUserList.TRIGGER: {
+        draft.workflowUserListData = undefined;
+        break;
+      }
+      case getWorkflowUserList.SUCCESS: {
+        draft.workflowUserListData = action.payload?.data?.result;
+        break;
+      }
+      case getWorkflowUserList.FAILURE: {
+        draft.workflowUserListData = [];
+        break;
+      }
+      case doWorkflowTakeAction.TRIGGER: {
+        draft.approvalActionData = [];
+        break;
+      }
+      case doWorkflowTakeAction.SUCCESS: {
+        draft.approvalActionData = action.payload;
+        break;
+      }
+
+      
       default: {
         break;
       }

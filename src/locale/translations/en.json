@@ -3,7 +3,8 @@
     "attachments": "Attachments",
     "actions": "Actions",
     "no_approval": "No pending approvals",
-    "commentRequired": "Comments Required."
+    "commentRequired": "Comments Required.",
+    "atLeast20": "At least 20 letters needed"
   },
   "benefits": {
     "search_benefits": "Search benefits",
@@ -229,7 +230,10 @@
     "actionButton.reply": "Reply",
     "actionButton.takeAction": "Take Action",
     "actionButton.successfully": "Successfully",
-    "actionButton.changeApprover": "Change Approver"
+    "actionButton.changeApprover": "Change Approver",
+    "actionButton.requestInfoWorkflow": "Require More Info",
+    "actionButton.rejectWorkflow": "Reject",
+    "actionButton.approveWorkflow": "Review/Approve"
   },
   "imageSpecification": {
     "title": "Image specification for upload",
