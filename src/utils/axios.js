@@ -78,7 +78,7 @@ tenantCentralInstance.interceptors.request.use(
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
 
-    // config.headers['Appian-API-Key'] = Config.APPIAN_KEY;
+    config.headers['x-cenomi-one-api-token'] = '7371b577-98c6-43a9-93f5-4dae81f11eb7';
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
     return config;
@@ -331,55 +331,55 @@ tenantCentralInstance.interceptors.response.use(
       console.log({ refreshToken });
 
       return new Promise(function (resolve, reject) {
-        axios
-          .get(Config.tenantCentralInstance + "auth/refresh-token", {
-            headers: { Authorization: "Bearer " + refreshToken },
-          })
-          .then(async ({ data }) => {
-            console.log({ tokenData: data });
+        // axios
+        //   .get(Config.tenantCentralInstance + "auth/refresh-token", {
+        //     headers: { Authorization: "Bearer " + refreshToken },
+        //   })
+        //   .then(async ({ data }) => {
+        //     console.log({ tokenData: data });
 
-            // newTokens = data;
-            // isRefreshed = true;
+        //     // newTokens = data;
+        //     // isRefreshed = true;
 
-            await storeData(
-              LOCAL_STORAGE_DATA_KEY.USER_TOKEN,
-              data.accessToken
-            );
-            await storeData(
-              LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN,
-              data.refreshToken
-            );
+        //     await storeData(
+        //       LOCAL_STORAGE_DATA_KEY.USER_TOKEN,
+        //       data.accessToken
+        //     );
+        //     await storeData(
+        //       LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN,
+        //       data.refreshToken
+        //     );
 
-            axios.defaults.headers.common["Authorization"] =
-              "Bearer " + data.accessToken;
-            originalRequest.headers["Authorization"] =
-              "Bearer " + data.accessToken;
+        //     axios.defaults.headers.common["Authorization"] =
+        //       "Bearer " + data.accessToken;
+        //     originalRequest.headers["Authorization"] =
+        //       "Bearer " + data.accessToken;
 
-            processQueue(null, data.accessToken);
-            resolve(axios(originalRequest));
-          })
-          .catch(async (err) => {
-            console.log({
-              err,
-              config: err.config,
-              headers: JSON.stringify(err.config?.headers),
-            });
+        //     processQueue(null, data.accessToken);
+        //     resolve(axios(originalRequest));
+        //   })
+        //   .catch(async (err) => {
+        //     console.log({
+        //       err,
+        //       config: err.config,
+        //       headers: JSON.stringify(err.config?.headers),
+        //     });
 
-            // await removeData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
-            // await removeData(LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN);
-            // await removeData(LOCAL_STORAGE_DATA_KEY.IS_BIOMETRIC_ENABLE);
-            // await removeData(LOCAL_STORAGE_DATA_KEY.IS_REMEMBER_ME);
+        //     // await removeData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
+        //     // await removeData(LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN);
+        //     // await removeData(LOCAL_STORAGE_DATA_KEY.IS_BIOMETRIC_ENABLE);
+        //     // await removeData(LOCAL_STORAGE_DATA_KEY.IS_REMEMBER_ME);
 
-            // logout user
-            await clearAllExceptTutorialShowAppLanguage(false);
-            RNRestart.Restart();
+        //     // logout user
+        //     await clearAllExceptTutorialShowAppLanguage(false);
+        //     RNRestart.Restart();
 
-            processQueue(err, null);
-            reject(err);
-          })
-          .then(() => {
-            isRefreshing = false;
-          });
+        //     processQueue(err, null);
+        //     reject(err);
+          // })
+          // .then(() => {
+          //   isRefreshing = false;
+          // });
       });
     }
 
@@ -514,7 +514,7 @@ async function fetchTenantCentralResponse(config) {
       return { success: true, data };
     })
     .catch((error) => {
-      console.log('%c %s %c %s', bgRed, '💀 Tenant API Error 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
+      console.log('%c %s %c %s', bgRed, '💀 Tenant API Error 💀', bgOrange, `${config.method}: ${config.url} `, JSON.stringify(error), error.response);
      
       const { data: errorResponse } = error.response || {};
       console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);

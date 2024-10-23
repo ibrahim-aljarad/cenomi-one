@@ -27,6 +27,7 @@ import {
   organizationStructure,
   getPendingAcknowledgement,
   setNotificationCount,
+  getTenantLogin,
 } from "./actions";
 
 export const initialState = {
@@ -276,6 +277,19 @@ export default (
       }
       case getPendingAcknowledgement.FAILURE: {
         draft.pendingAcknowledgementData = {};
+        break;
+      }
+
+      case getTenantLogin.TRIGGER: {
+        // draft.pendingAcknowledgementData = {};
+        break;
+      }
+      case getTenantLogin.SUCCESS: {
+        // draft.pendingAcknowledgementData = action?.payload?.data || {};
+        break;
+      }
+      case getTenantLogin.FAILURE: {
+        // draft.pendingAcknowledgementData = {};
         break;
       }
 

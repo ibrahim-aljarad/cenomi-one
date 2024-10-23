@@ -39,6 +39,7 @@ import { getWishesListSelector, isDarkModeSelector } from "../redux/selectors";
 import {
   getPendingAcknowledgement,
   getQoutes,
+  getTenantLogin,
   submitAcknowledge,
 } from "./redux/actions";
 import {
@@ -206,6 +207,7 @@ const Home = () => {
       dispatch(getOrganizationConfig.trigger());
       dispatch(getQoutes.trigger());
       dispatch(getPendingAcknowledgement.trigger());
+      dispatch(getTenantLogin.trigger({email: "syedmooshasha@qburst.com"}));
 
       const jailBreakStatus = jailBreak();
       if (jailBreakStatus) {

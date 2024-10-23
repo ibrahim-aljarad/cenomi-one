@@ -41,7 +41,7 @@ const CREATE_ACKNOWLEDGE_URL = 'acknowledgement/create';
 const ACKNOWLEDGE_URL = 'acknowledgement';
 const ORGANIZATION_STRUCTURE_URL = 'user/organization-structure';
 const PENDING_ACKNOWLEDGEMENT_URL = 'acknowledgement/pending-items';
-const LOGIN_END = 'master-data';
+const LOGIN_END = 'cenomi-one/login';
 
 const getCorporateCommunicationRequestApiCall = () =>
   api({
@@ -151,10 +151,11 @@ const getPendingAcknowledgementApiCall = () =>
     url: `${PENDING_ACKNOWLEDGEMENT_URL}`
   });
 
-const getTenantLoginApiCall = () =>
+const getTenantLoginApiCall = (data: any) =>
   tenantCentralApi({
-    method: 'GET',
-    url: `${LOGIN_END}`
+    method: 'POST',
+    url: `${LOGIN_END}`,
+    data
   });
   
 function* getCorporateCommunicationRequest(action: any) {
@@ -502,16 +503,17 @@ function* getPendingAcknowledgementRequest(action: any) {
 function* getTenantLoginRequest(action: any) {
   try {
     yield put(getTenantLogin.request({ isLoading: true }));
-    const response = yield call(getTenantLoginApiCall);
+    const { email } = action?.payload || {};
+    const response = yield call(getTenantLoginApiCall,{email});
     if (response.success) {
       const { data } = response;
+      console.log(data,'data?.list')
       yield put(getTenantLogin.success({ data }));
     } else {
       yield put(getTenantLogin.failure());
       yield put(setGlobalError.success());
     }
   } catch (error) {
-    console.log('sdsdsdsd', error)
     yield put(getTenantLogin.failure());
     yield put(setGlobalError.success());
   } finally {
