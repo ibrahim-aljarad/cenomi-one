@@ -231,7 +231,8 @@
     "actionButton.changeApprover": "Change Approver",
     "actionButton.requestInfoWorkflow": "Require More Info",
     "actionButton.rejectWorkflow": "Reject",
-    "actionButton.approveWorkflow": "Review/Approve"
+    "actionButton.approveWorkflow": "Review/Approve",
+    "actionButton.submit": "Submit"
   },
   "imageSpecification": {
     "title": "Image specification for upload",

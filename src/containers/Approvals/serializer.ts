@@ -258,6 +258,28 @@ export const ACTION_TYPE_WORKFLOW = [
     isCommentRequired: true,
     buttonText: localize("hrRequest.actionButton.approve"),
   },
+  {
+    label: localize("hrRequest.actionButton.submit"),
+    id: "submit",
+    decisionLookupId: 5,
+    statusId: 2,
+    fwdType: 0,
+    actionType: "SUBMIT",
+    isPasswordNeeded: false,
+    successText: localize("hrRequest.actionButton.submitSuccessMsg"),
+    module: "workflow",
+    image: Images.approve,
+    darkImage: Images.approveIconWhite,
+    textColor: Colors.colorApprove,
+    eventSuffix: "_apr",
+    imageDisable: Images.approveGrey,
+    isFwd: 0,
+    showApproverSection: false,
+    approverSectionText: localize("hrRequest.actionButton.changeApprover"),
+    isCommentRequired: true,
+    commentLength: 20,
+    buttonText: localize("hrRequest.actionButton.submit"),
+  },
 ];
 export const PROCUREMENT_ACTION_TYPE_FUSION = [
   {
