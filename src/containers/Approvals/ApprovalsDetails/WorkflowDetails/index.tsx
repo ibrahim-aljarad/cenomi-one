@@ -22,7 +22,7 @@ import {
   terminationPortfolioData,
 } from "./serializer";
 import { localize } from "../../../../locale/utils";
-import { sortBy } from "lodash";
+import { isString, sortBy } from "lodash";
 
 function WorkflowDetails({
   data,
@@ -35,6 +35,17 @@ function WorkflowDetails({
   formName?: string;
 }) {
   const { requestData, taskData } = data || {};
+
+  const getApprovalTitle = (taskItem, index, allTaskData) => {
+    if(allTaskData?.[index-1]?.requestMoreInfo) {
+      return `Information Requested From - ${taskItem?.name}`
+    }
+    if(isString(taskItem?.groupName)){
+      return `${taskItem?.groupName} - ${taskItem?.name}`
+    }
+    return taskItem?.name
+  };
+
   const dealCardsData: any = [
     {
       title: "General",
@@ -143,10 +154,8 @@ function WorkflowDetails({
       : []),
 
     //for all
-    ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem) => ({
-      title: `Approver:  ${
-        taskItem?.name?.trim() ? taskItem?.name : taskItem?.completedBy
-      }`,
+    ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem, index, allTaskData) => ({
+      title: getApprovalTitle(taskItem, index, allTaskData) ,
       icon: !!taskItem?.isCompleted ? Images.tickUploadDoc : null,
       details: taskDataFields,
       dataField: taskItem,
