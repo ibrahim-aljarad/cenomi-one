@@ -18,11 +18,16 @@ import {
   LEAVE_STATUS,
   monthNameList,
 } from "../../utils/constants";
-import { getAttendances } from "../HrRequest/redux/actions";
+import {
+  createPublicHoliday,
+  getAttendances,
+  getPublicHolidayStatus,
+} from "../HrRequest/redux/actions";
 import { getAbsenseData } from "../HrRequest/redux/actions";
 import {
   getAbsenseDataSelector,
   getAttendanceSelector,
+  getPublicHolidayStatusSelector,
 } from "../HrRequest/redux/selectors";
 import moment from "moment";
 import { isArray, isEmpty } from "lodash";
@@ -56,6 +61,7 @@ const stateSelector = createStructuredSelector({
   organizationConfig: getOrganizationConfigSelector,
   organizationStructureData: getOrganizationStructureDataSelector,
   myProfileData: getMyProfileDetailsSelector,
+  publicHolidayData: getPublicHolidayStatusSelector,
 });
 
 const Calendar = () => {
@@ -67,8 +73,8 @@ const Calendar = () => {
     myProfileData,
     organizationStructureData,
     organizationConfig,
+    publicHolidayData,
   } = useSelector(stateSelector);
-
   const weekend = organizationConfig?.configuration?.weekend;
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -121,6 +127,8 @@ const Calendar = () => {
     if (isFocused) {
       const id = myProfileData?.id;
       dispatch(organizationStructure.trigger({ id }));
+      dispatch(createPublicHoliday.trigger());
+      dispatch(getPublicHolidayStatus.trigger());
     }
   }, [isFocused]);
 
@@ -384,11 +392,15 @@ const Calendar = () => {
   };
 
   const renderAttendance = ({ item }) => {
-    const title = getStatusTitle({
-      timestampDifferences: Math.abs(item?.timestampDifferences[0]),
-      timestamps: item?.timestamps,
-    });
-
+    const isPublicHoliday =
+      publicHolidayData?.status &&
+      moment(publicHolidayData.date).format("YYYY-MM-DD") === item.date;
+    const title = isPublicHoliday
+      ? "Public Holiday"
+      : getStatusTitle({
+          timestampDifferences: Math.abs(item?.timestampDifferences[0]),
+          timestamps: item?.timestamps,
+        });
     const startTime = item?.timestamps[0];
     const endTime = item?.timestamps[1] ? item?.timestamps[1] : "";
     let duration = item?.timestampDifferences[0];
@@ -409,11 +421,13 @@ const Calendar = () => {
           <View
             style={[
               {
-                backgroundColor: getStatusColors({
-                  startTime,
-                  duration,
-                  timestamps: item.timestamps,
-                }),
+                backgroundColor: isPublicHoliday
+                  ? Colors.green
+                  : getStatusColors({
+                      startTime,
+                      duration,
+                      timestamps: item.timestamps,
+                    }),
               },
               styles.statusColor,
             ]}
@@ -425,18 +439,20 @@ const Calendar = () => {
             paddingTop: RfH(10),
           }}
         >
-          <CustomText
-            fontSize={14}
-            color={Colors.white}
-            styling={{
-              ...CommonStyles.regularFont400Style,
-              lineHeight: RfH(16.8),
-            }}
-          >
-            {startTime === undefined
-              ? ""
-              : `${startTime} ${endTime ? "to " + endTime : ""}`}
-          </CustomText>
+          {!isPublicHoliday && (
+            <CustomText
+              fontSize={14}
+              color={Colors.white}
+              styling={{
+                ...CommonStyles.regularFont400Style,
+                lineHeight: RfH(16.8),
+              }}
+            >
+              {startTime === undefined
+                ? ""
+                : `${startTime} ${endTime ? "to " + endTime : ""}`}
+            </CustomText>
+          )}
           {!isNaN(duration) ? (
             <CustomText
               fontSize={14}

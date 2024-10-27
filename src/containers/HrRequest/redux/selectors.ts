@@ -74,6 +74,13 @@ const getAttendanceSelector = createSelector(
   }
 );
 
+const getPublicHolidayStatusSelector = createSelector(
+  selectGlobalSubStore,
+  (globalState) => {
+    return globalState.publicHolidayData;
+  }
+);
+
 export {
   getPayslipListSelector,
   getPayslipDetailsSelector,
@@ -85,4 +92,5 @@ export {
   cancelledAbsenseDataSelector,
   getAbsenseReasonDataSelector,
   getAttendanceSelector,
+  getPublicHolidayStatusSelector,
 };
