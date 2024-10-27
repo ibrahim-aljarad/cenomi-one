@@ -440,33 +440,35 @@ const Calendar = () => {
           }}
         >
           {!isPublicHoliday && (
-            <CustomText
-              fontSize={14}
-              color={Colors.white}
-              styling={{
-                ...CommonStyles.regularFont400Style,
-                lineHeight: RfH(16.8),
-              }}
-            >
-              {startTime === undefined
-                ? ""
-                : `${startTime} ${endTime ? "to " + endTime : ""}`}
-            </CustomText>
+            <>
+              <CustomText
+                fontSize={14}
+                color={Colors.white}
+                styling={{
+                  ...CommonStyles.regularFont400Style,
+                  lineHeight: RfH(16.8),
+                }}
+              >
+                {startTime === undefined
+                  ? ""
+                  : `${startTime} ${endTime ? "to " + endTime : ""}`}
+              </CustomText>
+              {!isNaN(duration) && (
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    ...CommonStyles.regularFont400Style,
+                    lineHeight: RfH(16.8),
+                  }}
+                >
+                  {`${convertHoursToHoursAndMinutes(
+                    item?.timestampDifferences[0].toFixed(2)
+                  )} hours` || ""}
+                </CustomText>
+              )}
+            </>
           )}
-          {!isNaN(duration) ? (
-            <CustomText
-              fontSize={14}
-              color={Colors.white}
-              styling={{
-                ...CommonStyles.regularFont400Style,
-                lineHeight: RfH(16.8),
-              }}
-            >
-              {`${convertHoursToHoursAndMinutes(
-                item?.timestampDifferences[0].toFixed(2)
-              )} hours` || ""}
-            </CustomText>
-          ) : null}
         </View>
       </View>
     );
