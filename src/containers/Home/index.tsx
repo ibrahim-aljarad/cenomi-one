@@ -441,19 +441,17 @@ const Home = () => {
   }, [pendingAcknowledgementData]);
 
   useEffect(() => {
-    const sub = onSurveyResponseListener.addListener(
-      "onSurveyResponse",
-      (data: any) => {
+    const sub = onSurveyResponseListener.addListener("onSurveyResponse", () => {
+      if (selectedSurveyInfo?.id) {
         const info = {
           featureId: selectedSurveyInfo?.id,
           featureModule: CONFIG_CONSTANT?.SURVEYS,
           metadata: {},
         };
-
         setSelectedSurveyInfo({});
         dispatch(submitAcknowledge.trigger({ data: info }));
       }
-    );
+    });
     return () => sub.remove();
   }, [selectedSurveyInfo]);
 
@@ -709,7 +707,7 @@ const Home = () => {
 
       {isVisibleQuotes && qouteList?.length > 0 ? (
         <Quotes
-          list={qouteList || []}
+          item={qouteList[0] || []}
           isVisible={isVisibleQuotes}
           onRequestClose={handleOnRequestCloseQoutes}
           isDarkMode={isDarkMode}
