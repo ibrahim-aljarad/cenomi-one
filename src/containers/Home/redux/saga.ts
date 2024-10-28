@@ -1,13 +1,14 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import { setGlobalError } from '../../../appContainer/redux/actions';
-import { api, tenantCentralApi } from '../../../utils/axios';
+import { call, put, takeLatest } from "redux-saga/effects";
+import { setGlobalError } from "../../../appContainer/redux/actions";
+import { api, tenantCentralApi } from "../../../utils/axios";
 
-import { urlSlugify } from '../../../utils/helpers';
+import { storeData, urlSlugify } from "../../../utils/helpers";
 import {
   cancelAcknowledge,
   getApprovalFeatureModules,
   getCorporateCommunication,
   getCorporateCommunicationDetails,
+  getDiscrepancyList,
   getDocuments,
   getDocumentsDetail,
   getEvents,
@@ -22,142 +23,150 @@ import {
   getUsefulApps,
   getknowledgeHubCategories,
   organizationStructure,
-  submitAcknowledge
-} from './actions';
+  submitAcknowledge,
+} from "./actions";
+import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
 
-const CORPORATE_COMMUNICATION_URL = 'cms/corporate-communication';
+const CORPORATE_COMMUNICATION_URL = "cms/corporate-communication";
 
-const GET_APPROVAL_FEATURE_MODULES_URL = 'organization/feature-modules';
-const USEFUL_APPPS_URL = 'cms/useful-apps';
-const KNOWLEDGE_HUB_CATEGORIES_URL = 'cms/knowledge-hub-topics';
-const OFFER_CATEGORIES_URL = 'cms/offer-categories';
-const OFFERS_URL = 'cms/offers';
+const GET_APPROVAL_FEATURE_MODULES_URL = "organization/feature-modules";
+const USEFUL_APPPS_URL = "cms/useful-apps";
+const KNOWLEDGE_HUB_CATEGORIES_URL = "cms/knowledge-hub-topics";
+const OFFER_CATEGORIES_URL = "cms/offer-categories";
+const OFFERS_URL = "cms/offers";
 
-const QOUTES_URL = 'cms/daily-quote';
-const SURVEY_URL = 'cms/surveys';
-const EVENTS_URL = 'cms/events';
-const DOCUMENTS_URL = 'cms/documents';
-const CREATE_ACKNOWLEDGE_URL = 'acknowledgement/create';
-const ACKNOWLEDGE_URL = 'acknowledgement';
-const ORGANIZATION_STRUCTURE_URL = 'user/organization-structure';
-const PENDING_ACKNOWLEDGEMENT_URL = 'acknowledgement/pending-items';
-const LOGIN_END = 'cenomi-one/login';
+const QOUTES_URL = "cms/daily-quote";
+const SURVEY_URL = "cms/surveys";
+const EVENTS_URL = "cms/events";
+const DOCUMENTS_URL = "cms/documents";
+const CREATE_ACKNOWLEDGE_URL = "acknowledgement/create";
+const ACKNOWLEDGE_URL = "acknowledgement";
+const ORGANIZATION_STRUCTURE_URL = "user/organization-structure";
+const PENDING_ACKNOWLEDGEMENT_URL = "acknowledgement/pending-items";
+const LOGIN_END = "cenomi-one/login";
+const SERVICE_REQUEST_URL = "service-requests";
 
 const getCorporateCommunicationRequestApiCall = () =>
   api({
-    method: 'GET',
-    url: `${CORPORATE_COMMUNICATION_URL}`
+    method: "GET",
+    url: `${CORPORATE_COMMUNICATION_URL}`,
   });
 const getCorporateCommunicationDetailsApiCall = (id: any) =>
   api({
-    method: 'GET',
-    url: `${CORPORATE_COMMUNICATION_URL}/${id}`
+    method: "GET",
+    url: `${CORPORATE_COMMUNICATION_URL}/${id}`,
   });
 
 const getApprovalFeatureModulesRequestApiCall = () =>
   api({
-    method: 'GET',
-    url: `${GET_APPROVAL_FEATURE_MODULES_URL}`
+    method: "GET",
+    url: `${GET_APPROVAL_FEATURE_MODULES_URL}`,
   });
 
 const getOfferCategoriesRequestApiCall = (org_name) =>
   api({
-    method: 'GET',
-    url: `${OFFER_CATEGORIES_URL}?org=${org_name}`
+    method: "GET",
+    url: `${OFFER_CATEGORIES_URL}?org=${org_name}`,
   });
 
 const getOffersRequestApiCall = () =>
   api({
-    method: 'GET',
-    url: `${OFFERS_URL}`
+    method: "GET",
+    url: `${OFFERS_URL}`,
   });
 
 const getOffersDetailsApiCall = (id: any) =>
   api({
-    method: 'GET',
-    url: `${OFFERS_URL}/${id}`
+    method: "GET",
+    url: `${OFFERS_URL}/${id}`,
   });
 
 const getUsefulAppsRequestApiCall = () =>
   api({
-    method: 'GET',
-    url: `${USEFUL_APPPS_URL}`
+    method: "GET",
+    url: `${USEFUL_APPPS_URL}`,
   });
 
 const getknowledgeHubCategoriesRequestApiCall = () =>
   api({
-    method: 'GET',
-    url: `${KNOWLEDGE_HUB_CATEGORIES_URL}`
+    method: "GET",
+    url: `${KNOWLEDGE_HUB_CATEGORIES_URL}`,
   });
 
 const getQoutesApiCall = () =>
   api({
-    method: 'GET',
-    url: `${QOUTES_URL}`
+    method: "GET",
+    url: `${QOUTES_URL}`,
   });
 
 const getSurveyApiCall = () =>
   api({
-    method: 'GET',
-    url: `${SURVEY_URL}`
+    method: "GET",
+    url: `${SURVEY_URL}`,
   });
 
 const getEventsApiCall = () =>
   api({
-    method: 'GET',
-    url: `${EVENTS_URL}`
+    method: "GET",
+    url: `${EVENTS_URL}`,
   });
 
 const getEventsDetailsApiCall = (id: string) =>
   api({
-    method: 'GET',
-    url: `${EVENTS_URL}/${id}`
+    method: "GET",
+    url: `${EVENTS_URL}/${id}`,
   });
 
 const getDocumentsApiCall = () =>
   api({
-    method: 'GET',
-    url: `${DOCUMENTS_URL}`
+    method: "GET",
+    url: `${DOCUMENTS_URL}`,
   });
 
 const getDocumentsDetailApiCall = (id: string) =>
   api({
-    method: 'GET',
-    url: `${DOCUMENTS_URL}/${id}`
+    method: "GET",
+    url: `${DOCUMENTS_URL}/${id}`,
   });
 
 const submitAcknowledgeApiCall = (data: any) =>
   api({
-    method: 'POST',
+    method: "POST",
     url: `${CREATE_ACKNOWLEDGE_URL}`,
-    data
+    data,
   });
 
 const cancelAcknowledgeApiCall = (id: any) =>
   api({
-    method: 'DELETE',
-    url: `${ACKNOWLEDGE_URL}/${id}`
+    method: "DELETE",
+    url: `${ACKNOWLEDGE_URL}/${id}`,
   });
 
 const organizationStructureApiCall = (id: any) =>
   api({
-    method: 'GET',
-    url: `${ORGANIZATION_STRUCTURE_URL}?userId=${id}`
+    method: "GET",
+    url: `${ORGANIZATION_STRUCTURE_URL}?userId=${id}`,
   });
 
 const getPendingAcknowledgementApiCall = () =>
   api({
-    method: 'GET',
-    url: `${PENDING_ACKNOWLEDGEMENT_URL}`
+    method: "GET",
+    url: `${PENDING_ACKNOWLEDGEMENT_URL}`,
   });
 
 const getTenantLoginApiCall = (data: any) =>
   tenantCentralApi({
-    method: 'POST',
+    method: "POST",
     url: `${LOGIN_END}`,
-    data
+    data,
   });
-  
+
+const getDiscrepancyListApiCall = (data: any) =>
+  tenantCentralApi({
+    method: "GET",
+    url: `${SERVICE_REQUEST_URL}?service_category=OPERATIONS&sub_category=DISCREPANCY&page=${data?.page}&limit=${data?.limit}`,
+  });
+
 function* getCorporateCommunicationRequest(action: any) {
   try {
     // change for skeleton loader
@@ -504,10 +513,44 @@ function* getTenantLoginRequest(action: any) {
   try {
     yield put(getTenantLogin.request({ isLoading: true }));
     const { email } = action?.payload || {};
-    const response = yield call(getTenantLoginApiCall,{email});
+    const response = yield call(getTenantLoginApiCall, { email });
     if (response.success) {
       const { data } = response;
-      console.log(data,'data?.list')
+      console.log(data?.data, "data?.list");
+      if (data?.data?.access_token) {
+        storeData(
+          LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
+          data?.data?.access_token
+        );
+      }
+      yield put(getTenantLogin.success({ data }));
+    } else {
+      yield put(getTenantLogin.failure());
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(getTenantLogin.failure());
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(getTenantLogin.fulfill({ isLoading: false }));
+  }
+}
+
+function* getDiscrepancyListRequest(action: any) {
+  try {
+    yield put(getDiscrepancyList.request({ isLoading: true }));
+    const { page, limit } = action?.payload || {};
+    const response = yield call(getDiscrepancyListApiCall, { page, limit });
+    console.log(response,'responseservicerequest')
+    if (response.success) {
+      const { data } = response;
+      console.log(data?.data, "data?.list");
+      if (data?.data?.access_token) {
+        storeData(
+          LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
+          data?.data?.access_token
+        );
+      }
       yield put(getTenantLogin.success({ data }));
     } else {
       yield put(getTenantLogin.failure());
@@ -522,15 +565,24 @@ function* getTenantLoginRequest(action: any) {
 }
 
 export default function* homeSaga() {
-  yield takeLatest(getCorporateCommunication.TRIGGER, getCorporateCommunicationRequest);
+  yield takeLatest(
+    getCorporateCommunication.TRIGGER,
+    getCorporateCommunicationRequest
+  );
   yield takeLatest(
     getCorporateCommunicationDetails.TRIGGER,
     getCorporateCommunicationDetailsRequest
   );
-  yield takeLatest(getApprovalFeatureModules.TRIGGER, getApprovalFeatureModulesRequest);
+  yield takeLatest(
+    getApprovalFeatureModules.TRIGGER,
+    getApprovalFeatureModulesRequest
+  );
   yield takeLatest(getOfferCategories.TRIGGER, getOfferCategoriesRequest);
   yield takeLatest(getUsefulApps.TRIGGER, getUsefulAppsRequest);
-  yield takeLatest(getknowledgeHubCategories.TRIGGER, getknowledgeHubCategoriesRequest);
+  yield takeLatest(
+    getknowledgeHubCategories.TRIGGER,
+    getknowledgeHubCategoriesRequest
+  );
   yield takeLatest(getOffers.TRIGGER, getOffersRequest);
   yield takeLatest(getOffersDetails.TRIGGER, getOffersDetailsRequest);
   yield takeLatest(getQoutes.TRIGGER, getQoutesRequest);
@@ -542,6 +594,10 @@ export default function* homeSaga() {
   yield takeLatest(submitAcknowledge.TRIGGER, submitAcknowledgeRequest);
   yield takeLatest(cancelAcknowledge.TRIGGER, cancelAcknowledgeRequest);
   yield takeLatest(organizationStructure.TRIGGER, organizationStructureRequest);
-  yield takeLatest(getPendingAcknowledgement.TRIGGER, getPendingAcknowledgementRequest);
+  yield takeLatest(
+    getPendingAcknowledgement.TRIGGER,
+    getPendingAcknowledgementRequest
+  );
   yield takeLatest(getTenantLogin.TRIGGER, getTenantLoginRequest);
+  yield takeLatest(getDiscrepancyList.TRIGGER, getDiscrepancyListRequest);
 }

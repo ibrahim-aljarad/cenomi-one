@@ -10,7 +10,7 @@ import { getSaveData, isDisplayWithNotch } from '../../utils/helpers';
 import { RfH, RfW } from '../../utils/helper';
 import { BorderRadius } from '../../theme/sizes';
 import { useIsFocused, useNavigation } from '@react-navigation/core';
-import { getCorporateCommunication } from '../Home/redux/actions';
+import { getCorporateCommunication, getDiscrepancyList } from '../Home/redux/actions';
 import { getCorporateCommunicationSelector } from '../Home/redux/selectors';
 import { BenefitListSkeleton } from '../../components/SkeletonLoader';
 import EmptyListComponent from '../../components/EmptyListComponent';
@@ -37,6 +37,7 @@ const DiscrepancyList = () => {
 
   useEffect(() => {
     dispatch(getCorporateCommunication.trigger());
+    dispatch(getDiscrepancyList.trigger({page: 1, limit: 10}));
   }, []);
 
   useEffect(() => {
@@ -59,7 +60,7 @@ const DiscrepancyList = () => {
 
   const listSection = () => {
     if (corporateCommunicationData === undefined) {
-      return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(150)} />;
+      return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(100)} />;
     } else if (corporateCommunicationData?.length > 0) {
       return (
         <View style={styles.listView}>

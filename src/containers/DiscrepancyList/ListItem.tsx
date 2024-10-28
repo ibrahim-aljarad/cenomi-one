@@ -23,15 +23,6 @@ const ListItem = (props: any) => {
       ]}
       activeOpacity={0.8}
       onPress={() => onPressItem(item)}>
-      <CorporateCommCard
-        item={item}
-        readItems={readItems || []}
-        index={index}
-        handleClick={() => onPressItem(item)}
-        isHideTitle={true}
-        itemHeight={RfH(128)}
-        itemWidth={RfW(94)}
-      />
       <View style={{ flex: 1, marginRight: RfW(5), marginTop: RfH(5) }}>
         <CustomText
           fontSize={18}
@@ -58,12 +49,6 @@ const ListItem = (props: any) => {
               marginLeft: RfW(5)
             }}>
             {getDateFormat(item?.createdAt)}
-          </CustomText>
-        </View>
-
-        <View style={styles.viewMoreContainer}>
-          <CustomText fontSize={14} fontFamily={Fonts.mediumFont} color={Colors.white}>
-            {localize('common.viewDetails')}
           </CustomText>
         </View>
       </View>

@@ -202,12 +202,19 @@ const Home = () => {
   }, [notificationPayload]);
 
   useEffect(() => {
+
+    const getTenantLoginToken = async () => {
+      const tenantToken = await getSaveData(LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN);
+      if(!tenantToken){
+        dispatch(getTenantLogin.trigger({email: "jabir@qburst.com"}));
+      }
+    }
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
       dispatch(getOrganizationConfig.trigger());
       dispatch(getQoutes.trigger());
       dispatch(getPendingAcknowledgement.trigger());
-      dispatch(getTenantLogin.trigger({email: "syedmooshasha@qburst.com"}));
+      getTenantLoginToken();
 
       const jailBreakStatus = jailBreak();
       if (jailBreakStatus) {

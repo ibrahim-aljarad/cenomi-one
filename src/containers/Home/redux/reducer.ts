@@ -28,6 +28,7 @@ import {
   getPendingAcknowledgement,
   setNotificationCount,
   getTenantLogin,
+  getDiscrepancyList,
 } from "./actions";
 
 export const initialState = {
@@ -289,6 +290,19 @@ export default (
         break;
       }
       case getTenantLogin.FAILURE: {
+        // draft.pendingAcknowledgementData = {};
+        break;
+      }
+
+      case getDiscrepancyList.TRIGGER: {
+        // draft.pendingAcknowledgementData = {};
+        break;
+      }
+      case getDiscrepancyList.SUCCESS: {
+        // draft.pendingAcknowledgementData = action?.payload?.data || {};
+        break;
+      }
+      case getDiscrepancyList.FAILURE: {
         // draft.pendingAcknowledgementData = {};
         break;
       }

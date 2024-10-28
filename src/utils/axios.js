@@ -67,7 +67,9 @@ appianInstance.interceptors.request.use(
 );
 
 //for cenomi central apis
-const tenantCentralInstance = axios.create();
+const tenantCentralInstance = axios.create({
+  // withCredentials: true 
+ });
 tenantCentralInstance.interceptors.request.use(
   async (config) => {
     const httpMetric = perf().newHttpMetric(
@@ -77,8 +79,13 @@ tenantCentralInstance.interceptors.request.use(
     config.metadata = { httpMetric };
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
-
-    config.headers['x-cenomi-one-api-token'] = '7371b577-98c6-43a9-93f5-4dae81f11eb7';
+    const tenantToken = await getSaveData(LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN);
+    const cookieValue = `access_token=${tenantToken};`
+    if(tenantToken){
+      config.headers['Cookie'] = cookieValue;
+    } else {
+      config.headers['x-cenomi-one-api-token'] = Config.TENANT_CENTRAL_TOKEN;
+    }
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
     return config;
@@ -260,9 +267,11 @@ appianInstance.interceptors.response.use(
 );
 
 
+
 tenantCentralInstance.interceptors.response.use(
   async function (response) {
     // record metrics
+    console.log(response, 'detailedddd')
     const { httpMetric } = response.config.metadata;
     response.config.metadata.requestEndTime = new Date().getTime();
     httpMetric.setHttpResponseCode(response.status);
@@ -274,6 +283,7 @@ tenantCentralInstance.interceptors.response.use(
 
   async function (error) {
     // record metrics
+    console.log(error, 'errordetailedddd')
     const { httpMetric } = error.config.metadata;
     error.config.metadata.requestEndTime = new Date().getTime();
     httpMetric.setHttpResponseCode(error.response.status);
@@ -298,8 +308,7 @@ tenantCentralInstance.interceptors.response.use(
     if (
       error.response.status === 401 &&
       !originalRequest._retry &&
-      originalRequest?.url !== "auth/login" &&
-      originalRequest?.url !== "auth/refresh-token"
+      originalRequest?.url !== "cenomi-one/login" 
     ) {
       console.log({ isRefreshing });
 
@@ -313,7 +322,7 @@ tenantCentralInstance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers["Authorization"] = "Bearer " + token;
+            originalRequest.headers["Cookie"] = "access_token= " + token;
             return axios(originalRequest);
           })
           .catch((err) => {
@@ -324,62 +333,45 @@ tenantCentralInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = await getSaveData(
-        LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN
-      );
 
-      console.log({ refreshToken });
-
+        
+    const token = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
       return new Promise(function (resolve, reject) {
-        // axios
-        //   .get(Config.tenantCentralInstance + "auth/refresh-token", {
-        //     headers: { Authorization: "Bearer " + refreshToken },
-        //   })
-        //   .then(async ({ data }) => {
-        //     console.log({ tokenData: data });
+        axios
+          .post(Config.TENANT_CENTRAL_URL + "/cenomi-one/login", {email: JSON.parse(token || "{}")?.username}, {
+            headers: { 'x-cenomi-one-api-token': Config.TENANT_CENTRAL_TOKEN },
+          },)
+          .then(async ({ data }) => {
+            console.log({ tokenData: data });
 
-        //     // newTokens = data;
-        //     // isRefreshed = true;
+            // newTokens = data;
+            // isRefreshed = true;
 
-        //     await storeData(
-        //       LOCAL_STORAGE_DATA_KEY.USER_TOKEN,
-        //       data.accessToken
-        //     );
-        //     await storeData(
-        //       LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN,
-        //       data.refreshToken
-        //     );
+            await storeData(
+              LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
+              data.data?.access_token
+            );
 
-        //     axios.defaults.headers.common["Authorization"] =
-        //       "Bearer " + data.accessToken;
-        //     originalRequest.headers["Authorization"] =
-        //       "Bearer " + data.accessToken;
 
-        //     processQueue(null, data.accessToken);
-        //     resolve(axios(originalRequest));
-        //   })
-        //   .catch(async (err) => {
-        //     console.log({
-        //       err,
-        //       config: err.config,
-        //       headers: JSON.stringify(err.config?.headers),
-        //     });
+            processQueue(null, data.accessToken);
+            resolve(axios(originalRequest));
+          })
+          .catch(async (err) => {
+            console.log({
+              err,
+              config: err.config,
+              headers: JSON.stringify(err.config?.headers),
+            });
 
-        //     // await removeData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
-        //     // await removeData(LOCAL_STORAGE_DATA_KEY.REFRESH_TOKEN);
-        //     // await removeData(LOCAL_STORAGE_DATA_KEY.IS_BIOMETRIC_ENABLE);
-        //     // await removeData(LOCAL_STORAGE_DATA_KEY.IS_REMEMBER_ME);
+            // await clearAllExceptTutorialShowAppLanguage(false);
+            // RNRestart.Restart();
 
-        //     // logout user
-        //     await clearAllExceptTutorialShowAppLanguage(false);
-        //     RNRestart.Restart();
-
-        //     processQueue(err, null);
-        //     reject(err);
-          // })
-          // .then(() => {
-          //   isRefreshing = false;
-          // });
+            processQueue(err, null);
+            reject(err);
+          })
+          .then(() => {
+            isRefreshing = false;
+          });
       });
     }
 
@@ -497,6 +489,8 @@ async function fetchTenantCentralResponse(config) {
   console.log('%c %s', bgBlue, '🚀Tenant API Request Config 🚀 ', config);
   return tenantCentralInstance(config)
     .then((response) => {
+
+      console.log(response?.config?.curl)
     
       const { data, config } = response;
         // console.log({ data, config });
