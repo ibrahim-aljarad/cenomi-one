@@ -227,11 +227,11 @@ export const taskDataFields: iterationType[] = [
     label: "Comments",
     key: "comments",
   },
-  {
-    label: "Email",
-    key: "assignee",
-    method: (data) => (data?.id ? data?.id : data),
-  },
+  // {
+  //   label: "Email",
+  //   key: "assignee",
+  //   method: (data) => (data?.id ? data?.id : data),
+  // },
   {
     label: "Completed On",
     key: "completedOn",

@@ -233,7 +233,8 @@
     "actionButton.changeApprover": "تم قبول طلب التغيير",
     "actionButton.requestInfoWorkflow": "تتطلب المزيد من المعلومات",
     "actionButton.rejectWorkflow": "يرفض",
-    "actionButton.approveWorkflow": "المراجعة/الموافقة"
+    "actionButton.approveWorkflow": "المراجعة/الموافقة",
+    "actionButton.submit": "ارسال"
   },
   "imageSpecification": {
     "title": "مواصفات الصورة للتحميل ",
