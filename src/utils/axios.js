@@ -56,7 +56,7 @@ appianInstance.interceptors.request.use(
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
 
-    config.headers['Appian-API-Key'] = Config.APPIAN_KEY;
+    config.headers["Appian-API-Key"] = Config.APPIAN_KEY;
     config.baseURL = Config.APPIAN_URL;
 
     return config;
@@ -68,8 +68,8 @@ appianInstance.interceptors.request.use(
 
 //for cenomi central apis
 const tenantCentralInstance = axios.create({
-  // withCredentials: true 
- });
+  withCredentials: true
+});
 tenantCentralInstance.interceptors.request.use(
   async (config) => {
     const httpMetric = perf().newHttpMetric(
@@ -80,11 +80,9 @@ tenantCentralInstance.interceptors.request.use(
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
     const tenantToken = await getSaveData(LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN);
-    const cookieValue = `access_token=${tenantToken};`
-    if(tenantToken){
-      config.headers['Cookie'] = cookieValue;
-    } else {
-      config.headers['x-cenomi-one-api-token'] = Config.TENANT_CENTRAL_TOKEN;
+    const cookieValue = `access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXF1ZXN0X2lkIjoiMDI5M2MyMzUtYmUwMS00ZmU5LWIyNTgtMjQzMzdlMzU3ZTQwIn0.gVDgO762mpCbIS60SM391X8JTmf27zji-ZiWe-yPmKoNlqYWqZf_3J29xWQoP-f3RcmWIrmPRoIweTYPvH6PqrehnFCuRvdjryQGLNhbGugMxhicm912miXI_shFQFqiCQ_WLqJkjWMDjlvp5TNgityyIQKAcK4k8JE1V8nBh7a8bgAsaRwPU-6-OFTkYR3p0pkt1OtYjMMd0W4Yq_JxnDXgQi1OoPiFgCWuvoPNlFsEWiuIQ9D4tEsxAAi3_1u0o5BFl6X5xvhIQVpusTDrzslhJSg_3sM284ogcL0LDSMzaYh7uvMFTrLd057Z01LSccaDYAUxOn8gM6AHxQSploYLnAo_34ozOxFuALvngKKZbDaFb9YRcUueSkIspkjwph1Vp4iXBb1gEPm6PNySoBVHZYCAR6Ld6stRelnLsJzWqTv24m4yqmL_DvQudcnKFZoIF7p38y3lyAevk-eM2HY5ap8pZKwWpAlXUkbNgTGtFV6X0sZAD9nw31DN8q5Vad_TxJ5ZArW9jCMy-xor4VKGAD_Io6Eh5QkkikOVYjmp4N77odHSFAZswMoVIX8gnWo2GMVLLuU7Iz2n1pcVJ05oeChW-xWQD-wcc2N21gTE85bDIC8q05FUPDb3as9Hy5FfYeXH520N1x_6OPQ4en2KBDVuA-hQCr0327cIhXU;`;
+    if (tenantToken) {
+      config.headers.Cookie = cookieValue;
     }
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
@@ -266,12 +264,9 @@ appianInstance.interceptors.response.use(
   }
 );
 
-
-
 tenantCentralInstance.interceptors.response.use(
   async function (response) {
     // record metrics
-    console.log(response, 'detailedddd')
     const { httpMetric } = response.config.metadata;
     response.config.metadata.requestEndTime = new Date().getTime();
     httpMetric.setHttpResponseCode(response.status);
@@ -283,7 +278,6 @@ tenantCentralInstance.interceptors.response.use(
 
   async function (error) {
     // record metrics
-    console.log(error, 'errordetailedddd')
     const { httpMetric } = error.config.metadata;
     error.config.metadata.requestEndTime = new Date().getTime();
     httpMetric.setHttpResponseCode(error.response.status);
@@ -302,13 +296,13 @@ tenantCentralInstance.interceptors.response.use(
     console.log({
       originalRequest,
       error,
-      headers: JSON.stringify(originalRequest.headers),
+      headers: originalRequest.headers,
     });
 
     if (
       error.response.status === 401 &&
       !originalRequest._retry &&
-      originalRequest?.url !== "cenomi-one/login" 
+      originalRequest?.url !== "cenomi-one/login"
     ) {
       console.log({ isRefreshing });
 
@@ -333,14 +327,12 @@ tenantCentralInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-
-        
-    const token = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+      const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
       return new Promise(function (resolve, reject) {
         axios
-          .post(Config.TENANT_CENTRAL_URL + "/cenomi-one/login", {email: JSON.parse(token || "{}")?.username}, {
-            headers: { 'x-cenomi-one-api-token': Config.TENANT_CENTRAL_TOKEN },
-          },)
+          .post(Config.API_BASE_URL + "tp/tenant-platform/login", {
+            headers: { Authorization: "Bearer " + token },
+          })
           .then(async ({ data }) => {
             console.log({ tokenData: data });
 
@@ -352,9 +344,11 @@ tenantCentralInstance.interceptors.response.use(
               data.data?.access_token
             );
 
+            originalRequest.headers["Cookie"] =
+              "access_token " + data.accessToken;
 
-            processQueue(null, data.accessToken);
-            resolve(axios(originalRequest));
+            // processQueue(null, data.data?.access_token);
+            // resolve(axios(originalRequest));
           })
           .catch(async (err) => {
             console.log({
@@ -362,9 +356,6 @@ tenantCentralInstance.interceptors.response.use(
               config: err.config,
               headers: JSON.stringify(err.config?.headers),
             });
-
-            // await clearAllExceptTutorialShowAppLanguage(false);
-            // RNRestart.Restart();
 
             processQueue(err, null);
             reject(err);
@@ -435,104 +426,178 @@ async function fetchResponse(config) {
 }
 
 async function fetchAppianResponse(config) {
-  console.log('%c %s', bgBlue, '🚀 API Request Config 🚀 ', config);
+  console.log("%c %s", bgBlue, "🚀 API Request Config 🚀 ", config);
   return appianInstance(config)
     .then((response) => {
-    
       const { data, config } = response;
-        // console.log({ data, config });
+      // console.log({ data, config });
       if (__DEV__) {
         const { requestStartTime, requestEndTime } = response.config.metadata;
         const totalTimeInMs = requestEndTime - requestStartTime;
-        console.log('%c %s %c %s %c %s', bgGreen, '✨ Response ✨', bgYellow, `Time: ${totalTimeInMs}`, bgAqua, `${config.method}: ${config.url} `);
+        console.log(
+          "%c %s %c %s %c %s",
+          bgGreen,
+          "✨ Response ✨",
+          bgYellow,
+          `Time: ${totalTimeInMs}`,
+          bgAqua,
+          `${config.method}: ${config.url} `
+        );
       } else {
-        console.log('%c ✨Appian Response Data ✨', bgGreen, data);
+        console.log("%c ✨Appian Response Data ✨", bgGreen, data);
       }
       if (response?.status === 403 || response?.status === 401) {
         // refreshHandler(response?.status, config)
-        return { data, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       return { success: true, data };
     })
     .catch((error) => {
-      console.log('%c %s %c %s', bgRed, '💀 API Errors 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
-     
-      const { data: errorResponse } = error.response || {};
-      console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
+      console.log(
+        "%c %s %c %s",
+        bgRed,
+        "💀 API Errors 💀",
+        bgOrange,
+        `${config.method}: ${config.url} `,
+        error,
+        error.response
+      );
 
-      if (errorResponse?.statusCode === 403 || errorResponse?.statusCode === 401) {
+      const { data: errorResponse } = error.response || {};
+      console.log(
+        "error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        errorResponse,
+        error
+      );
+
+      if (
+        errorResponse?.statusCode === 403 ||
+        errorResponse?.statusCode === 401
+      ) {
         // refreshHandler(errorResponse?.statusCode, config);
-        return { data: errorResponse, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data: errorResponse,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       if (errorResponse?.statusCode === 400) {
-        return { data: errorResponse, success: false, error: errorResponse.message };
+        return {
+          data: errorResponse,
+          success: false,
+          error: errorResponse.message,
+        };
       }
       if (!errorResponse) {
         return {
           data: {},
           success: false,
-          error: { title: 'Connectivity Error', message: 'Please check your internet connection.' },
+          error: {
+            title: "Connectivity Error",
+            message: "Please check your internet connection.",
+          },
         };
       }
       return {
         success: false,
-        data:errorResponse,
+        data: errorResponse,
         error: {
-          title: 'Unexpected Error',
-          message: 'Server error please try again later',
+          title: "Unexpected Error",
+          message: "Server error please try again later",
         },
       };
     });
 }
 
 async function fetchTenantCentralResponse(config) {
-  console.log('%c %s', bgBlue, '🚀Tenant API Request Config 🚀 ', config);
+  console.log("%c %s", bgBlue, "🚀Tenant API Request Config 🚀 ", config);
   return tenantCentralInstance(config)
     .then((response) => {
+      console.log(response?.config?.curl);
 
-      console.log(response?.config?.curl)
-    
       const { data, config } = response;
-        // console.log({ data, config });
+      // console.log({ data, config });
       if (__DEV__) {
         const { requestStartTime, requestEndTime } = response.config.metadata;
         const totalTimeInMs = requestEndTime - requestStartTime;
-        console.log('%c %s %c %s %c %s', bgGreen, '✨ Tenant Response ✨', bgYellow, `Time: ${totalTimeInMs}`, bgAqua, `${config.method}: ${config.url} `);
+        console.log(
+          "%c %s %c %s %c %s",
+          bgGreen,
+          "✨ Tenant Response ✨",
+          bgYellow,
+          `Time: ${totalTimeInMs}`,
+          bgAqua,
+          `${config.method}: ${config.url} `
+        );
       } else {
-        console.log('%c ✨ Response Data ✨', bgGreen, data);
+        console.log("%c ✨ Response Data ✨", bgGreen, data);
       }
       if (response?.status === 403 || response?.status === 401) {
         // refreshHandler(response?.status, config)
-        return { data, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       return { success: true, data };
     })
     .catch((error) => {
-      console.log('%c %s %c %s', bgRed, '💀 Tenant API Error 💀', bgOrange, `${config.method}: ${config.url} `, JSON.stringify(error), error.response);
-     
-      const { data: errorResponse } = error.response || {};
-      console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
+      console.log(
+        "%c %s %c %s",
+        bgRed,
+        "💀 Tenant API Error 💀",
+        bgOrange,
+        `${config.method}: ${config.url} `,
+        JSON.stringify(error),
+        error.response
+      );
 
-      if (errorResponse?.statusCode === 403 || errorResponse?.statusCode === 401) {
+      const { data: errorResponse } = error.response || {};
+      console.log(
+        "error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        errorResponse,
+        error
+      );
+
+      if (
+        errorResponse?.statusCode === 403 ||
+        errorResponse?.statusCode === 401
+      ) {
         // refreshHandler(errorResponse?.statusCode, config);
-        return { data: errorResponse, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data: errorResponse,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       if (errorResponse?.statusCode === 400) {
-        return { data: errorResponse, success: false, error: errorResponse.message };
+        return {
+          data: errorResponse,
+          success: false,
+          error: errorResponse.message,
+        };
       }
       if (!errorResponse) {
         return {
           data: {},
           success: false,
-          error: { title: 'Connectivity Error', message: 'Please check your internet connection.' },
+          error: {
+            title: "Connectivity Error",
+            message: "Please check your internet connection.",
+          },
         };
       }
       return {
         success: false,
-        data:errorResponse,
+        data: errorResponse,
         error: {
-          title: 'Unexpected Error',
-          message: 'Server error please try again later',
+          title: "Unexpected Error",
+          message: "Server error please try again later",
         },
       };
     });

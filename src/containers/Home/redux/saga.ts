@@ -43,7 +43,7 @@ const CREATE_ACKNOWLEDGE_URL = "acknowledgement/create";
 const ACKNOWLEDGE_URL = "acknowledgement";
 const ORGANIZATION_STRUCTURE_URL = "user/organization-structure";
 const PENDING_ACKNOWLEDGEMENT_URL = "acknowledgement/pending-items";
-const LOGIN_END = "cenomi-one/login";
+const LOGIN_END = "tp/tenant-platform/login";
 const SERVICE_REQUEST_URL = "service-requests";
 
 const getCorporateCommunicationRequestApiCall = () =>
@@ -155,7 +155,7 @@ const getPendingAcknowledgementApiCall = () =>
   });
 
 const getTenantLoginApiCall = (data: any) =>
-  tenantCentralApi({
+  api({
     method: "POST",
     url: `${LOGIN_END}`,
     data,
@@ -516,7 +516,6 @@ function* getTenantLoginRequest(action: any) {
     const response = yield call(getTenantLoginApiCall, { email });
     if (response.success) {
       const { data } = response;
-      console.log(data?.data, "data?.list");
       if (data?.data?.access_token) {
         storeData(
           LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
@@ -541,19 +540,11 @@ function* getDiscrepancyListRequest(action: any) {
     yield put(getDiscrepancyList.request({ isLoading: true }));
     const { page, limit } = action?.payload || {};
     const response = yield call(getDiscrepancyListApiCall, { page, limit });
-    console.log(response,'responseservicerequest')
     if (response.success) {
       const { data } = response;
-      console.log(data?.data, "data?.list");
-      if (data?.data?.access_token) {
-        storeData(
-          LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
-          data?.data?.access_token
-        );
-      }
-      yield put(getTenantLogin.success({ data }));
+      yield put(getDiscrepancyList.success({ data }));
     } else {
-      yield put(getTenantLogin.failure());
+      yield put(getDiscrepancyList.failure());
       yield put(setGlobalError.success());
     }
   } catch (error) {

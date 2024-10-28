@@ -53,6 +53,7 @@ export const initialState = {
   organizationStructureData: undefined,
   pendingAcknowledgementData: {},
   unreadNotificationCount: undefined,
+  serviceRequestList: undefined,
 };
 
 export default (
@@ -295,15 +296,15 @@ export default (
       }
 
       case getDiscrepancyList.TRIGGER: {
-        // draft.pendingAcknowledgementData = {};
+        draft.serviceRequestList = undefined;
         break;
       }
       case getDiscrepancyList.SUCCESS: {
-        // draft.pendingAcknowledgementData = action?.payload?.data || {};
+        // draft.serviceRequestList = action?.payload?.data || {};
         break;
       }
       case getDiscrepancyList.FAILURE: {
-        // draft.pendingAcknowledgementData = {};
+        draft.serviceRequestList = [];
         break;
       }
 

@@ -202,13 +202,10 @@ const Home = () => {
   }, [notificationPayload]);
 
   useEffect(() => {
-
     const getTenantLoginToken = async () => {
-      const tenantToken = await getSaveData(LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN);
-      if(!tenantToken){
-        dispatch(getTenantLogin.trigger({email: "jabir@qburst.com"}));
-      }
-    }
+      const user = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+      dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
+    };
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
       dispatch(getOrganizationConfig.trigger());
