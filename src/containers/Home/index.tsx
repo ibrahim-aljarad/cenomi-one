@@ -187,6 +187,15 @@ const Home = () => {
               id: payload.externalId,
             });
           }
+        } else if (payload.featureModule === CONFIG_CONSTANT?.KNOWLEDGE_HUB) {
+          if (payload.externalId) {
+            navigation.navigate(
+              NavigationRouteNames.KNOWLEDGEHUB_DETAILS as never,
+              {
+                externalId: payload.externalId,
+              }
+            );
+          }
         } else if (payload.featureModule === CONFIG_CONSTANT?.SEND_WISHES) {
           if (!isEmpty(payload?.additionalInfo)) {
             const { type, username } = payload?.additionalInfo || {};
