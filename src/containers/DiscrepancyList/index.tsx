@@ -56,19 +56,19 @@ const DiscrepancyList = () => {
   const handleOnClickItem = (item) => {
     trackEvent(EVENT_NAME.PRESSED_CORPORATE_COMMUNICATION);
     navigation.navigate(NavigationRouteNames.DISCREPANCY_DETAILS as never, {
-      id: item?.id,
+      id: item?.service_request_id,
+      property: {...item?.payload}
     });
   };
-  console.log("lokkkkkk", serviceRequestList);
 
   const listSection = () => {
     if (serviceRequestList === undefined) {
-      return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(100)} />;
-    } else if (serviceRequestList?.length > 0) {
+      return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
+    } else if (serviceRequestList?.list?.length > 0) {
       return (
         <View style={styles.listView}>
           <FlatList
-            data={serviceRequestList}
+            data={serviceRequestList?.list}
             contentContainerStyle={{
               paddingHorizontal: RfW(16),
               paddingTop: RfH(8),
@@ -82,7 +82,7 @@ const DiscrepancyList = () => {
                 onPressItem={handleOnClickItem}
               />
             )}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item, index) => index.toString()+ item?.service_request_id}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={null}
             ListFooterComponent={
@@ -93,17 +93,13 @@ const DiscrepancyList = () => {
               />
             }
           />
-          <EmptyListComponent
-            errorText={JSON.stringify(serviceRequestList)}
-            icon={Images.benefitEmptyIcon}
-          />
           
         </View>
       );
-    } else if (serviceRequestList?.length === 0) {
+    } else if (serviceRequestList?.list?.length === 0) {
       return (
         <EmptyListComponent
-          errorText={JSON.stringify(serviceRequestList)}
+          errorText={localize('common.noDataFound')}
           icon={Images.benefitEmptyIcon}
         />
       );

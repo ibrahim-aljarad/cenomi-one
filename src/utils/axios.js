@@ -3,7 +3,7 @@ import axios from "axios";
 import { trackPromise } from "react-promise-tracker";
 import Config from "./config";
 import { LOCAL_STORAGE_DATA_KEY } from "./constants";
-import { getSaveData, removeData, storeData } from "./helpers";
+import { getCookie, getSaveData, removeData, setCookie, storeData } from "./helpers";
 import RNRestart from "react-native-restart";
 import { clearAllExceptTutorialShowAppLanguage } from "./helper";
 
@@ -79,10 +79,12 @@ tenantCentralInstance.interceptors.request.use(
     config.metadata = { httpMetric };
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
-    const tenantToken = await getSaveData(LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN);
-    const cookieValue = `access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXF1ZXN0X2lkIjoiMDI5M2MyMzUtYmUwMS00ZmU5LWIyNTgtMjQzMzdlMzU3ZTQwIn0.gVDgO762mpCbIS60SM391X8JTmf27zji-ZiWe-yPmKoNlqYWqZf_3J29xWQoP-f3RcmWIrmPRoIweTYPvH6PqrehnFCuRvdjryQGLNhbGugMxhicm912miXI_shFQFqiCQ_WLqJkjWMDjlvp5TNgityyIQKAcK4k8JE1V8nBh7a8bgAsaRwPU-6-OFTkYR3p0pkt1OtYjMMd0W4Yq_JxnDXgQi1OoPiFgCWuvoPNlFsEWiuIQ9D4tEsxAAi3_1u0o5BFl6X5xvhIQVpusTDrzslhJSg_3sM284ogcL0LDSMzaYh7uvMFTrLd057Z01LSccaDYAUxOn8gM6AHxQSploYLnAo_34ozOxFuALvngKKZbDaFb9YRcUueSkIspkjwph1Vp4iXBb1gEPm6PNySoBVHZYCAR6Ld6stRelnLsJzWqTv24m4yqmL_DvQudcnKFZoIF7p38y3lyAevk-eM2HY5ap8pZKwWpAlXUkbNgTGtFV6X0sZAD9nw31DN8q5Vad_TxJ5ZArW9jCMy-xor4VKGAD_Io6Eh5QkkikOVYjmp4N77odHSFAZswMoVIX8gnWo2GMVLLuU7Iz2n1pcVJ05oeChW-xWQD-wcc2N21gTE85bDIC8q05FUPDb3as9Hy5FfYeXH520N1x_6OPQ4en2KBDVuA-hQCr0327cIhXU;`;
-    if (tenantToken) {
-      config.headers.Cookie = cookieValue;
+
+    const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
+    const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
+    
+    config.headers= {
+      Cookie: cookieString
     }
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
@@ -339,13 +341,12 @@ tenantCentralInstance.interceptors.response.use(
             // newTokens = data;
             // isRefreshed = true;
 
-            await storeData(
-              LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
+            await setCookie(
+              Config.TENANT_CENTRAL_URL,
+              'access_token',
               data.data?.access_token
             );
-
-            originalRequest.headers["Cookie"] =
-              "access_token " + data.accessToken;
+            RNRestart.Restart();
 
             // processQueue(null, data.data?.access_token);
             // resolve(axios(originalRequest));

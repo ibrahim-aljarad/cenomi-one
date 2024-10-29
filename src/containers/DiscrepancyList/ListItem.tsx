@@ -25,11 +25,18 @@ const ListItem = (props: any) => {
       onPress={() => onPressItem(item)}>
       <View style={{ flex: 1, marginRight: RfW(5), marginTop: RfH(5) }}>
         <CustomText
-          fontSize={18}
+          fontSize={14}
           numberOfLines={2}
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}>
-          {item?.title}
+          {localize('discrepancy.mall')}: {item?.payload?.marketing_name}
+        </CustomText>
+        <CustomText
+          fontSize={14}
+          numberOfLines={2}
+          color={Colors.white}
+          styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}>
+          {localize('discrepancy.companyName')}: {item?.company_name}
         </CustomText>
         <View style={{ flexDirection: 'row', marginTop: RfH(10), alignItems: 'center' }}>
           <CustomImage
@@ -48,7 +55,7 @@ const ListItem = (props: any) => {
               lineHeight: RfH(21),
               marginLeft: RfW(5)
             }}>
-            {getDateFormat(item?.createdAt)}
+            {getDateFormat(item?.created_at)}
           </CustomText>
         </View>
       </View>

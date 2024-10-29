@@ -519,5 +519,10 @@
     "sColleagues": "'s Colleagues",
     "organisation": "Organisation",
     "userList": "User List"
+  },
+  "discrepancy": {
+    "mall": "Mall",
+    "companyName": "Company Name",
+    "remainingUnits": "Remaining Units"
   }
 }

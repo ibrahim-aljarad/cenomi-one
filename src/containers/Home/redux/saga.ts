@@ -2,7 +2,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
 import { api, tenantCentralApi } from "../../../utils/axios";
 
-import { storeData, urlSlugify } from "../../../utils/helpers";
+import { setCookie, storeData, urlSlugify } from "../../../utils/helpers";
 import {
   cancelAcknowledge,
   getApprovalFeatureModules,
@@ -26,6 +26,7 @@ import {
   submitAcknowledge,
 } from "./actions";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
+import Config from "../../../utils/config";
 
 const CORPORATE_COMMUNICATION_URL = "cms/corporate-communication";
 
@@ -517,8 +518,9 @@ function* getTenantLoginRequest(action: any) {
     if (response.success) {
       const { data } = response;
       if (data?.data?.access_token) {
-        storeData(
-          LOCAL_STORAGE_DATA_KEY.TENANT_TOKEN,
+        setCookie(
+          Config.TENANT_CENTRAL_URL||'',
+          'access_token',
           data?.data?.access_token
         );
       }
@@ -542,7 +544,7 @@ function* getDiscrepancyListRequest(action: any) {
     const response = yield call(getDiscrepancyListApiCall, { page, limit });
     if (response.success) {
       const { data } = response;
-      yield put(getDiscrepancyList.success({ data }));
+      yield put(getDiscrepancyList.success({ data: data?.data }));
     } else {
       yield put(getDiscrepancyList.failure());
       yield put(setGlobalError.success());

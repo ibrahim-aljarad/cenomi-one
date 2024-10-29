@@ -300,7 +300,7 @@ export default (
         break;
       }
       case getDiscrepancyList.SUCCESS: {
-        // draft.serviceRequestList = action?.payload?.data || {};
+        draft.serviceRequestList = action?.payload?.data || {};
         break;
       }
       case getDiscrepancyList.FAILURE: {

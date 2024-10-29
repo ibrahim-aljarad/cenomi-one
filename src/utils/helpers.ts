@@ -12,6 +12,8 @@ import {
 } from "./constants";
 import { isEmpty, isNumber } from "lodash";
 
+import CookieManager from '@react-native-cookies/cookies';
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeviceInfo from "react-native-device-info";
 import { capatalizeText } from "./helper";
@@ -570,4 +572,16 @@ export const getQuaterStartAndEndDate = () => {
 
 export const isNullOrUndefinedOrEmpty = (value) => {
   return value === undefined || value === null || value === "";
+};
+
+export const setCookie = async (domain: string, name: string, value: string) => {
+  await CookieManager.set(domain, {
+    name,
+    value,
+  });
+};
+
+export const getCookie = async (domain: string) => {
+  const cookies = await CookieManager.get(domain);
+  return cookies;
 };
