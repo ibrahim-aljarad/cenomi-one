@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, View } from "react-native";
 import { Colors } from "react-native/Libraries/NewAppScreen";
@@ -6,6 +7,7 @@ import { createStructuredSelector } from "reselect";
 import { Loader } from "../../../../components";
 import DocumentsViewModal from "../../../../components/DocumentsViewModal";
 import WrapperContainer from "../../../../components/WrapperContainer";
+import NavigationRouteNames from "../../../../routes/ScreenNames";
 import { isValidUrl } from "../../../../utils/helpers";
 import { isDarkModeSelector } from "../../../redux/selectors";
 import { getKnowledgehubDocuments } from "../../redux/actions";
@@ -22,6 +24,7 @@ const stateSelector = createStructuredSelector({
 
 const KnowledgeHubDetailsScreen = ({ route }) => {
   const { externalId } = route.params;
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { KnowledgehubDocumentsData, isLoading, isDarkMode } =
     useSelector(stateSelector);
@@ -51,6 +54,7 @@ const KnowledgeHubDetailsScreen = ({ route }) => {
 
   const handleClose = () => {
     setIsModalVisible(false);
+    navigation.navigate(NavigationRouteNames.HOME_TAB as never);
   };
 
   return (
