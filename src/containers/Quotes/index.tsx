@@ -34,7 +34,7 @@ const Quotes = (props: any) => {
     const sub = onSurveyResponseListener.addListener("onSurveyResponse", () => {
       const info = {
         featureId: item?.id,
-        featureModule: CONFIG_CONSTANT?.QUOTES,
+        featureModule: CONFIG_CONSTANT?.SURVEYS,
         metadata: {
           userName: myProfileDetails?.username,
           submittedOn: new Date().getTime(),
