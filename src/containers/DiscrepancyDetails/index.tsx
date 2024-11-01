@@ -21,7 +21,7 @@ import { Colors, CommonStyles, Images } from "../../theme";
 import { CC_TEMPLATE_TEXT } from "../../utils/constants";
 import { getCorporateCommunicationDetailsSelector } from "../Home/redux/selectors";
 import styles from "./styles";
-import { isValidHtml } from "../../utils/helpers";
+import { alertBox, isValidHtml } from "../../utils/helpers";
 import { getMyProfileDetailsSelector } from "../LoginHome/redux/selectors";
 import { isDarkModeSelector } from "../redux/selectors";
 import WrapperContainer from "../../components/WrapperContainer";
@@ -38,13 +38,24 @@ const stateStructure = createStructuredSelector({
   discrepancyDetailData: getDiscrepancyDetailDataSelector,
 });
 
-
 const DiscrepancyDetails = (props: any) => {
-  const { id, property } = props.route.params;
+  const { id, property, srId } = props.route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const [step, setStep] = useState(1);
+
+  const [selectValues, setSelectValues] = useState<any>({
+    level: null,
+    unit: null,
+    storeClosed: false,
+    wrongLocation: false,
+    brandChanged: false,
+    openWithoutContract: false,
+    others: false,
+    comment: "",
+    documentId: [],
+  });
 
   const { isDarkMode, discrepancyDetailData } = useSelector(stateStructure);
 
@@ -76,7 +87,22 @@ const DiscrepancyDetails = (props: any) => {
     }, [isFocused])
   );
 
+  const step1Continue = () => {
+    if (!selectValues?.level)
+      return alertBox("Select Floor", "Select A floor and Unit");
+    if (!selectValues?.unit) return alertBox("Select Unit", "Select A Unit");
+    setStep(2);
+  };
 
+  const stepsIterator = [
+    {
+      step: 1,
+    },
+    {
+      step: 2,
+      disabled: !selectValues?.level || !selectValues?.unit,
+    },
+  ];
 
   return (
     <WrapperContainer>
@@ -90,7 +116,7 @@ const DiscrepancyDetails = (props: any) => {
             : Colors.transparent,
         }}
       >
-        <View
+        <ScrollView
           style={{
             flex: 1,
             // paddingTop: RfH(10),
@@ -99,7 +125,7 @@ const DiscrepancyDetails = (props: any) => {
           <HeaderSVG
             isRightButtonVisible={true}
             isBackButtonVisible={true}
-            titleText={"Dummy title"}
+            titleText={`Service Request: ${srId}`}
             titleFont={20}
             onRightButtonClickHandler={() => {}}
             onBackPressHandler={() => backHandler()}
@@ -108,43 +134,59 @@ const DiscrepancyDetails = (props: any) => {
             containerStyle={{ zIndex: 99999 }}
           />
           <View style={styles.stepperNavigation}>
-            {[1, 2, 3].map((number) => (
+            {stepsIterator.map(({ step: stepNumber, disabled }) => (
               <TouchableOpacity
                 style={
-                  step === number
+                  step === stepNumber
                     ? [
                         styles.stepperButton,
                         {
                           backgroundColor: "white",
+                          borderColor: "white",
                         },
                       ]
-                    : styles.stepperButton
+                    : [
+                        styles.stepperButton,
+                        {
+                          // backgroundColor: disabled ? "gray" : "",
+                          borderColor: disabled ? "gray" : "white",
+                        },
+                      ]
                 }
-                onPress={() => setStep(number)}
+                disabled={disabled}
+                onPress={() => (!disabled ? setStep(stepNumber) : "")}
               >
                 <CustomText
                   styling={
-                    step === number
+                    step === stepNumber
                       ? styles.stepperTextActive
                       : styles.stepperText
                   }
                 >
-                  {number}
+                  {stepNumber}
                 </CustomText>
               </TouchableOpacity>
             ))}
           </View>
           <View style={styles.scrollContainer}>
             {step === 1 ? (
-              <Step1 onContinue={() => setStep(2)} property={property} />
+              <Step1
+                onContinue={step1Continue}
+                property={property}
+                selectValues={selectValues}
+                setSelectValues={setSelectValues}
+                srId={srId}
+              />
             ) : step === 2 ? (
-              <Step2 onContinue={() => setStep(3)} />
-            ) : step === 3 ? (
-              <Step3 />
+              <Step2
+                onContinue={() => setStep(3)}
+                selectValues={selectValues}
+                setSelectValues={setSelectValues}
+              />
             ) : (
               <></>
             )}
-            {!!discrepancyDetailData && (
+            {step === 1 && !!discrepancyDetailData && (
               <View
                 style={{
                   marginTop: RfH(14),
@@ -179,7 +221,7 @@ const DiscrepancyDetails = (props: any) => {
               </View>
             )}
           </View>
-        </View>
+        </ScrollView>
         {/* <Loader isLoading={isLoading || partialLoading} /> */}
       </SafeAreaView>
     </WrapperContainer>

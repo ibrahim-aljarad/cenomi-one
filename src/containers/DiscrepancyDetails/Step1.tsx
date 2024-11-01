@@ -1,11 +1,11 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import { View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./styles";
 import { localize } from "../../locale/utils";
-import { getUnitList } from "./redux/actions";
+import { getUnitDicrepancy, getUnitList } from "./redux/actions";
 import { getUnitListSelector } from "./redux/selectors";
 import CustomDropDown from "../../components/CustomDropdown";
 import { CustomButton, CustomTextInput } from "../../components";
@@ -22,6 +22,9 @@ type Step1Props = {
     marketing_name_arabic?: string;
     levels?: string[];
   };
+  selectValues: any;
+  setSelectValues: (data: any) => void;
+  srId: number;
 };
 
 type option = {
@@ -29,7 +32,13 @@ type option = {
   value: string | number;
 };
 
-function Step1({ onContinue, property }: Step1Props) {
+function Step1({
+  property,
+  onContinue,
+  selectValues,
+  setSelectValues,
+  srId,
+}: Step1Props) {
   const dispatch = useDispatch();
 
   const { unitList } = useSelector(stateStructure);
@@ -37,29 +46,51 @@ function Step1({ onContinue, property }: Step1Props) {
   const getLevelOptions: () => option[] = () => {
     if (Array?.isArray(property?.levels))
       return property?.levels?.map((floor: string) => ({
-        label: floor,
-        value: floor,
+        label: floor?.trim() || "Others",
+        value: floor?.trim() || "others",
       }));
     return [];
   };
-
 
   const getUnitListOptions: () => option[] = () => {
+    if (!selectValues?.level) {
+      return [];
+    }
     if (Array?.isArray(unitList?.list))
-      return unitList?.list?.map(({unit_id, unit_code, unit_type}) => ({
-        label: `${unit_code} - ${ unit_type}`,
-        value: unit_id,
+      return unitList?.list?.map((item) => ({
+        label: `${item?.unit_code} - ${item?.unit_type} : ${item?.status}`,
+        value: item?.unit_id,
+        data: item,
       }));
     return [];
   };
-  
-  const handleFloorSelect = ({ value }: option) => {
+
+  const handleFloorSelect = (item: option) => {
+    setSelectValues((values) => ({
+      ...values,
+      level: item,
+    }));
+
     dispatch(
       getUnitList.trigger({
         "property-id": property?.property_id,
-        floor_code: value,
+        floor_code: item?.value,
         page: 1,
         limit: 10,
+      })
+    );
+  };
+
+  const handleUnitSelect = (item: option) => {
+    setSelectValues((values) => ({
+      ...values,
+      unit: item,
+    }));
+
+    dispatch(
+      getUnitDicrepancy.trigger({
+        unit_id: item?.value,
+        service_request_id: srId,
       })
     );
   };
@@ -77,20 +108,22 @@ function Step1({ onContinue, property }: Step1Props) {
       </View>
       <View style={styles.formDropdown}>
         <CustomDropDown
-          data={[...getLevelOptions(), { label: "Others", value: "" }]}
           isCard={false}
+          value={selectValues?.level}
+          onChange={handleFloorSelect}
           label={localize("form.level")}
           placeholder={localize("form.selectAValue")}
-          onChange={handleFloorSelect}
+          data={getLevelOptions()}
         />
       </View>
       <View style={styles.formDropdown}>
         <CustomDropDown
-          data={getUnitListOptions()}
           isCard={false}
+          value={selectValues?.unit}
+          onChange={handleUnitSelect}
+          data={getUnitListOptions()}
           label={localize("form.unit")}
           placeholder={localize("form.selectAValue")}
-          onChange={(item) => {}}
         />
       </View>
       <CustomButton

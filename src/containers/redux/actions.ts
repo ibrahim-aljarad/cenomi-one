@@ -14,7 +14,8 @@ import {
   SET_IS_CHAT_WINDOW_VISIBLE,
   ORGANIZATION_CONFIG,
   NEWS_LIST,
-  GREETINGS_DATA
+  GREETINGS_DATA,
+  TENANT_FILE_UPLOAD
 } from './constants';
 
 export const fileUpload = createRoutine(FILE_UPLOAD);
@@ -33,3 +34,5 @@ export const getGreetingsData = createRoutine(GREETINGS_DATA);
 export const setIsChatWindowVisible = createRoutine(SET_IS_CHAT_WINDOW_VISIBLE);
 export const getOrganizationConfig = createRoutine(ORGANIZATION_CONFIG);
 export const getNewsList = createRoutine(NEWS_LIST);
+
+export const tenantFileUpload = createRoutine(TENANT_FILE_UPLOAD);

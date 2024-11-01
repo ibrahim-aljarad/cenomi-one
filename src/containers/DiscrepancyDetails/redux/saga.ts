@@ -2,7 +2,11 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
 import { api, appianApi, tenantCentralApi } from "../../../utils/axios";
 
-import { getDiscrepancyDetail, getUnitList } from "./actions";
+import {
+  getDiscrepancyDetail,
+  getUnitDicrepancy,
+  getUnitList,
+} from "./actions";
 
 import { alertBox } from "../../../utils/helpers";
 import { DEVICE_TIMEZONE } from "../../../utils/constants";
@@ -11,6 +15,7 @@ const qs = require("qs");
 
 const DISCREPANCY_DETAIL = "service-requests/discrepancy";
 const UNIT_LIST = "units";
+const UNIT_DISCREPANCY = "discrepancy";
 
 const getDiscrepancyDetailApiCall = (data) =>
   tenantCentralApi({
@@ -18,18 +23,25 @@ const getDiscrepancyDetailApiCall = (data) =>
     url: `${DISCREPANCY_DETAIL}/${data}`,
   });
 
-  const getUnitListApiCall = (data) =>
-    tenantCentralApi({
-      method: "GET",
-      url:
+const getUnitListApiCall = (data) =>
+  tenantCentralApi({
+    method: "GET",
+    url:
       `${UNIT_LIST}` +
       "?" +
       qs.stringify(data, { arrayFormat: "repeat", encode: false }),
-    });
+  });
 
-function* getDiscrepancyDetailRequest(action: {
-  payload: any;
-}) {
+const getUnitDiscrepancyApiCall = (data) =>
+  tenantCentralApi({
+    method: "GET",
+    url:
+      `${UNIT_DISCREPANCY}` +
+      "?" +
+      qs.stringify(data, { arrayFormat: "repeat", encode: false }),
+  });
+
+function* getDiscrepancyDetailRequest(action: { payload: any }) {
   try {
     const data = action.payload;
     yield put(getDiscrepancyDetail.request({ isLoading: true }));
@@ -71,7 +83,28 @@ function* getUnitListRequest(action: {
   }
 }
 
+function* getUnitDiscrepancyRequest(action: { payload: any }) {
+  try {
+    const data = action.payload;
+    yield put(getUnitDicrepancy.request({ isLoading: true }));
+
+    const response = yield call(getUnitDiscrepancyApiCall, data);
+
+    if (response.success) {
+      const { data } = response;
+      yield put(getUnitDicrepancy.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(getUnitDicrepancy.fulfill({ isLoading: false }));
+  }
+}
+
 export default function* approvalsSaga() {
   yield takeLatest(getDiscrepancyDetail.TRIGGER, getDiscrepancyDetailRequest);
   yield takeLatest(getUnitList.TRIGGER, getUnitListRequest);
+  yield takeLatest(getUnitDicrepancy.TRIGGER, getUnitDiscrepancyRequest);
 }

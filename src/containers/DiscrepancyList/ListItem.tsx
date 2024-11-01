@@ -29,6 +29,13 @@ const ListItem = (props: any) => {
           numberOfLines={2}
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}>
+          {localize('SR. No')}: {item?.service_request_id}
+        </CustomText>
+        <CustomText
+          fontSize={14}
+          numberOfLines={2}
+          color={Colors.white}
+          styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}>
           {localize('discrepancy.mall')}: {item?.payload?.marketing_name}
         </CustomText>
         <CustomText

@@ -280,15 +280,17 @@ tenantCentralInstance.interceptors.response.use(
 
   async function (error) {
     // record metrics
+
+    // console.log('errooooor', error, error?.config, error?.success, error?.errors)
     const { httpMetric } = error.config.metadata;
     error.config.metadata.requestEndTime = new Date().getTime();
-    httpMetric.setHttpResponseCode(error.response.status);
-    httpMetric.setResponseContentType(error.response.headers["content-type"]);
+    httpMetric.setHttpResponseCode(error.response?.status);
+    httpMetric.setResponseContentType(error.response?.headers["content-type"]);
     await httpMetric.stop();
 
     const originalRequest = error.config;
 
-    if (error.response.status === 403) {
+    if (error.response?.status === 403) {
       await storeData(
         LOCAL_STORAGE_DATA_KEY.UN_AUTORISED_ACCESS,
         JSON.stringify(true)
@@ -554,8 +556,6 @@ async function fetchTenantCentralResponse(config) {
         "💀 Tenant API Error 💀",
         bgOrange,
         `${config.method}: ${config.url} `,
-        JSON.stringify(error),
-        error.response
       );
 
       const { data: errorResponse } = error.response || {};

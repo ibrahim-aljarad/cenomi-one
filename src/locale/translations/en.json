@@ -318,6 +318,9 @@
     "expectedDateOfChildbirth": "Expected Date of Childbirth",
     "specialConditions": "Special Conditions",
     "singleDay": "Single Day",
+    "level": "Level",
+    "unit": "Unit",
+    "comment": "Comment",
     "warning": {
       "reasonForTravelBlank": "Reason for travel cannot be empty",
       "travelRequestTypeBlank": "Travel request type cannot be empty",

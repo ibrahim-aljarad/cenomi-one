@@ -57,7 +57,8 @@ const DiscrepancyList = () => {
     trackEvent(EVENT_NAME.PRESSED_CORPORATE_COMMUNICATION);
     navigation.navigate(NavigationRouteNames.DISCREPANCY_DETAILS as never, {
       id: item?.service_request_id,
-      property: {...item?.payload}
+      property: {...item?.payload},
+      srId: item?.service_request_id
     });
   };
 

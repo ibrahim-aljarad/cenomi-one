@@ -13,7 +13,12 @@ const getUnitListSelector = createSelector(selectGlobalSubStore, (globalState) =
   return globalState.unitList;
 });
 
+const getUnitDiscrepancySelector = createSelector(selectGlobalSubStore, (globalState) => {
+  return globalState.unitDiscrepancy;
+});
+
 export {
   getDiscrepancyDetailDataSelector,
   getUnitListSelector,
+  getUnitDiscrepancySelector,
 };

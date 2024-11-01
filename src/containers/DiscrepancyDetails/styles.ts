@@ -20,11 +20,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'white',
     borderRadius: 1000,
   },
   stepperText: {
     color: 'white'
+  },
+  stepperDisableText: {
+    color: 'gray'
   },
   stepperTextActive: {
     color: 'black'
@@ -58,6 +60,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: RfW(20),
     marginVertical: RfH(15),
   },
+  scrollContainer: {
+    paddingHorizontal: RfW(20),
+    marginVertical: RfH(15),
+    marginBottom: RfH(150),
+  },
   borderSperator:{
     borderTopColor: Colors.lightGrey219,
     borderTopWidth: 1
@@ -81,7 +88,7 @@ const styles = StyleSheet.create({
   buttonStyle: {
     backgroundColor: Colors.primary,
     paddingHorizontal: WIDTH.W20,
-    marginHorizontal: 0,
+    marginHorizontal: RfH(20),
   },
   continueButtonStyle: {
     backgroundColor: Colors.primary,

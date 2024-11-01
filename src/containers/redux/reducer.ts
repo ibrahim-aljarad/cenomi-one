@@ -15,6 +15,7 @@ import {
   getOrganizationConfig,
   getNewsList,
   getGreetingsData,
+  tenantFileUpload,
 } from "./actions";
 
 export const initialState = {
@@ -178,6 +179,17 @@ export default (
       }
       case getGreetingsData.FAILURE: {
         draft.greetingsListData = [];
+        break;
+      }
+
+      case tenantFileUpload.TRIGGER: {
+        draft.fileUploadedData = [];
+        break;
+      }
+      case tenantFileUpload.SUCCESS: {
+        const { data } = action.payload || {};
+        console.log(' { data } = action.payload || {}', data)
+        draft.fileUploadedData = data;
         break;
       }
 

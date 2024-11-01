@@ -31,12 +31,12 @@ import {
   getFileUploadedDataSelector,
   isDarkModeSelector,
 } from "../../containers/redux/selectors";
-import { fileUpload } from "../../containers/redux/actions";
+import { fileUpload, tenantFileUpload } from "../../containers/redux/actions";
 import { BorderRadius } from "../../theme/sizes";
 import CustomBottomSheet from "../CustomBottomSheet";
 import AppPrimaryButton from "../AppPrimaryButton";
 import AvatarUpload from "./AvatarUpload";
-
+import { decode as atob } from "base-64";
 const RNFS = require("react-native-fs");
 // const imageCompressionQuality = 0.5;
 
@@ -63,6 +63,7 @@ function UploadDocument(props) {
     cropping = false,
     openCameraDefault = false,
     imageCompressionQuality = 1,
+    isTenantServerUpload = false,
   } = props;
   const [imageSet, updateImageSet] = useState([]);
   const [isEnableUploadDocument, setIsEnableUploadDocument] = useState(false);
@@ -71,7 +72,31 @@ function UploadDocument(props) {
   const dispatch = useDispatch();
 
   const uploadDocument = (selectedFileData) => {
-    if (!isUploadFileOnServer) {
+    const filesUpload = async () => {
+      const { fileName, path, mime } = selectedFileData || {};
+      const fileData = await RNFS.readFile(path, "base64");
+      const byteCharacters = atob(fileData);
+      const byteNumbers = new Uint8Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const mimeType = mime?.split("/")[1];
+      // const bufferFile = new Blob([byteNumbers], { type: mimeType });
+      const bufferFile = byteNumbers.buffer;
+
+      console.log("bufferFilseds",byteNumbers?.length);
+      dispatch(
+        tenantFileUpload.trigger({
+          fileName,
+          document_type_id: "SR_DSC_OPN",
+          mime: mimeType,
+          file: fileData,
+        })
+      );
+    };
+    if (isTenantServerUpload) {
+      filesUpload();
+    } else if (!isUploadFileOnServer) {
       handleUpload(selectedFileData);
     } else {
       setIsEnableUploadDocument(true);
@@ -509,6 +534,7 @@ UploadDocument.propTypes = {
   cropping: PropTypes.bool,
   openCameraDefault: PropTypes.bool,
   imageCompressionQuality: PropTypes.number,
+  isTenantServerUpload: PropTypes.bool,
 };
 
 UploadDocument.defaultProps = {
