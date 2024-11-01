@@ -86,6 +86,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   buttonStyle: {
+    backgroundColor: Colors.secondaryContainerColor,
+    paddingHorizontal: WIDTH.W20,
+    marginHorizontal: RfH(20),
+  },
+  submitButtonStyle: {
     backgroundColor: Colors.primary,
     paddingHorizontal: WIDTH.W20,
     marginHorizontal: RfH(20),

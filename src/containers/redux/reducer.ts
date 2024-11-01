@@ -33,6 +33,7 @@ export const initialState = {
   organizationConfigData: undefined,
   newsList: undefined,
   greetingsListData: undefined,
+  tenantfileUploadedData: {},
 };
 
 export default (
@@ -183,13 +184,12 @@ export default (
       }
 
       case tenantFileUpload.TRIGGER: {
-        draft.fileUploadedData = [];
+        draft.tenantfileUploadedData = [];
         break;
       }
       case tenantFileUpload.SUCCESS: {
         const { data } = action.payload || {};
-        console.log(' { data } = action.payload || {}', data)
-        draft.fileUploadedData = data;
+        draft.tenantfileUploadedData = data?.data;
         break;
       }
 

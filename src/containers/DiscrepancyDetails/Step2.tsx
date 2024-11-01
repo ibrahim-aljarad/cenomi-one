@@ -1,8 +1,7 @@
-import React from "react";
-import { ScrollView, View } from "react-native";
-import { CustomButton, CustomText } from "../../components";
+import React, { useEffect } from "react";
+import { View } from "react-native";
+import { CustomText } from "../../components";
 import styles from "./styles";
-import { localize } from "../../locale/utils";
 import { Colors, CommonStyles } from "../../theme";
 import { RfH, RfW } from "../../utils/helper";
 import { createStructuredSelector } from "reselect";
@@ -20,12 +19,42 @@ const stateStructure = createStructuredSelector({
   unitDiscrepancy: getUnitDiscrepancySelector,
 });
 
-function Step2({ onContinue, selectValues, setSelectValues }) {
+function Step2({ setStep, selectValues, setSelectValues }) {
   const dispatch = useDispatch();
 
   const { unitDiscrepancy } = useSelector(stateStructure);
 
-  console.log(selectValues?.unit?.data);
+  useEffect(() => {
+    if(unitDiscrepancy?.status === "DRAFT"){
+      const {document_ids, payload} = unitDiscrepancy;
+      console.log('payload?.status',payload?.status)
+      setSelectValues((current) => ({
+        ...current,
+        storeClosed: payload?.store_closed,
+        wrongLocation: payload?.wrong_location,
+        brandChanged: payload?.brand_changed,
+        openWithoutContract: payload?.open_without_contract,
+        others: payload?.others,
+        comment: payload?.comment||'',
+        documentId: document_ids||[],
+        reviewStatus: payload?.status,
+      }))
+    }else {
+      setSelectValues((current) => ({
+        ...current,
+        storeClosed: false,
+        wrongLocation: false,
+        brandChanged: false,
+        openWithoutContract: false,
+        others: false,
+        comment: "",
+        documentId: [],
+        reviewStatus: '',
+      }))
+
+    }
+    
+  }, [unitDiscrepancy]);
   const vals = [
     { value: selectValues?.level?.label, label: "Level" },
     { value: selectValues?.unit?.label, label: "Unit" },
@@ -51,7 +80,7 @@ function Step2({ onContinue, selectValues, setSelectValues }) {
                 alignItems: "center",
                 justifyContent: "space-between",
               }}
-              key={value||key}
+              key={value || key}
             >
               <CustomText
                 fontSize={14}
@@ -79,7 +108,11 @@ function Step2({ onContinue, selectValues, setSelectValues }) {
           )
         )}
       </View>
-      <Step3 selectValues={selectValues} setSelectValues={setSelectValues} />
+      <Step3
+        selectValues={selectValues}
+        setSelectValues={setSelectValues}
+        setStep={setStep}
+      />
     </>
   );
 }

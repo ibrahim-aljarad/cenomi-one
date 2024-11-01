@@ -16,9 +16,16 @@ import { isRTL, localize } from "../../locale/utils";
 import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomSwitch from "../../components/CustomSwitch";
 import UploadDocument from "../../components/UploadDocument";
-import { isDarkModeSelector } from "../redux/selectors";
+import {
+  getTenantFileUploadedDataSelector,
+  isDarkModeSelector,
+} from "../redux/selectors";
 import CustomModal from "../../components/CustomModal";
 import AppPrimaryButton from "../../components/AppPrimaryButton";
+import TenantImageViewer from "../../components/TenantImageViewer";
+import { alertBox } from "../../utils/helpers";
+import { getUnitDiscrepancySelector } from "./redux/selectors";
+import { saveUnitDicrepancy } from "./redux/actions";
 
 const yesOrNoPairs = [
   { key: "storeClosed", label: "Store Closed" },
@@ -29,15 +36,26 @@ const yesOrNoPairs = [
 ];
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
+  tenantfileUploadedData: getTenantFileUploadedDataSelector,
+  unitDiscrepancy: getUnitDiscrepancySelector,
 });
-function Step3({ selectValues, setSelectValues }) {
-  const { isDarkMode } = useSelector(stateStructure);
+function Step3({ selectValues, setSelectValues, setStep }) {
+  const { isDarkMode, tenantfileUploadedData, unitDiscrepancy } =
+    useSelector(stateStructure);
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
     useState(false);
+  const [fileUploadStarted, setFileUploadStarted] = useState<boolean>(false);
   const [imageModal, setImageModal] = useState(null);
   const [imageList, setImageList] = useState<any>([]);
-  const onPressUploadAttachment = () => setIsShowDocumentPickerModal(true);
-  const [reviewStatus, setReviewStatus] = useState("");
+
+  const dispatch = useDispatch();
+
+  const onPressUploadAttachment = () => {
+    setFileUploadStarted(true);
+    setIsShowDocumentPickerModal(true);
+  };
+
+  const { reviewStatus } = selectValues;
 
   const handleRemoveImage = (index) => {
     setImageList(imageList.filter((item, inx) => inx !== index));
@@ -46,6 +64,61 @@ function Step3({ selectValues, setSelectValues }) {
 
   const dataChange = (key, value) => {
     setSelectValues((current) => ({ ...current, [key]: value }));
+  };
+
+  useEffect(() => {
+    if (fileUploadStarted && tenantfileUploadedData?.document_id) {
+      setSelectValues(({ documentId, ...rest }) => ({
+        ...rest,
+        documentId: [...documentId, tenantfileUploadedData?.document_id],
+      }));
+    }
+  }, [tenantfileUploadedData]);
+
+  const handleSaveDiscrepancy = () => {
+    if (!selectValues?.documentId?.length) {
+      return alertBox(
+        localize("discrepancy.takePhoto"),
+        localize("discrepancy.takePhotoError")
+      );
+    }
+    if (!reviewStatus) {
+      return alertBox(
+        localize("discrepancy.selectStatus"),
+        localize("discrepancy.specifyStatus")
+      );
+    }
+
+    const {
+      comment,
+      documentId,
+      storeClosed,
+      wrongLocation,
+      brandChanged,
+      openWithoutContract,
+      others,
+    } = selectValues;
+
+    const isMismatch = (data) => {
+      if (reviewStatus === "mismatch") return data;
+      else return false;
+    };
+
+    const params = {
+      payload: {
+        others: isMismatch(others),
+        status: reviewStatus,
+        comment,
+        store_closed: isMismatch(storeClosed),
+        wrong_location: isMismatch(wrongLocation),
+        open_without_contract: isMismatch(openWithoutContract),
+        brand_changed: isMismatch(brandChanged),
+      },
+      document_ids: documentId,
+      discrepancy_id: parseInt(unitDiscrepancy?.discrepancy_id),
+      status: "DRAFT",
+    };
+    dispatch(saveUnitDicrepancy.trigger(params));
   };
 
   return (
@@ -79,7 +152,7 @@ function Step3({ selectValues, setSelectValues }) {
           labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingLeft: RfH(10) }}
-          onSelect={() => setReviewStatus("match")}
+          onSelect={() => dataChange("reviewStatus", "match")}
         />
         <CustomRadioButton
           icon={
@@ -91,7 +164,7 @@ function Step3({ selectValues, setSelectValues }) {
           labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingTop: RfH(0) }}
-          onSelect={() => setReviewStatus("mismatch")}
+          onSelect={() => dataChange("reviewStatus", "mismatch")}
         />
       </View>
       <View>
@@ -143,6 +216,9 @@ function Step3({ selectValues, setSelectValues }) {
         />
       </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        {selectValues?.documentId?.map((id) => (
+          <TenantImageViewer docId={id} />
+        ))}
         {imageList.map((data, inx) => (
           <TouchableOpacity
             style={{
@@ -161,6 +237,23 @@ function Step3({ selectValues, setSelectValues }) {
               // tintColor={isDarkMode ? Colors.white : Colors.white}
             />
           </TouchableOpacity>
+        ))}
+      </View>
+      <View>
+        {selectValues?.documentId?.map((id) => (
+          <CustomText
+            fontSize={14}
+            color={Colors.black}
+            styling={{
+              ...CommonStyles.regularFont500Style,
+              lineHeight: RfH(17),
+              marginLeft: RfW(12),
+              marginTop: RfH(2),
+            }}
+            key={id}
+          >
+            {id}
+          </CustomText>
         ))}
       </View>
       <View>
@@ -226,7 +319,7 @@ function Step3({ selectValues, setSelectValues }) {
         <CustomButton
           buttonText="Save"
           btnContainerStyle={styles.buttonStyle}
-          handleOnSubmit={() => {}}
+          handleOnSubmit={handleSaveDiscrepancy}
         />
       </View>
       {imageModal ? (

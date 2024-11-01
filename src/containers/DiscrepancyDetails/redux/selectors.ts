@@ -17,8 +17,13 @@ const getUnitDiscrepancySelector = createSelector(selectGlobalSubStore, (globalS
   return globalState.unitDiscrepancy;
 });
 
+const saveUnitDiscrepancySelector = createSelector(selectGlobalSubStore, (globalState) => {
+  return globalState.savedDiscrepancy;
+});
+
 export {
   getDiscrepancyDetailDataSelector,
   getUnitListSelector,
   getUnitDiscrepancySelector,
+  saveUnitDiscrepancySelector,
 };

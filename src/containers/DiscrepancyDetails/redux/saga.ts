@@ -6,6 +6,7 @@ import {
   getDiscrepancyDetail,
   getUnitDicrepancy,
   getUnitList,
+  saveUnitDicrepancy,
 } from "./actions";
 
 import { alertBox } from "../../../utils/helpers";
@@ -39,6 +40,13 @@ const getUnitDiscrepancyApiCall = (data) =>
       `${UNIT_DISCREPANCY}` +
       "?" +
       qs.stringify(data, { arrayFormat: "repeat", encode: false }),
+  });
+
+const saveUnitDiscrepancyApiCall = (data) =>
+  tenantCentralApi({
+    method: "PATCH",
+    url: `${UNIT_DISCREPANCY}`,
+    data,
   });
 
 function* getDiscrepancyDetailRequest(action: { payload: any }) {
@@ -103,8 +111,29 @@ function* getUnitDiscrepancyRequest(action: { payload: any }) {
   }
 }
 
+function* saveUnitDiscrepancyRequest(action: { payload: any }) {
+  try {
+    const data = action.payload;
+    yield put(saveUnitDicrepancy.request({ isLoading: true }));
+
+    const response = yield call(saveUnitDiscrepancyApiCall, data);
+
+    if (response.success) {
+      const { data } = response;
+      yield put(saveUnitDicrepancy.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(saveUnitDicrepancy.fulfill({ isLoading: false }));
+  }
+}
+
 export default function* approvalsSaga() {
   yield takeLatest(getDiscrepancyDetail.TRIGGER, getDiscrepancyDetailRequest);
   yield takeLatest(getUnitList.TRIGGER, getUnitListRequest);
   yield takeLatest(getUnitDicrepancy.TRIGGER, getUnitDiscrepancyRequest);
+  yield takeLatest(saveUnitDicrepancy.TRIGGER, saveUnitDiscrepancyRequest);
 }

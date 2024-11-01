@@ -310,7 +310,6 @@ function* tenantFileUploadRequest(action: any) {
   try {
     yield put(tenantFileUpload.request({ isLoading: true }));
     const { fileName, mime, file, document_type_id } = action?.payload || {};
-    const formData = new FormData();
 
     const response = yield call(tenantFileUploadApiCall, {
       file_name: fileName,

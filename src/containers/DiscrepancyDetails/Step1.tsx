@@ -127,7 +127,7 @@ function Step1({
         />
       </View>
       <CustomButton
-        buttonText="Continue"
+        buttonText={localize("discrepancy.continue")}
         showSeperator={false}
         btnContainerStyle={styles.buttonStyle}
         handleOnSubmit={onContinue}

@@ -16,7 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { isLoadingSelector } from "../../appContainer/redux/selectors";
-import { CustomText, HeaderSVG } from "../../components";
+import { CustomButton, CustomText, HeaderSVG } from "../../components";
 import { Colors, CommonStyles, Images } from "../../theme";
 import { CC_TEMPLATE_TEXT } from "../../utils/constants";
 import { getCorporateCommunicationDetailsSelector } from "../Home/redux/selectors";
@@ -27,15 +27,19 @@ import { isDarkModeSelector } from "../redux/selectors";
 import WrapperContainer from "../../components/WrapperContainer";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
-import Step3 from "./Step3";
-import { getDiscrepancyDetailDataSelector } from "./redux/selectors";
-import { getDiscrepancyDetail } from "./redux/actions";
+import {
+  getDiscrepancyDetailDataSelector,
+  saveUnitDiscrepancySelector,
+} from "./redux/selectors";
+import { clearDiscrepancy, getDiscrepancyDetail, saveUnitDicrepancy } from "./redux/actions";
 import { RfH, RfW } from "../../utils/helper";
 import { localize } from "../../locale/utils";
+import CustomModal from "../../components/CustomModal";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   discrepancyDetailData: getDiscrepancyDetailDataSelector,
+  saveUnitDiscrepancyData: saveUnitDiscrepancySelector,
 });
 
 const DiscrepancyDetails = (props: any) => {
@@ -44,6 +48,7 @@ const DiscrepancyDetails = (props: any) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const [step, setStep] = useState(1);
+  const [statusModal, setStatusModal] = useState(false);
 
   const [selectValues, setSelectValues] = useState<any>({
     level: null,
@@ -55,10 +60,13 @@ const DiscrepancyDetails = (props: any) => {
     others: false,
     comment: "",
     documentId: [],
+    reviewStatus: '',
   });
 
-  const { isDarkMode, discrepancyDetailData } = useSelector(stateStructure);
+  const { isDarkMode, discrepancyDetailData, saveUnitDiscrepancyData } =
+    useSelector(stateStructure);
 
+    const [isFinalSubmit, setIsFinalSubmit] = useState(false);
   const [info, setInfo] = useState({
     source: "",
     height: 0,
@@ -72,6 +80,7 @@ const DiscrepancyDetails = (props: any) => {
   };
 
   useEffect(() => {
+    dispatch(clearDiscrepancy.trigger());
     dispatch(getDiscrepancyDetail.trigger(id));
   }, []);
 
@@ -94,6 +103,34 @@ const DiscrepancyDetails = (props: any) => {
     setStep(2);
   };
 
+  const handleClose = () => {
+    setStatusModal(false);
+    if(isFinalSubmit){
+      backHandler();
+    }
+  };
+
+  useEffect(() => {
+    if (saveUnitDiscrepancyData === "success") {
+      setStep(1);
+      setStatusModal(true);
+      dispatch(clearDiscrepancy.trigger());
+      dispatch(getDiscrepancyDetail.trigger(id));
+      setSelectValues({
+        level: null,
+        unit: null,
+        storeClosed: false,
+        wrongLocation: false,
+        brandChanged: false,
+        openWithoutContract: false,
+        others: false,
+        comment: "",
+        documentId: [],
+        reviewStatus: '',
+      });
+    }
+  }, [saveUnitDiscrepancyData]);
+
   const stepsIterator = [
     {
       step: 1,
@@ -103,6 +140,14 @@ const DiscrepancyDetails = (props: any) => {
       disabled: !selectValues?.level || !selectValues?.unit,
     },
   ];
+  const handleSubmit = () => {
+    setIsFinalSubmit(true);
+    const params = {
+      service_request_id: parseInt(srId),
+      status: "SUBMIT"
+    }
+    dispatch(saveUnitDicrepancy.trigger(params))
+  }
 
   return (
     <WrapperContainer>
@@ -179,7 +224,7 @@ const DiscrepancyDetails = (props: any) => {
               />
             ) : step === 2 ? (
               <Step2
-                onContinue={() => setStep(3)}
+                setStep={setStep}
                 selectValues={selectValues}
                 setSelectValues={setSelectValues}
               />
@@ -220,7 +265,22 @@ const DiscrepancyDetails = (props: any) => {
                 </CustomText>
               </View>
             )}
+
+            {statusModal && (
+              <CustomModal
+                title={localize(isFinalSubmit ? "discrepancy.submitted": "discrepancy.saved")}
+                modalVisible={true}
+                onRequestClose={handleClose}
+                onRequestActionButton={handleClose}
+              />
+            )}
           </View>
+          <CustomButton
+            buttonText={localize('discrepancy.submitAll')}
+            showSeperator={false}
+            btnContainerStyle={styles.submitButtonStyle}
+            handleOnSubmit={handleSubmit}
+          />
         </ScrollView>
         {/* <Loader isLoading={isLoading || partialLoading} /> */}
       </SafeAreaView>

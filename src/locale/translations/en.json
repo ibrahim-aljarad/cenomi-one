@@ -526,6 +526,14 @@
   "discrepancy": {
     "mall": "Mall",
     "companyName": "Company Name",
-    "remainingUnits": "Remaining Units"
+    "remainingUnits": "Remaining Units",
+    "takePhoto": "Take Photo",
+    "takePhotoError": "At least one photo needed",
+    "selectStatus": "Select Status",
+    "specifyStatus": "Specify Review Status",
+    "saved": "Discrepancy Saved",
+    "continue": "Continue",
+    "submitAll": "Submit All",
+    "submitted": "Service Request Submitted"
   }
 }

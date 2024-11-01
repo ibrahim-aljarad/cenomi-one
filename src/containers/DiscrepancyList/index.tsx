@@ -62,6 +62,7 @@ const DiscrepancyList = () => {
     });
   };
 
+
   const listSection = () => {
     if (serviceRequestList === undefined) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;

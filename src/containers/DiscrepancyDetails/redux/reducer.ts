@@ -1,9 +1,11 @@
 import produce from "immer";
 
 import {
+  clearDiscrepancy,
   getDiscrepancyDetail,
   getUnitDicrepancy,
   getUnitList,
+  saveUnitDicrepancy,
 } from "./actions";
 
 type ListApiResponse = {
@@ -15,19 +17,24 @@ type ListApiResponse = {
 export type DiscrepancyDetailsData = {
   discrepancyDetailData: ListApiResponse | undefined | {};
   unitList: ListApiResponse | undefined | {};
-  unitDiscrepancy: {
-    discrepancy_id: string;
-    service_request_id: number;
-    payload: any;
-    status: string;
-    document_ids: string[];
-  }| undefined | {};
+  unitDiscrepancy:
+    | {
+        discrepancy_id: string;
+        service_request_id: number;
+        payload: any;
+        status: string;
+        document_ids: string[];
+      }
+    | undefined
+    | {};
+  savedDiscrepancy: any;
 };
 
 export const initialState: DiscrepancyDetailsData = {
   discrepancyDetailData: {},
   unitList: {},
   unitDiscrepancy: {},
+  savedDiscrepancy: {},
 };
 
 export default (
@@ -72,6 +79,23 @@ export default (
       }
       case getUnitDicrepancy.FAILURE: {
         draft.unitDiscrepancy = {};
+        break;
+      }
+
+      case saveUnitDicrepancy.TRIGGER: {
+        draft.savedDiscrepancy = undefined;
+        break;
+      }
+      case saveUnitDicrepancy.SUCCESS: {
+        draft.savedDiscrepancy = "success";
+        break;
+      }
+
+      case clearDiscrepancy.TRIGGER: {
+        draft.discrepancyDetailData = {};
+        draft.unitList = {};
+        draft.unitDiscrepancy = {};
+        draft.savedDiscrepancy = {};
         break;
       }
 
