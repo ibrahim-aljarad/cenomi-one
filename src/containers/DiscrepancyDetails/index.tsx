@@ -275,12 +275,15 @@ const DiscrepancyDetails = (props: any) => {
               />
             )}
           </View>
+          {
+            step === 1 &&
           <CustomButton
             buttonText={localize('discrepancy.submitAll')}
             showSeperator={false}
             btnContainerStyle={styles.submitButtonStyle}
             handleOnSubmit={handleSubmit}
           />
+          }
         </ScrollView>
         {/* <Loader isLoading={isLoading || partialLoading} /> */}
       </SafeAreaView>

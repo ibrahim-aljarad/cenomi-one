@@ -46,7 +46,6 @@ function Step3({ selectValues, setSelectValues, setStep }) {
     useState(false);
   const [fileUploadStarted, setFileUploadStarted] = useState<boolean>(false);
   const [imageModal, setImageModal] = useState(null);
-  const [imageList, setImageList] = useState<any>([]);
 
   const dispatch = useDispatch();
 
@@ -57,8 +56,11 @@ function Step3({ selectValues, setSelectValues, setStep }) {
 
   const { reviewStatus } = selectValues;
 
-  const handleRemoveImage = (index) => {
-    setImageList(imageList.filter((item, inx) => inx !== index));
+  const handleRemoveImage = (id) => {
+    setSelectValues(({ documentId, ...rest }) => ({
+      ...rest,
+      documentId: documentId.filter((item) => id !== item),
+    }));
     setImageModal(null);
   };
 
@@ -217,45 +219,38 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {selectValues?.documentId?.map((id) => (
-          <TenantImageViewer docId={id} />
-        ))}
-        {imageList.map((data, inx) => (
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              margin: RfW(5),
-              alignItems: "center",
-            }}
-            key={`img${inx}`}
-            onPress={() => setImageModal(inx + 1)}
-          >
-            <CustomImage
-              sourceObject={{ uri: data?.path }}
-              imageHeight={RfH(70)}
-              imageWidth={RfH(70)}
-              imageResizeMode="contain"
-              // tintColor={isDarkMode ? Colors.white : Colors.white}
+          <View style={{ alignItems: "center" }}>
+            <TenantImageViewer
+              docId={id}
+              key={id}
+              imageWidth={100}
+              imageHeight={100}
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                margin: RfW(5),
+                alignItems: "center",
+              }}
+              key={`img${id}`}
+              onPress={() => setImageModal(id)}
+            >
+              <CustomText
+                fontSize={14}
+                color={Colors.white}
+                styling={{
+                  marginStart: RfW(5),
+                  lineHeight: RfH(20),
+                  ...CommonStyles.regularFont400Style,
+                }}
+              >
+                {localize("common.delete")}
+              </CustomText>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
-      <View>
-        {selectValues?.documentId?.map((id) => (
-          <CustomText
-            fontSize={14}
-            color={Colors.black}
-            styling={{
-              ...CommonStyles.regularFont500Style,
-              lineHeight: RfH(17),
-              marginLeft: RfW(12),
-              marginTop: RfH(2),
-            }}
-            key={id}
-          >
-            {id}
-          </CustomText>
-        ))}
-      </View>
+      <View></View>
       <View>
         <TouchableOpacity
           style={[
@@ -305,11 +300,6 @@ function Step3({ selectValues, setSelectValues, setStep }) {
           isUploadFileOnServer={false}
           cropping
           isTenantServerUpload={true}
-          handleUpload={(data: any) => {
-            const { filename, name } = data || {};
-            setImageList([...imageList, data]);
-            console.log(data);
-          }}
           isFilePickerVisible={false}
           openCameraDefault
           imageCompressionQuality={0.6}
@@ -324,36 +314,36 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       </View>
       {imageModal ? (
         <CustomModal
-          modalVisible={!!imageModal}
+          modalVisible={true}
           onRequestClose={() => setImageModal(null)}
         >
-          <>
-            <CustomImage
-              sourceObject={{ uri: imageList[0] }}
+          <View style={{ alignItems: "center", paddingVertical: RfH(20) }}>
+            <TenantImageViewer
+              docId={imageModal}
               imageWidth={220}
               imageHeight={220}
-              imageResizeMode={"contain"}
-              displayLoader={false}
-              containerStyling={{ paddingVertical: RfH(25) }}
             />
-            <CustomText
-              fontSize={20}
-              styling={{
-                ...CommonStyles.regularFont500Style,
-                lineHeight: RfH(22),
-                top: -RfH(10),
+
+            <View
+              style={{
+                marginTop: RfH(22),
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-around",
               }}
             >
-              remove
-            </CustomText>
-
-            <View style={{ marginTop: RfH(22), width: "100%" }}>
               <AppPrimaryButton
-                buttonText={localize("common.remove")}
-                onPress={() => handleRemoveImage(imageModal - 1)}
+                buttonText={localize("common.cancel")}
+                onPress={() => setImageModal(null)}
+                containerStyle={{ width: RfW(150) }}
+              />
+              <AppPrimaryButton
+                buttonText={localize("common.delete")}
+                onPress={() => handleRemoveImage(imageModal)}
+                containerStyle={{ width: RfW(150) }}
               />
             </View>
-          </>
+          </View>
         </CustomModal>
       ) : null}
     </View>

@@ -83,9 +83,7 @@ tenantCentralInstance.interceptors.request.use(
     const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
     const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
     
-    config.headers= {
-      Cookie: cookieString
-    }
+    config.headers.Cookie= cookieString
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
     return config;

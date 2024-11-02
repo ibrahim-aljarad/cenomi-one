@@ -519,5 +519,18 @@
     "sColleagues": "الزملاء لـ",
     "organisation": "التنظيم",
     "userList": "قائمة المستخدمين"
+  },
+  "discrepancy": {
+    "mall": "مول",
+    "companyName": "اسم الشركة",
+    "remainingUnits": "الوحدات المتبقية",
+    "takePhoto": "التقط صورة",
+    "takePhotoError": "مطلوب صورة واحدة على الأقل",
+    "selectStatus": "حدد الحالة",
+    "specifyStatus": "حدد حالة المراجعة",
+    "saved": "تم حفظ التناقض",
+    "continue": "يكمل",
+    "submitAll": "إرسال الكل",
+    "submitted": "تم تقديم طلب الخدمة"
   }
 }

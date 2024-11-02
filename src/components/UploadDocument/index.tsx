@@ -15,7 +15,6 @@ import { alertBox, deviceWidth } from "../../utils/helpers";
 import { styles } from "./styles";
 import DocumentPicker from "react-native-document-picker";
 import PropTypes from "prop-types";
-import IconButtonWrapper from "../IconButtonWrapper";
 import { Colors, CommonStyles, Images } from "../../theme";
 import { isEmpty, uniqueId } from "lodash";
 import ImagePicker from "react-native-image-crop-picker";
@@ -32,13 +31,24 @@ import {
   isDarkModeSelector,
 } from "../../containers/redux/selectors";
 import { fileUpload, tenantFileUpload } from "../../containers/redux/actions";
-import { BorderRadius } from "../../theme/sizes";
 import CustomBottomSheet from "../CustomBottomSheet";
-import AppPrimaryButton from "../AppPrimaryButton";
 import AvatarUpload from "./AvatarUpload";
-import { decode as atob } from "base-64";
 const RNFS = require("react-native-fs");
 // const imageCompressionQuality = 0.5;
+
+import { Buffer } from 'buffer';
+
+const base64ToArrayBuffer = (base64) => {
+  // Decode the Base64 string using Buffer
+  const byteString = Buffer.from(base64, 'base64');
+
+  // Create an ArrayBuffer from the byte string
+  const arrayBuffer = byteString.buffer.slice(byteString.byteOffset, byteString.byteOffset + byteString.byteLength);
+
+  return arrayBuffer; // Return the ArrayBuffer
+};
+
+
 
 const stateStructure = createStructuredSelector({
   fileUploadedData: getFileUploadedDataSelector,
@@ -74,25 +84,25 @@ function UploadDocument(props) {
   const uploadDocument = (selectedFileData) => {
     const filesUpload = async () => {
       const { fileName, path, mime } = selectedFileData || {};
-      const fileData = await RNFS.readFile(path, "base64");
-      const byteCharacters = atob(fileData);
-      const byteNumbers = new Uint8Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      try {
+        // Read the file as a Base64 string
+        const base64String = await RNFS.readFile(path, 'base64');
+    
+        // Convert to ArrayBuffer
+        const arrayBuffer = base64ToArrayBuffer(base64String);
+        dispatch(
+          tenantFileUpload.trigger({
+            fileName,
+            document_type_id: "SR_DSC_OPN",
+            mime:  mime?.split("/")[1],
+            file: arrayBuffer,
+          })
+        );
+        
+        return arrayBuffer;
+      } catch (error) {
+        console.error('Error reading file:', error);
       }
-      const mimeType = mime?.split("/")[1];
-      // const bufferFile = new Blob([byteNumbers], { type: mimeType });
-      const bufferFile = byteNumbers.buffer;
-
-      console.log("bufferFilseds",byteNumbers?.length);
-      dispatch(
-        tenantFileUpload.trigger({
-          fileName,
-          document_type_id: "SR_DSC_OPN",
-          mime: mimeType,
-          file: fileData,
-        })
-      );
     };
     if (isTenantServerUpload) {
       filesUpload();
