@@ -268,6 +268,22 @@ const Calendar = () => {
         }, {});
       }
 
+      if (publicHolidayData?.status) {
+        const holidayDate = moment(publicHolidayData.date).format("YYYY-MM-DD");
+        if (!formattedData[holidayDate]) {
+          formattedData[holidayDate] = {
+            marked: true,
+            dots: [
+              {
+                key: "holidayDot",
+                color: Colors.green,
+              },
+            ],
+            timestamps: [],
+          };
+        }
+      }
+
     const updatedData = calculateTimestampDifferences(
       formattedData,
       selectedMonth
