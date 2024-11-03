@@ -27,6 +27,7 @@ const NavigationRouteNames = {
   APPROVALS_DETAILS: "ApprovalsDetails",
   KNOWLEDGEHUBLIST: "KnowledgeHUBList",
   KNOWLEDGEHUB_SUBCATEGORYLIST: "KnowledgeHUB_SubcategoryList",
+  KNOWLEDGEHUB_DETAILS: "KnowledgeHUBDetails",
 
   LEAVEDETAILS: "LeaveDetails",
   EDUCATIONCLAIMDETAILS: "EducationClaimDetails",

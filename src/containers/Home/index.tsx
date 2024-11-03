@@ -136,7 +136,7 @@ const Home = () => {
     if (!isEmpty(notificationPayload)) {
       let payload = notificationPayload?.payload;
 
-      dispatch(markReadNotification.trigger({ id: payload?.id }));
+      dispatch(markReadNotification.trigger({ id: payload?.externalId }));
 
       if (payload.action === "open_module_details" && !payload.foreground) {
         // clean state for notificationPayload
@@ -186,6 +186,15 @@ const Home = () => {
             navigation.navigate(NavigationRouteNames.DOCUMENT_VIEW as never, {
               id: payload.externalId,
             });
+          }
+        } else if (payload.featureModule === CONFIG_CONSTANT?.KNOWLEDGE_HUB) {
+          if (payload.externalId) {
+            navigation.navigate(
+              NavigationRouteNames.KNOWLEDGEHUB_DETAILS as never,
+              {
+                externalId: payload.externalId,
+              }
+            );
           }
         } else if (payload.featureModule === CONFIG_CONSTANT?.SEND_WISHES) {
           if (!isEmpty(payload?.additionalInfo)) {
