@@ -6,7 +6,15 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { isEmpty } from "lodash";
-import { BackHandler, SafeAreaView, ScrollView, View } from "react-native";
+import {
+  ActivityIndicator,
+  BackHandler,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { isLoadingSelector } from "../../appContainer/redux/selectors";
@@ -28,7 +36,6 @@ import { RfH, RfW, getImageUrl } from "../../utils/helper";
 import { getCorporateCommunicationDetails } from "../Home/redux/actions";
 import { getCorporateCommunicationDetailsSelector } from "../Home/redux/selectors";
 import styles from "./styles";
-import CustomImageWithZoom from "../../components/CustomImageWithZoom";
 import {
   deviceWidth,
   getSaveData,
@@ -67,7 +74,12 @@ const CorporateCommunicationDetails = (props: any) => {
     template: "",
   });
   const [partialLoading, setPartialLoading] = useState(false);
-
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
+  // state to show loading indicator while we compute image dimensions
+  const [isImageLoading, setIsImageLoading] = useState(true);
   useEffect(() => {
     setPartialLoading(true);
     trackEvent(EVENT_NAME.SCREEN_CORPORATE_COMM_DETAILS);
@@ -91,6 +103,39 @@ const CorporateCommunicationDetails = (props: any) => {
       [myProfileDetails?.username]: readIds,
     });
   };
+
+  useEffect(() => {
+    if (info?.template === CC_TEMPLATE_IMAGE && info?.source) {
+      setIsImageLoading(true);
+      Image.getSize(
+        info?.source,
+        (width, height) => {
+          const screenWidth = Dimensions.get("window").width;
+          const screenHeight = Dimensions.get("window").height;
+          const imageAspectRatio = width / height;
+          const screenAspectRatio = screenWidth / screenHeight;
+
+          let newWidth: number;
+          let newHeight: number;
+
+          if (imageAspectRatio > screenAspectRatio) {
+            newWidth = screenWidth;
+            newHeight = screenWidth / imageAspectRatio;
+          } else {
+            newHeight = screenHeight * 0.8;
+            newWidth = newHeight * imageAspectRatio;
+          }
+
+          setImageDimensions({ width: newWidth, height: newHeight });
+          setIsImageLoading(false);
+        },
+        (error) => {
+          console.error("Error getting image size:", error);
+          setIsImageLoading(false);
+        }
+      );
+    }
+  }, [info?.source, info?.template]);
 
   useEffect(() => {
     if (!isEmpty(corporateCommuncationDetails)) {
@@ -182,42 +227,39 @@ const CorporateCommunicationDetails = (props: any) => {
       );
     } else {
       return (
-        <View
-          style={{
-            flex: 1,
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: "center",
+            paddingTop: RfH(20),
             backgroundColor: isDarkMode
               ? Colors.darkModeBackground
               : Colors.transparent,
           }}
         >
           {info?.source ? (
-            <CustomImageWithZoom
-              url={info?.source}
-              isLargeImage={info.height > 5000} //images with greater height are breaking the UI
-            />
+            isImageLoading ? (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color={Colors.primary} />
+              </View>
+            ) : (
+              <Image
+                source={{ uri: info.source }}
+                style={{
+                  width: imageDimensions.width,
+                  height: imageDimensions.height,
+                }}
+                resizeMode="contain"
+              />
+            )
           ) : null}
-          {/* 
-          <PinchGestureHandler
-          ref={pinchRef}
-          onGestureEvent={() => {}}
-          simultaneousHandlers={[panRef]}
-          onHandlerStateChange={handlePinchStateChange}>
-          <ScrollView
-            style={{
-              backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.white
-            }}>
-            <RenderHTML
-              source={{ html: `<div><img src='${info?.source}'/></div>` }}
-              contentWidth={deviceWidth() * zoom}
-              tagsStyles={{
-                // div: { width: deviceWidth() * 2, overflow: 'visible' },
-                img: { width: deviceWidth() * zoom, height: 'auto' }
-              }}
-            />
-          </ScrollView>
-        </PinchGestureHandler>
-         */}
-        </View>
+        </ScrollView>
       );
     }
   };
