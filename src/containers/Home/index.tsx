@@ -136,7 +136,7 @@ const Home = () => {
     if (!isEmpty(notificationPayload)) {
       let payload = notificationPayload?.payload;
 
-      dispatch(markReadNotification.trigger({ id: payload?.id }));
+      dispatch(markReadNotification.trigger({ id: payload?.externalId }));
 
       if (payload.action === "open_module_details" && !payload.foreground) {
         // clean state for notificationPayload
