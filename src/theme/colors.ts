@@ -152,7 +152,8 @@ const COLORS = {
   blueBayoux: '#636783',
   whiteSmoke: '#F8F8F8',
   modalForegroundColor: getColorWithOpacity('#504F6C', 0.9),
-  modalLayoutColor: getColorWithOpacity('#12223E', 0.8)
+  modalLayoutColor: getColorWithOpacity('#12223E', 0.8),
+  peach: '#E9A161'
 };
 
 export default COLORS;

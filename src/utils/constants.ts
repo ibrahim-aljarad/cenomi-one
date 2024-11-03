@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 export const LOCAL_STORAGE_DATA_KEY = {
   TUTORIAL_SHOWN: "tutorial_shown",
   USER_TOKEN: "userToken",
+  USER_INFO: "userInfo",
   REFRESH_TOKEN: "refreshToken",
   UN_AUTORISED_ACCESS: "unauth_access",
   IS_BIOMETRIC_ENABLE: "is_biometric_enabled",
@@ -252,6 +253,7 @@ export const CONFIG_CONSTANT = {
   APPROVALS_PROCUREMENT: "approvals_procurement",
   APPROVALS_YARDI: "approvals_yardi",
   APPROVALS_IT: "approvals_it",
+  APPROVALS_WORKFLOW: "approvals_it",
 
   CALENDAR: "calendar",
   CHAT_GPT: "chat_gpt",

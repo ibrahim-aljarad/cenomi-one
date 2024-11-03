@@ -9,7 +9,9 @@ const Config = {
 
   DEV_MODE: env.DEV_MODE === 'true',
 
-  WEBSITE_BASEURL: env.WEBSITE_BASEURL
+  WEBSITE_BASEURL: env.WEBSITE_BASEURL,
+  APPIAN_URL: env.APPIAN_URL,
+  APPIAN_KEY: env.APPIAN_KEY,
 };
 
 export default Config;

@@ -11,6 +11,8 @@ import {
   CANCEL_ABSENSE_DATA,
   GET_ABSENSE_REASONS,
   GET_ATTENDANCE,
+  CREATE_PUBLIC_HOLIDAY,
+  GET_PUBLIC_HOLIDAY_STATUS,
 } from "./constants";
 
 export const getPayslip = createRoutine(GET_PAYSLIP);
@@ -23,3 +25,5 @@ export const getAbsenseData = createRoutine(GET_ABSENSE_DATA);
 export const putCancelAbsense = createRoutine(CANCEL_ABSENSE_DATA);
 export const getAbsenseReasons = createRoutine(GET_ABSENSE_REASONS);
 export const getAttendances = createRoutine(GET_ATTENDANCE);
+export const createPublicHoliday = createRoutine(CREATE_PUBLIC_HOLIDAY);
+export const getPublicHolidayStatus = createRoutine(GET_PUBLIC_HOLIDAY_STATUS);
