@@ -200,7 +200,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
             </View>
           ))
         ) : (
-          <View style={{ height: 100 }} />
+          <View style={{ height: 20 }} />
         )}
         <CustomTextInput
           label={localize("form.comment")}
@@ -219,20 +219,21 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {selectValues?.documentId?.map((id) => (
-          <View style={{ alignItems: "center" }}>
-            <TenantImageViewer
-              docId={id}
-              key={id}
-              imageWidth={100}
-              imageHeight={100}
-            />
+          <View style={{ alignItems: "center", paddingVertical: RfH(20) }} key={`img${id}`}>
+            <TouchableOpacity onPress={() => setImageModal(id)}>
+              <TenantImageViewer
+                docId={id}
+                key={id}
+                imageWidth={100}
+                imageHeight={100}
+              />
+            </TouchableOpacity>
             <TouchableOpacity
               style={{
                 flexDirection: "row",
                 margin: RfW(5),
                 alignItems: "center",
               }}
-              key={`img${id}`}
               onPress={() => setImageModal(id)}
             >
               <CustomText
@@ -320,8 +321,8 @@ function Step3({ selectValues, setSelectValues, setStep }) {
           <View style={{ alignItems: "center", paddingVertical: RfH(20) }}>
             <TenantImageViewer
               docId={imageModal}
-              imageWidth={220}
-              imageHeight={220}
+              imageWidth={300}
+              imageHeight={300}
             />
 
             <View

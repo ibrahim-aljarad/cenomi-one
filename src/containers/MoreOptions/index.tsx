@@ -146,7 +146,6 @@ const MoreOptions = () => {
       featureModuleData
     )
   ) {
-    console.log("menu list", menuList);
     menuList = [
       ...menuList,
       {

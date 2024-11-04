@@ -534,6 +534,7 @@
     "saved": "Discrepancy Saved",
     "continue": "Continue",
     "submitAll": "Submit All",
-    "submitted": "Service Request Submitted"
+    "submitted": "Service Request Submitted",
+    "approvers": "Approvers"
   }
 }

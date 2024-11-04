@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { RfH, RfW } from "../../utils/helper";
 import CustomImage from "../CustomImage";
-import { t } from "i18next";
 import { tenantCentralApi } from "../../utils/axios";
 import Config from "../../utils/config";
 
@@ -39,13 +38,12 @@ function TenantImageViewer({ docId, imageWidth, imageHeight }) {
   }, []);
 
   return (
-    <TouchableOpacity
+    <View
       style={{
         flexDirection: "row",
         margin: RfW(5),
         alignItems: "center",
       }}
-      onPress={() => {}}
     >
       <CustomImage
         sourceObject={{
@@ -56,7 +54,7 @@ function TenantImageViewer({ docId, imageWidth, imageHeight }) {
         imageResizeMode="contain"
         // tintColor={isDarkMode ? Colors.white : Colors.white}
       />
-    </TouchableOpacity>
+    </View>
   );
 }
 
