@@ -70,27 +70,30 @@ function* getDiscrepancyDetailRequest(action: { payload: any }) {
 }
 
 function* getUnitListRequest(action: {
-  payload: { name: any; autoComplete: any };
-}) {
-  try {
-    const data = action.payload;
-    yield put(getUnitList.request({ isLoading: true }));
+    payload: {
+      "property-id": number;
+      floor_code: string | number;
+      page: number;
+      limit: number;
+    };
+  }) {
+    try {
+      const requestData = action.payload;
+      yield put(getUnitList.request({ isLoading: true }));
 
-    const response = yield call(getUnitListApiCall, data);
-
-    if (response.success) {
-      const { data } = response;
-      yield put(getUnitList.success({ data }));
-    } else {
+      const response = yield call(getUnitListApiCall, requestData);
+      if (response.success) {
+        const { data } = response;
+        yield put(getUnitList.success({ data }));
+      } else {
+        yield put(setGlobalError.success());
+      }
+    } catch (error) {
       yield put(setGlobalError.success());
+    } finally {
+      yield put(getUnitList.fulfill({ isLoading: false }));
     }
-  } catch (error) {
-    yield put(setGlobalError.success());
-  } finally {
-    yield put(getUnitList.fulfill({ isLoading: false }));
   }
-}
-
 function* getUnitDiscrepancyRequest(action: { payload: any }) {
   try {
     const data = action.payload;

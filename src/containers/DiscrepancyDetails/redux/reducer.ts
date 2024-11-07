@@ -61,7 +61,17 @@ export default (
         break;
       }
       case getUnitList.SUCCESS: {
-        draft.unitList = action.payload?.data?.data;
+        console.log('action.payload', action.payload);
+        const { current_page, limit, list, total_count } = action.payload?.data?.data;
+  draft.unitList = {
+    list,
+    pagination: {
+      current_page,
+      total_pages: Math.ceil(total_count / limit),
+      total_items: total_count,
+      items_per_page: limit
+    }
+  };
         break;
       }
       case getUnitList.FAILURE: {

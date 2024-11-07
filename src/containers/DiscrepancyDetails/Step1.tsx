@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,6 +43,22 @@ function Step1({
 
   const { unitList } = useSelector(stateStructure);
 
+  const [allUnits, setAllUnits] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const itemsPerPage = 20
+
+  useEffect(() => {
+    if (unitList?.list) {
+      if (unitList.pagination.current_page === 1) {
+        setAllUnits(unitList.list);
+      } else {
+        setAllUnits(prev => [...prev, ...unitList.list]);
+      }
+      setIsLoading(false);
+    }
+  }, [unitList]);
+
   const getLevelOptions: () => option[] = () => {
     if (Array?.isArray(property?.levels))
       return property?.levels?.map((floor: string) => ({
@@ -56,8 +72,8 @@ function Step1({
     if (!selectValues?.level) {
       return [];
     }
-    if (Array?.isArray(unitList?.list))
-      return unitList?.list?.map((item) => ({
+    if (Array?.isArray(allUnits))
+      return allUnits?.map((item) => ({
         label: `${item?.unit_code} - ${item?.unit_type} : ${item?.status}`,
         value: item?.unit_id,
         data: item,
@@ -65,20 +81,27 @@ function Step1({
     return [];
   };
 
+  const fetchUnits = (floorCode: string | number, page: number) => {
+    setIsLoading(true);
+    dispatch(
+      getUnitList.trigger({
+        "property-id": property?.property_id,
+        floor_code: floorCode,
+        page,
+        limit: itemsPerPage,
+      })
+    );
+  };
+
+
   const handleFloorSelect = (item: option) => {
     setSelectValues((values) => ({
       ...values,
       level: item,
+      unit: null,
     }));
-
-    dispatch(
-      getUnitList.trigger({
-        "property-id": property?.property_id,
-        floor_code: item?.value,
-        page: 1,
-        limit: 10,
-      })
-    );
+    setAllUnits([]);
+    fetchUnits(item.value, 1);
   };
 
   const handleUnitSelect = (item: option) => {
@@ -94,6 +117,18 @@ function Step1({
       })
     );
   };
+
+  const handleDropdownScroll = () => {
+    if (isLoading) return;
+
+    const currentPage = unitList?.pagination?.current_page || 1;
+    const totalPages = Math.ceil((unitList?.pagination?.total_items || 0) / itemsPerPage);
+
+    if (currentPage < totalPages) {
+      fetchUnits(selectValues?.level?.value, currentPage + 1);
+    }
+  };
+
 
   return (
     <View>
@@ -124,6 +159,8 @@ function Step1({
           data={getUnitListOptions()}
           label={localize("form.unit")}
           placeholder={localize("form.selectAValue")}
+          onEndReached={handleDropdownScroll}
+          loading={isLoading}
         />
       </View>
       <CustomButton
