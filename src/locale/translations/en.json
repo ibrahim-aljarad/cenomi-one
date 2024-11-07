@@ -321,6 +321,7 @@
     "level": "Level",
     "unit": "Unit",
     "comment": "Comment",
+    "others": "Others",
     "warning": {
       "reasonForTravelBlank": "Reason for travel cannot be empty",
       "travelRequestTypeBlank": "Travel request type cannot be empty",
@@ -535,6 +536,10 @@
     "continue": "Continue",
     "submitAll": "Submit All",
     "submitted": "Service Request Submitted",
-    "approvers": "Approvers"
+    "approvers": "Approvers",
+    "noMoreDiscrepancy": "No more discrepancies",
+    "title": "Title",
+    "selectOthers": "Others Field Required",
+    "selectOthersDesc": "Please specify details in Others field"
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { RfH, RfW } from "../../utils/helper";
 import CustomImage from "../CustomImage";
 import { tenantCentralApi } from "../../utils/axios";

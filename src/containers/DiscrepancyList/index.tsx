@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, View, FlatList } from "react-native";
-import { HeaderSVG } from "../../components";
+import { CustomText, HeaderSVG } from "../../components";
 import { localize } from "../../locale/utils";
 import { Colors, Images } from "../../theme";
 import { createStructuredSelector } from "reselect";
@@ -33,12 +33,26 @@ const DiscrepancyList = () => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [discrepancyItems, setDiscrepancyItems] = useState([]);
+  const ITEMS_PER_PAGE = 10;
   const [readItems, setReadItems] = useState([]);
 
   useEffect(() => {
-    dispatch(getDiscrepancyList.trigger({ page: 1, limit: 10 }));
+    fetchDiscrepancyList(1);
   }, []);
+
+  useEffect(() => {
+    if (serviceRequestList?.list) {
+      if (page === 1) {
+        setDiscrepancyItems(serviceRequestList.list);
+      } else {
+        setDiscrepancyItems([...discrepancyItems, ...serviceRequestList.list]);
+      }
+      setIsLoading(false);
+    }
+  }, [serviceRequestList]);
 
   useEffect(() => {
     if (isFocused) {
@@ -53,6 +67,35 @@ const DiscrepancyList = () => {
     }
   }, [isFocused]);
 
+  const fetchDiscrepancyList = (pageNumber) => {
+    setIsLoading(true);
+    dispatch(getDiscrepancyList.trigger({
+      page: pageNumber,
+      limit: ITEMS_PER_PAGE
+    }));
+  };
+
+  const handleLoadMore = () => {
+    if (!isLoading && serviceRequestList?.total_count > discrepancyItems.length) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchDiscrepancyList(nextPage);
+    }
+  };
+
+  const renderEndMessage = () => {
+    if (discrepancyItems.length >= serviceRequestList?.total_count && page > 1) {
+      return (
+        <View style={styles.endMessageContainer}>
+          <CustomText color={Colors.grayTwo}>
+            {localize('discrepancy.noMoreDiscrepancy')}
+          </CustomText>
+        </View>
+      );
+    }
+    return null;
+  };
+
   const handleOnClickItem = (item) => {
     trackEvent(EVENT_NAME.PRESSED_CORPORATE_COMMUNICATION);
     navigation.navigate(NavigationRouteNames.DISCREPANCY_DETAILS as never, {
@@ -66,11 +109,11 @@ const DiscrepancyList = () => {
   const listSection = () => {
     if (serviceRequestList === undefined) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
-    } else if (serviceRequestList?.list?.length > 0) {
+    } else if (discrepancyItems?.length > 0) {
       return (
         <View style={styles.listView}>
           <FlatList
-            data={serviceRequestList?.list}
+            data={discrepancyItems}
             contentContainerStyle={{
               paddingHorizontal: RfW(16),
               paddingTop: RfH(8),
@@ -87,18 +130,18 @@ const DiscrepancyList = () => {
             keyExtractor={(item, index) => index.toString()+ item?.service_request_id}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={null}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.2}
             ListFooterComponent={
-              <View
-                style={{
-                  height: RfH(50),
-                }}
-              />
-            }
-          />
-          
+                <>
+                  {renderEndMessage()}
+                  <View style={{ height: RfH(10) }} />
+                </>
+              }
+            />
         </View>
       );
-    } else if (serviceRequestList?.list?.length === 0) {
+    } else if (discrepancyItems?.length === 0 && !isLoading) {
       return (
         <EmptyListComponent
           errorText={localize('common.noDataFound')}
@@ -191,6 +234,11 @@ const styles = StyleSheet.create({
   },
   listView: {
     flex: 1,
+  },
+  endMessageContainer: {
+    paddingTop: RfH(15),
+    alignItems: 'center',
+    marginBottom: RfH(10),
   },
 });
 

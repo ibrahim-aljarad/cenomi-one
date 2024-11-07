@@ -23,7 +23,6 @@ function Step2({ setStep, selectValues, setSelectValues }) {
   const dispatch = useDispatch();
 
   const { unitDiscrepancy } = useSelector(stateStructure);
-
   useEffect(() => {
     if(unitDiscrepancy?.status === "DRAFT"){
       const {document_ids, payload} = unitDiscrepancy;
@@ -34,7 +33,8 @@ function Step2({ setStep, selectValues, setSelectValues }) {
         wrongLocation: payload?.wrong_location,
         brandChanged: payload?.brand_changed,
         openWithoutContract: payload?.open_without_contract,
-        others: payload?.others,
+        others: Boolean(payload?.others),
+        othersText: payload?.others || "",
         comment: payload?.comment||'',
         documentId: document_ids||[],
         reviewStatus: payload?.status,
@@ -47,13 +47,14 @@ function Step2({ setStep, selectValues, setSelectValues }) {
         brandChanged: false,
         openWithoutContract: false,
         others: false,
+        othersText: "",
         comment: "",
         documentId: [],
         reviewStatus: '',
       }))
 
     }
-    
+
   }, [unitDiscrepancy]);
   const vals = [
     { value: selectValues?.level?.label, label: "Level" },

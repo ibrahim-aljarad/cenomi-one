@@ -42,6 +42,8 @@ const stateStructure = createStructuredSelector({
   saveUnitDiscrepancyData: saveUnitDiscrepancySelector,
 });
 
+
+
 const DiscrepancyDetails = (props: any) => {
   const { id, property, srId } = props.route.params;
   const navigation = useNavigation();
@@ -58,6 +60,7 @@ const DiscrepancyDetails = (props: any) => {
     brandChanged: false,
     openWithoutContract: false,
     others: false,
+    othersText: "",
     comment: "",
     documentId: [],
     reviewStatus: '',
@@ -65,7 +68,6 @@ const DiscrepancyDetails = (props: any) => {
 
   const { isDarkMode, discrepancyDetailData, saveUnitDiscrepancyData } =
     useSelector(stateStructure);
-
     const [isFinalSubmit, setIsFinalSubmit] = useState(false);
   const [info, setInfo] = useState({
     source: "",
@@ -124,6 +126,7 @@ const DiscrepancyDetails = (props: any) => {
         brandChanged: false,
         openWithoutContract: false,
         others: false,
+        othersText: "",
         comment: "",
         documentId: [],
         reviewStatus: '',

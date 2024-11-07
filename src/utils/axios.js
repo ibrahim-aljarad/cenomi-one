@@ -82,7 +82,7 @@ tenantCentralInstance.interceptors.request.use(
 
     const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
     const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
-    
+
     config.headers.Cookie= cookieString
     config.baseURL = Config.TENANT_CENTRAL_URL;
 
@@ -307,12 +307,6 @@ tenantCentralInstance.interceptors.response.use(
       originalRequest?.url !== "cenomi-one/login"
     ) {
       console.log({ isRefreshing });
-
-      // if (isRefreshed) {
-      //   originalRequest.headers['Authorization'] = 'Bearer ' + newTokens.accessToken;
-      //   return axios(originalRequest);
-      // }
-
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -328,45 +322,51 @@ tenantCentralInstance.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
+    try {
+        const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
+        const userInfo = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+        const email = JSON.parse(userInfo || '{}')?.username;
+        const response = await axios.post(
+            Config.API_BASE_URL + "tp/tenant-platform/login",
+            { email },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
 
-      const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
-      return new Promise(function (resolve, reject) {
-        axios
-          .post(Config.API_BASE_URL + "tp/tenant-platform/login", {
-            headers: { Authorization: "Bearer " + token },
-          })
-          .then(async ({ data }) => {
-            console.log({ tokenData: data });
+        if (response.data?.data?.access_token) {
+          await setCookie(
+            Config.TENANT_CENTRAL_URL,
+            'access_token',
+            response.data.data.access_token
+          );
 
-            // newTokens = data;
-            // isRefreshed = true;
+          const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
+          console.log("cookie", cookies);
+          const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
 
-            await setCookie(
-              Config.TENANT_CENTRAL_URL,
-              'access_token',
-              data.data?.access_token
-            );
-            RNRestart.Restart();
-
-            // processQueue(null, data.data?.access_token);
-            // resolve(axios(originalRequest));
-          })
-          .catch(async (err) => {
-            console.log({
-              err,
-              config: err.config,
-              headers: JSON.stringify(err.config?.headers),
-            });
-
-            processQueue(err, null);
-            reject(err);
-          })
-          .then(() => {
-            isRefreshing = false;
+          originalRequest.headers["Cookie"] = cookieString
+          processQueue(null, response.data.data.access_token);
+          return axios(originalRequest);
+        } else {
+          throw new Error('No access token in response');
+        }
+      } catch (err) {
+        console.log("Tenant login error:", {
+            message: err.message,
+            status: err.response?.status,
+            data: err.response?.data
           });
-      });
-    }
+        processQueue(err, null);
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
 
+    }
     return Promise.reject(error);
   }
 );
@@ -379,7 +379,7 @@ async function fetchResponse(config) {
   console.log('%c %s', bgBlue, '🚀 API Request Config 🚀 ', config);
   return instance(config)
     .then((response) => {
-    
+
       const { data, config } = response;
         // console.log({ data, config });
       if (__DEV__) {
@@ -397,7 +397,6 @@ async function fetchResponse(config) {
     })
     .catch((error) => {
       console.log('%c %s %c %s', bgRed, '💀 API Error 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
-     
       const { data: errorResponse } = error.response || {};
       console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
 

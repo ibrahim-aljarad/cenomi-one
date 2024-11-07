@@ -296,15 +296,33 @@ export default (
       }
 
       case getDiscrepancyList.TRIGGER: {
-        draft.serviceRequestList = undefined;
+        if (action?.payload?.page === 1) {
+          draft.serviceRequestList = undefined;
+        }
         break;
       }
+
       case getDiscrepancyList.SUCCESS: {
-        draft.serviceRequestList = action?.payload?.data || {};
+        const newData = action?.payload?.data || {};
+        const currentPage = newData?.current_page || 1;
+        if (currentPage === 1) {
+          draft.serviceRequestList = newData;
+        } else {
+          draft.serviceRequestList = {
+            ...newData,
+            list: [
+              ...(draft.serviceRequestList?.list || []),
+              ...(newData?.list || [])
+            ]
+          };
+        }
         break;
       }
+
       case getDiscrepancyList.FAILURE: {
-        draft.serviceRequestList = [];
+        if (action?.payload?.page === 1) {
+          draft.serviceRequestList = [];
+        }
         break;
       }
 
