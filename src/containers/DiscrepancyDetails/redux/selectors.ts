@@ -21,9 +21,15 @@ const saveUnitDiscrepancySelector = createSelector(selectGlobalSubStore, (global
   return globalState.savedDiscrepancy;
 });
 
+const getApiErrorSelector = createSelector(
+    selectGlobalSubStore,
+    (globalState) => globalState.apiError
+  );
+
 export {
   getDiscrepancyDetailDataSelector,
   getUnitListSelector,
   getUnitDiscrepancySelector,
   saveUnitDiscrepancySelector,
+  getApiErrorSelector,
 };
