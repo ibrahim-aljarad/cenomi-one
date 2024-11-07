@@ -20,15 +20,17 @@ import NavigationRouteNames from "../../routes/ScreenNames";
 import { LOCAL_STORAGE_DATA_KEY } from "../../utils/constants";
 import { getMyProfileDetailsSelector } from "../LoginHome/redux/selectors";
 import WrapperContainer from "../../components/WrapperContainer";
+import { getApiErrorSelector } from "../DiscrepancyDetails/redux/selectors";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   myProfileDetails: getMyProfileDetailsSelector,
   serviceRequestList: getServiceRequestListSelector,
+  apiError: getApiErrorSelector,
 });
 
 const DiscrepancyList = () => {
-  const { isDarkMode, serviceRequestList, myProfileDetails } =
+  const { isDarkMode, serviceRequestList, myProfileDetails, apiError } =
     useSelector(stateSelector);
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
@@ -107,7 +109,7 @@ const DiscrepancyList = () => {
 
 
   const listSection = () => {
-    if (serviceRequestList === undefined) {
+    if (!apiError && serviceRequestList === undefined) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
     } else if (discrepancyItems?.length > 0) {
       return (
@@ -148,8 +150,15 @@ const DiscrepancyList = () => {
           icon={Images.benefitEmptyIcon}
         />
       );
-    }
+    } else if (apiError && apiError?.title) {
+      return (
+        <EmptyListComponent
+        errorText={apiError?.title}
+        icon={Images.benefitEmptyIcon}
+      />
+      );
   };
+};
 
   return (
     <WrapperContainer>

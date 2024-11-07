@@ -6,6 +6,7 @@ import {
   getUnitDicrepancy,
   getUnitList,
   saveUnitDicrepancy,
+  setApiError,
 } from "./actions";
 
 type ListApiResponse = {
@@ -28,6 +29,7 @@ export type DiscrepancyDetailsData = {
     | undefined
     | {};
   savedDiscrepancy: any;
+  apiError: any;
 };
 
 export const initialState: DiscrepancyDetailsData = {
@@ -35,6 +37,7 @@ export const initialState: DiscrepancyDetailsData = {
   unitList: {},
   unitDiscrepancy: {},
   savedDiscrepancy: {},
+  apiError: {}
 };
 
 export default (
@@ -43,6 +46,10 @@ export default (
 ) =>
   produce(state, (draft) => {
     switch (action.type) {
+      case setApiError.TRIGGER: {
+        draft.apiError = action.payload;
+        break;
+      }
       case getDiscrepancyDetail.TRIGGER: {
         draft.discrepancyDetailData = undefined;
         break;

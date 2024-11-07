@@ -27,6 +27,7 @@ import {
 } from "./actions";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
 import Config from "../../../utils/config";
+import { setApiError } from "../../DiscrepancyDetails/redux/actions";
 
 const CORPORATE_COMMUNICATION_URL = "cms/corporate-communication";
 
@@ -525,8 +526,10 @@ function* getTenantLoginRequest(action: any) {
         );
       }
       yield put(getTenantLogin.success({ data }));
+      yield put(setApiError.trigger(undefined));
     } else {
       yield put(getTenantLogin.failure());
+      yield call(handleApiError, { payload: { error: { title: 'Access Denied', message: 'Please check your credentials' } } });
       yield put(setGlobalError.success());
     }
   } catch (error) {
@@ -554,8 +557,10 @@ function* getDiscrepancyListRequest(action: any) {
             limit: data?.data?.limit
           }
         }));
+        yield put(setApiError.trigger(undefined));
       } else {
         yield put(getDiscrepancyList.failure());
+        yield call(handleApiError, { payload: { error: { title: 'Access Denied', message: 'Please check your credentials' } } });
         yield put(setGlobalError.success());
       }
     } catch (error) {
@@ -563,6 +568,12 @@ function* getDiscrepancyListRequest(action: any) {
       yield put(setGlobalError.success());
     } finally {
       yield put(getDiscrepancyList.fulfill({ isLoading: false }));
+    }
+  }
+
+ function* handleApiError({ payload }) {
+    if (payload?.error?.title === 'Access Denied') {
+      yield put(setApiError.trigger(payload?.error));
     }
   }
 export default function* homeSaga() {
