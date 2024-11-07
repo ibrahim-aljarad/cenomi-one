@@ -538,25 +538,33 @@ function* getTenantLoginRequest(action: any) {
 }
 
 function* getDiscrepancyListRequest(action: any) {
-  try {
-    yield put(getDiscrepancyList.request({ isLoading: true }));
-    const { page, limit } = action?.payload || {};
-    const response = yield call(getDiscrepancyListApiCall, { page, limit });
-    if (response.success) {
-      const { data } = response;
-      yield put(getDiscrepancyList.success({ data: data?.data }));
-    } else {
+    try {
+      const { page, limit } = action?.payload || {};
+      if (page === 1) {
+        yield put(getDiscrepancyList.request({ isLoading: true }));
+      }
+      const response = yield call(getDiscrepancyListApiCall, { page, limit });
+      if (response.success) {
+        const { data } = response;
+        yield put(getDiscrepancyList.success({
+          data: {
+            list: data?.data?.list || [],
+            current_page: data?.data?.current_page,
+            total_count: data?.data?.total_count,
+            limit: data?.data?.limit
+          }
+        }));
+      } else {
+        yield put(getDiscrepancyList.failure());
+        yield put(setGlobalError.success());
+      }
+    } catch (error) {
       yield put(getDiscrepancyList.failure());
       yield put(setGlobalError.success());
+    } finally {
+      yield put(getDiscrepancyList.fulfill({ isLoading: false }));
     }
-  } catch (error) {
-    yield put(getTenantLogin.failure());
-    yield put(setGlobalError.success());
-  } finally {
-    yield put(getTenantLogin.fulfill({ isLoading: false }));
   }
-}
-
 export default function* homeSaga() {
   yield takeLatest(
     getCorporateCommunication.TRIGGER,

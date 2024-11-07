@@ -318,6 +318,10 @@
     "expectedDateOfChildbirth": "تاريخ الولادة المتوقع",
     "specialConditions": "ظروف خاصة",
     "singleDay": "يوم واحد",
+    "level": "مستوى",
+    "unit": "وحدة",
+    "comment": "تعليق",
+    "others": "آحرون",
     "warning": {
       "reasonForTravelBlank": "لا يمكن أن يكون سبب السفر فارغًا",
       "travelRequestTypeBlank": "لا يمكن أن يكون نوع طلب السفر فارغًا",
@@ -532,6 +536,10 @@
     "continue": "يكمل",
     "submitAll": "إرسال الكل",
     "submitted": "تم تقديم طلب الخدمة",
-    "approvers": "الموافقون"
+    "approvers": "الموافقون",
+    "noMoreDiscrepancy": "لا مزيد من التناقضات",
+    "title": "عنوان",
+    "selectOthers": "مطلوب حقل آخر",
+    "selectOthersDesc": "يرجى تحديد التفاصيل في حقل أخرى"
   }
 }

@@ -10,7 +10,7 @@ import {
   CustomTextInput,
 } from "../../components";
 import { Colors, CommonStyles, Images } from "../../theme";
-import { RfH, RfW, getImageUrl } from "../../utils/helper";
+import { RfH, RfW } from "../../utils/helper";
 import styles from "./styles";
 import { isRTL, localize } from "../../locale/utils";
 import CustomRadioButton from "../../components/CustomRadioButton";
@@ -32,7 +32,7 @@ const yesOrNoPairs = [
   { key: "wrongLocation", label: "Wrong Location" },
   { key: "brandChanged", label: "Brand Changed" },
   { key: "openWithoutContract", label: "Open without Contract" },
-  { key: "others", label: "Others" },
+  { key: "others", label: "Others", hasTextField: true },
 ];
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -46,6 +46,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
     useState(false);
   const [fileUploadStarted, setFileUploadStarted] = useState<boolean>(false);
   const [imageModal, setImageModal] = useState(null);
+  const previousOthersText = React.useRef("");
 
   const dispatch = useDispatch();
 
@@ -65,8 +66,34 @@ function Step3({ selectValues, setSelectValues, setStep }) {
   };
 
   const dataChange = (key, value) => {
-    setSelectValues((current) => ({ ...current, [key]: value }));
+    if (key === "others") {
+      if (value === false) {
+        previousOthersText.current = selectValues.othersText;
+        setSelectValues((current) => ({
+          ...current,
+          [key]: value,
+          othersText: ""
+        }));
+      } else {
+        setSelectValues((current) => ({
+          ...current,
+          [key]: value,
+          othersText: previousOthersText.current
+        }));
+      }
+    } else if (key === "othersText") {
+      setSelectValues((current) => ({
+        ...current,
+        [key]: value
+      }));
+    } else {
+      setSelectValues((current) => ({
+        ...current,
+        [key]: value
+      }));
+    }
   };
+
 
   useEffect(() => {
     if (fileUploadStarted && tenantfileUploadedData?.document_id) {
@@ -91,6 +118,13 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       );
     }
 
+    if (selectValues.others && !selectValues.othersText?.trim()) {
+        return alertBox(
+          localize("discrepancy.selectOthers"),
+          localize("discrepancy.selectOthersDesc")
+        );
+      }
+
     const {
       comment,
       documentId,
@@ -108,7 +142,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
 
     const params = {
       payload: {
-        others: isMismatch(others),
+        others: isMismatch(others) ? selectValues.othersText || "" : "",
         status: reviewStatus,
         comment,
         store_closed: isMismatch(storeClosed),
@@ -170,8 +204,9 @@ function Step3({ selectValues, setSelectValues, setStep }) {
         />
       </View>
       <View>
-        {reviewStatus === "mismatch" ? (
-          yesOrNoPairs?.map(({ label, key }) => (
+      {reviewStatus === "mismatch" ? (
+        yesOrNoPairs.map(({ label, key, hasTextField }) => (
+          <View key={key}>
             <View
               style={{
                 marginTop: RfH(14),
@@ -179,7 +214,6 @@ function Step3({ selectValues, setSelectValues, setStep }) {
                 alignItems: "center",
                 justifyContent: "space-between",
               }}
-              key={key}
             >
               <CustomText
                 fontSize={14}
@@ -198,13 +232,32 @@ function Step3({ selectValues, setSelectValues, setStep }) {
                 value={selectValues[key]}
               />
             </View>
-          ))
-        ) : (
-          <View style={{ height: 20 }} />
-        )}
+            {hasTextField && selectValues[key] && (
+              <View style={{ marginTop: RfH(10), marginHorizontal: RfW(5) }}>
+                <CustomTextInput
+                  label={localize("form.others")}
+                  isMandatory
+                  onChangeHandler={(text) => dataChange("othersText", text)}
+                  value={selectValues.othersText}
+                  noOfLines={3}
+                  multiline
+                  showClearButton={false}
+                  inputwrapperStyle={{
+                    borderWidth: 1,
+                    borderColor: "white",
+                    paddingHorizontal: 5,
+                  }}
+                />
+              </View>
+            )}
+          </View>
+        ))
+      ) : (
+        <View style={{ height: 20 }} />
+      )}
         <CustomTextInput
           label={localize("form.comment")}
-          isMandatory={selectValues?.others}
+          isMandatory={false}
           onChangeHandler={(text) => dataChange("comment", text)}
           value={selectValues?.comment}
           noOfLines={3}

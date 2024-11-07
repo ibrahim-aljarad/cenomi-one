@@ -28,6 +28,7 @@ const CustomDropDown = (props: any) => {
     customPlaceholderStyle = {},
     customSelectedTextStyle = {},
     rightIconComponent,
+    onEndReached,
     ...restData
   } = props;
   const { isDarkMode } = useSelector(stateSructure);
@@ -204,6 +205,9 @@ const CustomDropDown = (props: any) => {
           renderRightIcon={() => dropdownSection('right')}
           renderItem={renderItem}
           {...restData}
+          flatListProps={{
+            onEndReached,
+          }}
         />
       )}
     </View>

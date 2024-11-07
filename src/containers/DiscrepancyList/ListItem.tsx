@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { CustomImage, CustomText } from "../../components";
-import { Colors, CommonStyles, Fonts, Images } from "../../theme";
+import { Colors, CommonStyles, Images } from "../../theme";
 import { BorderRadius } from "../../theme/sizes";
 import {
   RfH,
@@ -10,20 +10,22 @@ import {
   getColorWithOpacity,
   getDateFormat,
 } from "../../utils/helper";
-import { CorporateCommCard } from "../Home/components/CorporateCommunication/CorporateCommCard";
 import { localize } from "../../locale/utils";
+import { APPROVER_STATUS_COLORS, formatStatus, getApproverInitials, getApproverStatusStyle, getSortedOperations, getStatusStyle, STATUS_COLORS } from "./util";
+import ApproverModal from "../../components/ApproverModal";
 
 const ListItem = (props: any) => {
   const { isDarkMode, item, onPressItem } = props;
+  const [selectedOperation, setSelectedOperation] = useState(null);
 
-  const textConvert = (text: string) =>
-    text
-      .toLowerCase()
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const handleApproverPress = (operation) => {
+    setSelectedOperation(operation);
+  };
+
+  const sortedOperations = getSortedOperations(item?.operations);
 
   return (
+    <>
     <TouchableOpacity
       style={[
         styles.item_con,
@@ -51,7 +53,7 @@ const ListItem = (props: any) => {
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}
         >
-          {localize("discrepancy.mall")}: {item?.payload?.marketing_name}
+          {localize("discrepancy.title")}: {item?.title}
         </CustomText>
         <CustomText
           fontSize={14}
@@ -59,37 +61,56 @@ const ListItem = (props: any) => {
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont500Style, lineHeight: RfH(21) }}
         >
-          {localize("discrepancy.companyName")}: {item?.company_name}
+          {localize("discrepancy.mall")}: {item?.payload?.marketing_name}
         </CustomText>
-        {item?.operations?.length > 0 && (
-          <>
+        {sortedOperations && sortedOperations.length > 0 && (
+          <View style={styles.approversContainer}>
             <CustomText
               fontSize={14}
-              numberOfLines={2}
               color={Colors.white}
-              styling={{
-                ...CommonStyles.boldFontStyle,
-                lineHeight: RfH(21),
-              }}
+              styling={{ ...CommonStyles.boldFontStyle, marginBottom: RfH(8) }}
             >
               {localize("discrepancy.approvers")}
             </CustomText>
-            {item?.operations?.map(({ assigned_role }) => (
-              <CustomText
-                fontSize={14}
-                numberOfLines={2}
-                color={Colors.white}
-                styling={{
-                  ...CommonStyles.regularFont500Style,
-                  lineHeight: RfH(21),
-                }}
-              >
-                {textConvert(assigned_role)}
-              </CustomText>
-            ))}
-          </>
+            <View style={styles.approversList}>
+                {item?.operations?.map((operation, index) => (
+                  <TouchableOpacity
+                    key={operation.service_request_operation_id}
+                    onPress={() => handleApproverPress(operation)}
+                    style={[
+                      styles.approverItem,
+                      index > 0 && { marginLeft: RfW(8) }
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.approverAvatar,
+                        getApproverStatusStyle(operation.status)
+                      ]}
+                    >
+                      <CustomText
+                        fontSize={10}
+                        color={APPROVER_STATUS_COLORS[operation.status]?.border || '#757575'}
+                        styling={CommonStyles.regularFont500Style}
+                      >
+                        {getApproverInitials(operation.assigned_role)}
+                      </CustomText>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+          </View>
         )}
 
+        <View style={[styles.statusPill, getStatusStyle(item?.status)]}>
+          <CustomText
+            fontSize={12}
+            color={STATUS_COLORS[item?.status]?.border || '#7716FF'}
+            styling={CommonStyles.regularFont500Style}
+          >
+            {formatStatus(item?.status)}
+          </CustomText>
+        </View>
         <View
           style={{
             flexDirection: "row",
@@ -119,6 +140,13 @@ const ListItem = (props: any) => {
         </View>
       </View>
     </TouchableOpacity>
+
+    <ApproverModal
+        visible={!!selectedOperation}
+        onClose={() => setSelectedOperation(null)}
+        operation={selectedOperation}
+      />
+    </>
   );
 };
 
@@ -140,8 +168,6 @@ const styles = StyleSheet.create({
   },
   item_con: {
     flexDirection: "row",
-    // flex: 1,
-    // width: '100%',
     marginVertical: RfH(8),
     borderRadius: BorderRadius.BR15,
     paddingHorizontal: RfH(10),
@@ -167,6 +193,33 @@ const styles = StyleSheet.create({
     borderRadius: RfW(4),
     marginTop: RfH(11),
     alignSelf: "flex-start",
+  },
+  statusPill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: RfW(12),
+    paddingVertical: RfH(4),
+    borderRadius: RfH(12),
+    borderWidth: 1,
+    backgroundColor: getColorWithOpacity('#7716FF', 0.1),
+  },
+  approversContainer: {
+    marginTop: RfH(5),
+  },
+  approversList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  approverItem: {
+    alignItems: 'center',
+    marginBottom: RfH(8),
+  },
+  approverAvatar: {
+    width: RfH(30),
+    height: RfH(30),
+    borderRadius: RfH(15),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
