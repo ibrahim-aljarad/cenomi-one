@@ -343,7 +343,10 @@
       "trainingCourseCannotBeEmpty": "Training course title cannot be empty",
       "trainingVenueCannotBeEmpty": "Training venue cannot be empty",
       "commentCannotBeEmpty": "Comments cannot be empty"
-    }
+    },
+    "selectFloorFirst": "Please select a floor first",
+    "loadingUnits": "Loading units...",
+    "noUnitsOnFloor": "No units available on this floor"
   },
 
   "login": {

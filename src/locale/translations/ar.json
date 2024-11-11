@@ -343,7 +343,10 @@
       "trainingCourseCannotBeEmpty": "لا يمكن أن يكون عنوان الدورة التدريبية فارغًا",
       "trainingVenueCannotBeEmpty": "لا يمكن أن يكون مكان التدريب فارغًا",
       "commentCannotBeEmpty": "لا يمكن أن تكون التعليقات فارغة"
-    }
+    },
+    "selectFloorFirst": "الرجاء تحديد الطابق أولاً",
+    "loadingUnits": "وحدات التحميل...",
+    "noUnitsOnFloor": "لا توجد وحدات متاحة في هذا الطابق"
   },
 
   "login": {

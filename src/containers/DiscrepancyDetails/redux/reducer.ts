@@ -68,7 +68,6 @@ export default (
         break;
       }
       case getUnitList.SUCCESS: {
-        console.log('action.payload', action.payload);
         const { current_page, limit, list, total_count } = action.payload?.data?.data;
   draft.unitList = {
     list,

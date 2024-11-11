@@ -45,16 +45,34 @@ function Step1({
 
   const [allUnits, setAllUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasAttemptedNextPage, setHasAttemptedNextPage] = useState(false);
+  const [hasNoUnits, setHasNoUnits] = useState(false);
   const itemsPerPage = 20
 
   useEffect(() => {
     if (unitList?.list) {
+        if (
+            unitList.list.length === 0 &&
+            unitList.pagination?.total_items > 0 &&
+            currentPage === 1 &&
+            !hasAttemptedNextPage
+          ) {
+            setHasAttemptedNextPage(true);
+            fetchUnits(selectValues?.level?.value, 2);
+            return;
+          }
+          if (unitList.list.length === 0 && currentPage === 1) {
+            setHasNoUnits(true);
+          } else {
+            setHasNoUnits(false);
+          }
       if (unitList.pagination.current_page === 1) {
         setAllUnits(unitList.list);
       } else {
         setAllUnits(prev => [...prev, ...unitList.list]);
       }
+      setCurrentPage(unitList.pagination.current_page);
       setIsLoading(false);
     }
   }, [unitList]);
@@ -72,6 +90,9 @@ function Step1({
     if (!selectValues?.level) {
       return [];
     }
+    if (allUnits.length === 0) {
+        return [];
+      }
     if (Array?.isArray(allUnits))
       return allUnits?.map((item) => ({
         label: `${item?.unit_code} - ${item?.unit_type} : ${item?.status}`,
@@ -79,6 +100,19 @@ function Step1({
         data: item,
       }));
     return [];
+  };
+
+  const getUnitDropdownPlaceholder = () => {
+    if (!selectValues?.level) {
+      return localize("form.selectFloorFirst") || "Please select a floor first";
+    }
+    if (isLoading) {
+      return localize("form.loadingUnits") || "Loading units...";
+    }
+    if (hasNoUnits) {
+      return localize("form.noUnitsOnFloor") || "No units available on this floor";
+    }
+    return localize("form.selectAValue") || "Select a value";
   };
 
   const fetchUnits = (floorCode: string | number, page: number) => {
@@ -101,10 +135,16 @@ function Step1({
       unit: null,
     }));
     setAllUnits([]);
+    setHasAttemptedNextPage(false);
+    setHasNoUnits(false);
+    setCurrentPage(1);
     fetchUnits(item.value, 1);
   };
 
   const handleUnitSelect = (item: option) => {
+    if (isLoading) {
+        return;
+      }
     setSelectValues((values) => ({
       ...values,
       unit: item,
@@ -158,9 +198,10 @@ function Step1({
           onChange={handleUnitSelect}
           data={getUnitListOptions()}
           label={localize("form.unit")}
-          placeholder={localize("form.selectAValue")}
+          placeholder={getUnitDropdownPlaceholder()}
           onEndReached={handleDropdownScroll}
           loading={isLoading}
+          disabled={isLoading || hasNoUnits || !selectValues?.level}
         />
       </View>
       <CustomButton
