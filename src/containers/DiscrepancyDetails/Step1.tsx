@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./styles";
-import { localize } from "../../locale/utils";
+import { isRTL, localize } from "../../locale/utils";
 import { getUnitDicrepancy, getUnitList } from "./redux/actions";
 import { getUnitListSelector } from "./redux/selectors";
 import CustomDropDown from "../../components/CustomDropdown";
-import { CustomButton, CustomTextInput } from "../../components";
+import { CustomButton, CustomImage, CustomText, CustomTextInput } from "../../components";
+import { Colors, CommonStyles, Images } from "../../theme";
+import { RfH, RfW } from "../../utils/helper";
+import { isDarkModeSelector } from "../redux/selectors";
 
 const stateStructure = createStructuredSelector({
+  isDarkMode: isDarkModeSelector,
   unitList: getUnitListSelector,
 });
 
@@ -41,7 +45,7 @@ function Step1({
 }: Step1Props) {
   const dispatch = useDispatch();
 
-  const { unitList } = useSelector(stateStructure);
+  const { unitList, isDarkMode } = useSelector(stateStructure);
 
   const [allUnits, setAllUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,6 +177,47 @@ function Step1({
   return (
     <View>
       <View style={styles.paddingContainer}>
+      <TouchableOpacity
+          style={[
+            styles.uploadItemContainer,
+            { borderColor: isDarkMode ? Colors.white : Colors.black },
+          ]}
+          onPress={() => {}}
+        >
+          <View style={styles.directionRowCenter}>
+            <CustomImage
+              image={Images.uploadVoilet}
+              imageWidth={22}
+              imageHeight={24}
+              imageResizeMode={"contain"}
+              displayLoader={false}
+              containerStyling={{}}
+              tintColor={isDarkMode ? Colors.white : Colors.black}
+            />
+            <CustomText
+              fontSize={14}
+              color={Colors.black}
+              styling={{
+                ...CommonStyles.regularFont500Style,
+                lineHeight: RfH(17),
+                marginLeft: RfW(12),
+                marginTop: RfH(2),
+              }}
+            >
+              {localize("common.takeAPhoto")}
+            </CustomText>
+          </View>
+
+          <CustomImage
+            image={isRTL() ? Images.arrowLeft : Images.arrowRight}
+            imageWidth={15}
+            imageHeight={15}
+            imageResizeMode={"contain"}
+            displayLoader={false}
+            containerStyling={{}}
+            tintColor={isDarkMode ? Colors.white : Colors.black}
+          />
+        </TouchableOpacity>
         <CustomTextInput
           label={"Mall"}
           value={property?.marketing_name}
@@ -211,6 +256,7 @@ function Step1({
         handleOnSubmit={onContinue}
       />
     </View>
+
   );
 }
 
