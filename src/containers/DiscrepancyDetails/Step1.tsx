@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
-
+import {
+    Camera,
+    useCameraPermission,
+    useCodeScanner,
+    Code,
+    useCameraDevice
+  } from 'react-native-vision-camera';
 import styles from "./styles";
 import { isRTL, localize } from "../../locale/utils";
 import { getUnitDicrepancy, getUnitList } from "./redux/actions";
@@ -12,6 +18,8 @@ import { CustomButton, CustomImage, CustomText, CustomTextInput } from "../../co
 import { Colors, CommonStyles, Images } from "../../theme";
 import { RfH, RfW } from "../../utils/helper";
 import { isDarkModeSelector } from "../redux/selectors";
+import { alertBox } from "../../utils/helpers";
+
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -53,6 +61,11 @@ function Step1({
   const [hasAttemptedNextPage, setHasAttemptedNextPage] = useState(false);
   const [hasNoUnits, setHasNoUnits] = useState(false);
   const itemsPerPage = 20
+
+  const [isQRScannerVisible, setIsQRScannerVisible] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const device = useCameraDevice('back');
 
   useEffect(() => {
     if (unitList?.list) {
@@ -173,6 +186,63 @@ function Step1({
     }
   };
 
+  const openQRScanner = async () => {
+    if (!hasPermission) {
+      const status = await requestPermission();
+      if (!status) {
+        alertBox("Camera Permission Denied", "Camera permission is required to scan QR codes");
+        return;
+      }
+    }
+    setIsQRScannerVisible(true);
+  };
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: (codes: Code[]) => {
+      console.log(codes[0].value);
+      setScannedData(codes[0].value);
+      setIsQRScannerVisible(false);
+    },
+  });
+
+
+  const renderQRScanner = () => {
+    if (device == null) {
+        return (
+          <View>
+            <Text>Device Not Found</Text>
+          </View>
+        );
+      }
+    return (
+      <Modal
+        visible={isQRScannerVisible}
+        animationType="slide"
+        transparent={false}
+      >
+        <View style={styles.container}>
+          <Camera
+            style={StyleSheet.absoluteFill}
+            codeScanner={codeScanner}
+            isActive={isQRScannerVisible}
+            device={device}
+            photo={false}
+          >
+          </Camera>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setIsQRScannerVisible(false)}
+          >
+            <CustomText>Close Scanner</CustomText>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  };
+
+
+
 
   return (
     <View>
@@ -182,7 +252,7 @@ function Step1({
             styles.uploadItemContainer,
             { borderColor: isDarkMode ? Colors.white : Colors.black },
           ]}
-          onPress={() => {}}
+          onPress={openQRScanner}
         >
           <View style={styles.directionRowCenter}>
             <CustomImage
@@ -218,6 +288,12 @@ function Step1({
             tintColor={isDarkMode ? Colors.white : Colors.black}
           />
         </TouchableOpacity>
+        {renderQRScanner()}
+        {scannedData && (
+        <View style={styles.scannedDataContainer}>
+          <CustomText>Scanned Data: {scannedData}</CustomText>
+        </View>
+      )}
         <CustomTextInput
           label={"Mall"}
           value={property?.marketing_name}
