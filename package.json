@@ -91,6 +91,7 @@
     "react-native-file-viewer": "^2.1.5",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.12.0",
+    "react-native-hole-view": "^3.0.0-alpha4",
     "react-native-image-crop-picker": "^0.40.0",
     "react-native-in-app-review": "^4.3.3",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",

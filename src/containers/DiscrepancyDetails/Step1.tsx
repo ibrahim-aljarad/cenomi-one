@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    Camera,
-    useCameraPermission,
-    useCodeScanner,
-    Code,
-    useCameraDevice
-  } from 'react-native-vision-camera';
 import styles from "./styles";
 import { isRTL, localize } from "../../locale/utils";
 import { getUnitDicrepancy, getUnitList } from "./redux/actions";
 import { getUnitListSelector } from "./redux/selectors";
 import CustomDropDown from "../../components/CustomDropdown";
-import { CustomButton, CustomImage, CustomText, CustomTextInput } from "../../components";
+import {
+  CustomButton,
+  CustomImage,
+  CustomText,
+  CustomTextInput,
+} from "../../components";
 import { Colors, CommonStyles, Images } from "../../theme";
 import { RfH, RfW } from "../../utils/helper";
 import { isDarkModeSelector } from "../redux/selectors";
-import { alertBox } from "../../utils/helpers";
-
+import { CameraScanner } from "../../components/CameraScanner";
+import useQRScanner from "../../hooks/useQRScanner";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -60,34 +58,37 @@ function Step1({
   const [currentPage, setCurrentPage] = useState(1);
   const [hasAttemptedNextPage, setHasAttemptedNextPage] = useState(false);
   const [hasNoUnits, setHasNoUnits] = useState(false);
-  const itemsPerPage = 20
+  const itemsPerPage = 20;
 
-  const [isQRScannerVisible, setIsQRScannerVisible] = useState(false);
-  const [scannedData, setScannedData] = useState(null);
-  const { hasPermission, requestPermission } = useCameraPermission();
-  const device = useCameraDevice('back');
+  const {
+    isQRScannerVisible,
+    scannedData,
+    openQRScanner,
+    handleReadCode,
+    setIsQRScannerVisible,
+  } = useQRScanner();
 
   useEffect(() => {
     if (unitList?.list) {
-        if (
-            unitList.list.length === 0 &&
-            unitList.pagination?.total_items > 0 &&
-            currentPage === 1 &&
-            !hasAttemptedNextPage
-          ) {
-            setHasAttemptedNextPage(true);
-            fetchUnits(selectValues?.level?.value, 2);
-            return;
-          }
-          if (unitList.list.length === 0 && currentPage === 1) {
-            setHasNoUnits(true);
-          } else {
-            setHasNoUnits(false);
-          }
+      if (
+        unitList.list.length === 0 &&
+        unitList.pagination?.total_items > 0 &&
+        currentPage === 1 &&
+        !hasAttemptedNextPage
+      ) {
+        setHasAttemptedNextPage(true);
+        fetchUnits(selectValues?.level?.value, 2);
+        return;
+      }
+      if (unitList.list.length === 0 && currentPage === 1) {
+        setHasNoUnits(true);
+      } else {
+        setHasNoUnits(false);
+      }
       if (unitList.pagination.current_page === 1) {
         setAllUnits(unitList.list);
       } else {
-        setAllUnits(prev => [...prev, ...unitList.list]);
+        setAllUnits((prev) => [...prev, ...unitList.list]);
       }
       setCurrentPage(unitList.pagination.current_page);
       setIsLoading(false);
@@ -108,8 +109,8 @@ function Step1({
       return [];
     }
     if (allUnits.length === 0) {
-        return [];
-      }
+      return [];
+    }
     if (Array?.isArray(allUnits))
       return allUnits?.map((item) => ({
         label: `${item?.unit_code} - ${item?.unit_type} : ${item?.status}`,
@@ -127,7 +128,9 @@ function Step1({
       return localize("form.loadingUnits") || "Loading units...";
     }
     if (hasNoUnits) {
-      return localize("form.noUnitsOnFloor") || "No units available on this floor";
+      return (
+        localize("form.noUnitsOnFloor") || "No units available on this floor"
+      );
     }
     return localize("form.selectAValue") || "Select a value";
   };
@@ -144,7 +147,6 @@ function Step1({
     );
   };
 
-
   const handleFloorSelect = (item: option) => {
     setSelectValues((values) => ({
       ...values,
@@ -160,8 +162,8 @@ function Step1({
 
   const handleUnitSelect = (item: option) => {
     if (isLoading) {
-        return;
-      }
+      return;
+    }
     setSelectValues((values) => ({
       ...values,
       unit: item,
@@ -179,75 +181,19 @@ function Step1({
     if (isLoading) return;
 
     const currentPage = unitList?.pagination?.current_page || 1;
-    const totalPages = Math.ceil((unitList?.pagination?.total_items || 0) / itemsPerPage);
+    const totalPages = Math.ceil(
+      (unitList?.pagination?.total_items || 0) / itemsPerPage
+    );
 
     if (currentPage < totalPages) {
       fetchUnits(selectValues?.level?.value, currentPage + 1);
     }
   };
 
-  const openQRScanner = async () => {
-    if (!hasPermission) {
-      const status = await requestPermission();
-      if (!status) {
-        alertBox("Camera Permission Denied", "Camera permission is required to scan QR codes");
-        return;
-      }
-    }
-    setIsQRScannerVisible(true);
-  };
-
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr'],
-    onCodeScanned: (codes: Code[]) => {
-      console.log(codes[0].value);
-      setScannedData(codes[0].value);
-      setIsQRScannerVisible(false);
-    },
-  });
-
-
-  const renderQRScanner = () => {
-    if (device == null) {
-        return (
-          <View>
-            <Text>Device Not Found</Text>
-          </View>
-        );
-      }
-    return (
-      <Modal
-        visible={isQRScannerVisible}
-        animationType="slide"
-        transparent={false}
-      >
-        <View style={styles.container}>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            codeScanner={codeScanner}
-            isActive={isQRScannerVisible}
-            device={device}
-            photo={false}
-          >
-          </Camera>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setIsQRScannerVisible(false)}
-          >
-            <CustomText>Close Scanner</CustomText>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    );
-  };
-
-
-
-
   return (
     <View>
       <View style={styles.paddingContainer}>
-      <TouchableOpacity
+        <TouchableOpacity
           style={[
             styles.uploadItemContainer,
             { borderColor: isDarkMode ? Colors.white : Colors.black },
@@ -288,12 +234,17 @@ function Step1({
             tintColor={isDarkMode ? Colors.white : Colors.black}
           />
         </TouchableOpacity>
-        {renderQRScanner()}
+        {isQRScannerVisible && (
+          <CameraScanner
+            setIsCameraShown={setIsQRScannerVisible}
+            onReadCode={handleReadCode}
+          />
+        )}
         {scannedData && (
-        <View style={styles.scannedDataContainer}>
-          <CustomText>Scanned Data: {scannedData}</CustomText>
-        </View>
-      )}
+          <View style={styles.scannedDataContainer}>
+            <CustomText>Scanned Data: {scannedData}</CustomText>
+          </View>
+        )}
         <CustomTextInput
           label={"Mall"}
           value={property?.marketing_name}
@@ -332,7 +283,6 @@ function Step1({
         handleOnSubmit={onContinue}
       />
     </View>
-
   );
 }
 
