@@ -75,26 +75,24 @@ const Quotes = (props: any) => {
             paddingHorizontal: RfW(10),
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ paddingTop: RfH(20) }}>
+          <View style={styles.headerContainer}>
+            <View style={styles.titleContainer}>
               <CustomText
                 fontSize={18}
-                styling={{ ...CommonStyles.regularFont500Style }}
+                numberOfLines={2}
+                styling={{
+                  ...CommonStyles.regularFont500Style,
+                  flex: 1,
+                  paddingRight: RfW(40),
+                }}
               >
-                {/* {localize("quote.quoteOfTheDay")} */}
                 {item?.internalName}
               </CustomText>
             </View>
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={onRequestClose}
-              style={{ marginRight: RfW(-12), padding: RfH(12) }}
+              style={styles.closeButton}
             >
               <IconButtonWrapper
                 iconWidth={RfH(18)}
@@ -104,12 +102,7 @@ const Quotes = (props: any) => {
             </TouchableOpacity>
           </View>
 
-          <View
-            style={{
-              height: RfH(270),
-              marginTop: RfH(15),
-            }}
-          >
+          <View style={styles.contentContainer}>
             <View style={{ flex: 1 }}>
               <CustomText
                 fontSize={22}
@@ -161,6 +154,27 @@ const Quotes = (props: any) => {
 };
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: RfH(20),
+    minHeight: RfH(60),
+  },
+  titleContainer: {
+    flex: 1,
+  },
+  closeButton: {
+    position: "absolute",
+    right: RfH(-10),
+    top: RfH(10),
+    padding: RfH(10),
+    zIndex: 1,
+  },
+  contentContainer: {
+    height: RfH(270),
+    marginTop: RfH(15),
+  },
   container: {
     flex: 1,
     justifyContent: "center",
