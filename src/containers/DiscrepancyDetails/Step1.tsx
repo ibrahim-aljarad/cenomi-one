@@ -19,6 +19,7 @@ import { isDarkModeSelector } from "../redux/selectors";
 import { CameraScanner } from "../../components/CameraScanner";
 import useQRScanner from "../../hooks/useQRScanner";
 import { debounce } from "lodash";
+import { alertBox } from "../../utils/helpers";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -51,7 +52,6 @@ function Step1({
   srId,
 }: Step1Props) {
   const dispatch = useDispatch();
-
   const { unitList, isDarkMode } = useSelector(stateStructure);
 
   const [allUnits, setAllUnits] = useState<any[]>([]);
@@ -61,13 +61,75 @@ function Step1({
   const [hasNoUnits, setHasNoUnits] = useState(false);
   const itemsPerPage = 20;
   const [searchTerm, setSearchTerm] = useState("");
+  const [isQRScan, setIsQRScan] = useState(false);
+
+  const handleScan = (value: string) => {
+    try {
+      const { floor, unit } = JSON.parse(value);
+     if (property?.marketing_name !== unit?.data?.properties?.marketing_name){
+        alertBox(
+          localize("common.error"),
+          localize("discrepancy.invalidUnit"),
+          {
+            positiveText: localize("common.ok"),
+            cancelable: true,
+          }
+        );
+     } else {
+        setSelectValues((values) => {
+            const updatedValues = {
+              ...values,
+              level: floor,
+              unit: unit,
+            };
+            return updatedValues;
+          });
+          setIsQRScan(true);
+          dispatch(
+            getUnitDicrepancy.trigger({
+              unit_id: unit.value,
+              service_request_id: srId,
+            })
+          );
+     }
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            alertBox(
+              localize("common.error"),
+              localize("discrepancy.invalidDataFormat"),
+              {
+                positiveText: localize("common.ok"),
+                cancelable: true,
+              }
+            );
+          } else {
+            alertBox(
+              localize("common.error"),
+              localize("common.someThingWentWrong"),
+              {
+                positiveText: localize("common.ok"),
+                cancelable: true,
+              }
+            );
+          }
+          console.error("Error parsing scanned data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectValues.level && selectValues.unit && isQRScan) {
+      onContinue();
+      setIsQRScan(false);
+    }
+  }, [selectValues, isQRScan]);
+
   const {
     isQRScannerVisible,
     scannedData,
     openQRScanner,
     handleReadCode,
     setIsQRScannerVisible,
-  } = useQRScanner();
+  } = useQRScanner(handleScan);
 
   useEffect(() => {
     if (unitList?.list) {
@@ -252,7 +314,7 @@ function Step1({
                 marginTop: RfH(2),
               }}
             >
-              {localize("common.takeAPhoto")}
+              {localize("discrepancy.scanUnitQR")}
             </CustomText>
           </View>
 
@@ -271,11 +333,6 @@ function Step1({
             setIsCameraShown={setIsQRScannerVisible}
             onReadCode={handleReadCode}
           />
-        )}
-        {scannedData && (
-          <View style={styles.scannedDataContainer}>
-            <CustomText>Scanned Data: {scannedData}</CustomText>
-          </View>
         )}
         <CustomTextInput
           label={"Mall"}

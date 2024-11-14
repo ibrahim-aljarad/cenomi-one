@@ -4,7 +4,7 @@ import { useCameraPermission } from "react-native-vision-camera";
 import { localize } from "../locale/utils";
 import { alertBox } from "../utils/helpers";
 
-const useQRScanner = () => {
+const useQRScanner = (onScan?: (value: string) => void) => {
   const [isQRScannerVisible, setIsQRScannerVisible] = useState(false);
   const [scannedData, setScannedData] = useState<string | undefined>(undefined);
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -58,9 +58,11 @@ const useQRScanner = () => {
   };
 
   const handleReadCode = (value: string) => {
-    console.log(value);
     setScannedData(value);
     setIsQRScannerVisible(false);
+    if (onScan) {
+      onScan(value);
+    }
   };
 
   return {
