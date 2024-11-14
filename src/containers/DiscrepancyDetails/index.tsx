@@ -147,7 +147,7 @@ const DiscrepancyDetails = (props: any) => {
     setIsFinalSubmit(true);
     const params = {
       service_request_id: parseInt(srId),
-      status: "SUBMIT"
+      status: "SUBMITTED"
     }
     dispatch(saveUnitDicrepancy.trigger(params))
   }
