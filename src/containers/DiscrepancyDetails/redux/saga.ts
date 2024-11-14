@@ -75,6 +75,7 @@ function* getUnitListRequest(action: {
       floor_code: string | number;
       page: number;
       limit: number;
+      search?: string;
     };
   }) {
     try {

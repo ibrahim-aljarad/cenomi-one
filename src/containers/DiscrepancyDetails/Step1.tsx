@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +18,7 @@ import { RfH, RfW } from "../../utils/helper";
 import { isDarkModeSelector } from "../redux/selectors";
 import { CameraScanner } from "../../components/CameraScanner";
 import useQRScanner from "../../hooks/useQRScanner";
+import { debounce } from "lodash";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -59,7 +60,7 @@ function Step1({
   const [hasAttemptedNextPage, setHasAttemptedNextPage] = useState(false);
   const [hasNoUnits, setHasNoUnits] = useState(false);
   const itemsPerPage = 20;
-
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     isQRScannerVisible,
     scannedData,
@@ -135,16 +136,42 @@ function Step1({
     return localize("form.selectAValue") || "Select a value";
   };
 
-  const fetchUnits = (floorCode: string | number, page: number) => {
-    setIsLoading(true);
-    dispatch(
-      getUnitList.trigger({
-        "property-id": property?.property_id,
-        floor_code: floorCode,
-        page,
-        limit: itemsPerPage,
-      })
-    );
+  const fetchUnits = useCallback(
+    (floorCode: string | number, page: number, search?: string) => {
+      setIsLoading(true);
+      dispatch(
+        getUnitList.trigger({
+          "property-id": property?.property_id,
+          floor_code: floorCode,
+          page,
+          limit: itemsPerPage,
+          search: search || undefined,
+        })
+      );
+    },
+    [dispatch, property?.property_id]
+  );
+
+  const debouncedSearch = useCallback(
+    debounce((searchValue: string, floorCode: string | number) => {
+      if (searchValue.length >= 1) {
+        setCurrentPage(1);
+        setAllUnits([]);
+        fetchUnits(floorCode, 1, searchValue);
+      } else if (searchValue.length === 0) {
+        setCurrentPage(1);
+        setAllUnits([]);
+        fetchUnits(floorCode, 1);
+      }
+    }, 300),
+    []
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (selectValues?.level?.value) {
+      debouncedSearch(value, selectValues.level.value);
+    }
   };
 
   const handleFloorSelect = (item: option) => {
@@ -154,6 +181,7 @@ function Step1({
       unit: null,
     }));
     setAllUnits([]);
+    setSearchTerm("");
     setHasAttemptedNextPage(false);
     setHasNoUnits(false);
     setCurrentPage(1);
@@ -186,7 +214,11 @@ function Step1({
     );
 
     if (currentPage < totalPages) {
-      fetchUnits(selectValues?.level?.value, currentPage + 1);
+      fetchUnits(
+        selectValues?.level?.value,
+        currentPage + 1,
+        searchTerm || undefined
+      );
     }
   };
 
@@ -273,6 +305,10 @@ function Step1({
           placeholder={getUnitDropdownPlaceholder()}
           onEndReached={handleDropdownScroll}
           loading={isLoading}
+          searchable={!!selectValues?.level}
+          searchPlaceholder={selectValues?.level ? "Search Unit..." : ""}
+          onSearchChange={handleSearchChange}
+          searchValue={selectValues?.level ? searchTerm : ""}
           disabled={isLoading || hasNoUnits || !selectValues?.level}
         />
       </View>
