@@ -204,8 +204,7 @@ const Home = () => {
   useEffect(() => {
     const getTenantLoginToken = async () => {
       const user = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
-    //   dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
-    dispatch(getTenantLogin.trigger({ email: "app.tester@cenomi.com" }));
+      dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
     };
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
