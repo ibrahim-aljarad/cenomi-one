@@ -343,7 +343,10 @@
       "trainingCourseCannotBeEmpty": "Training course title cannot be empty",
       "trainingVenueCannotBeEmpty": "Training venue cannot be empty",
       "commentCannotBeEmpty": "Comments cannot be empty"
-    }
+    },
+    "selectFloorFirst": "Please select a floor first",
+    "loadingUnits": "Loading units...",
+    "noUnitsOnFloor": "No units available on this floor"
   },
 
   "login": {
@@ -532,6 +535,7 @@
     "takePhotoError": "At least one photo needed",
     "selectStatus": "Select Status",
     "specifyStatus": "Specify Review Status",
+    "scanUnitQR": "Scan Unit QR Code",
     "saved": "Discrepancy Saved",
     "continue": "Continue",
     "submitAll": "Submit All",
@@ -540,6 +544,8 @@
     "noMoreDiscrepancy": "No more discrepancies",
     "title": "Title",
     "selectOthers": "Others Field Required",
-    "selectOthersDesc": "Please specify details in Others field"
+    "selectOthersDesc": "Please specify details in Others field",
+    "invalidDataFormat": "Invalid QR code format. Please scan again.",
+    "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall"
   }
 }

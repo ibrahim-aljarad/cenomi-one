@@ -72,9 +72,6 @@ const styles = StyleSheet.create({
   formDropdown: {
     marginVertical: RfH(15),
   },
-  scrollContainer: {
-    marginBottom: RfH(25),
-  },
   directionRowCenter: { flexDirection: 'row', alignItems: 'center' },
   uploadItemContainer: {
     borderRadius: BorderRadius.BR15,
@@ -104,7 +101,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: RfH(25),
     alignSelf: 'center'
-  }
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    bottom: 50,
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 10,
+  },
+  scannedDataContainer: {
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    marginTop: 10,
+  },
 });
 
 export default styles;
