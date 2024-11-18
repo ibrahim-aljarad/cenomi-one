@@ -1,19 +1,19 @@
-import { ImageBackground, Platform } from 'react-native';
+import { ImageBackground, Platform, StyleSheet, View } from "react-native";
 
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import { isDarkModeSelector } from '../../containers/redux/selectors';
-import { Images } from '../../theme';
-import { RfH } from '../../utils/helper';
-import { deviceHeight } from '../../utils/helpers';
+import React from "react";
+import { useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { isDarkModeSelector } from "../../containers/redux/selectors";
+import { Colors, Images } from "../../theme";
+import { RfH } from "../../utils/helper";
+import { deviceHeight } from "../../utils/helpers";
 
 const stateSelector = createStructuredSelector({
-  isDarkMode: isDarkModeSelector
+  isDarkMode: isDarkModeSelector,
 });
 
 const WrapperContainer = (props: any) => {
-  const { children, isHideExtraPadding = false } = props || {};
+  const { children, isHideExtraPadding = false, showOverlay = false } = props;
   const { isDarkMode } = useSelector(stateSelector);
 
   return (
@@ -28,10 +28,22 @@ const WrapperContainer = (props: any) => {
     <ImageBackground
       style={{
         height: deviceHeight(),
-        paddingBottom: isHideExtraPadding ? RfH(Platform.OS === 'ios' ? 111 : 111) : 0
+        paddingBottom: isHideExtraPadding
+          ? RfH(Platform.OS === "ios" ? 111 : 111)
+          : 0,
       }}
       resizeMode="stretch"
-      source={Images.backgroundImage}>
+      source={Images.backgroundImage}
+    >
+      {showOverlay && (
+        <View
+          style={{
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: Colors.midnightExpress,
+            opacity: 0.7,
+          }}
+        />
+      )}
       {children}
     </ImageBackground>
   );

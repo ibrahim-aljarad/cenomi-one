@@ -17,12 +17,30 @@ import { LANGUAGE_KEY } from "../../utils/constants";
 import { isRTL } from "../../locale/utils";
 import { getColorWithOpacity } from "../../utils/helper";
 import { BorderRadius } from "../../theme/sizes";
+import { useTheme } from "../../theme/context";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
 });
 function HeaderSVG(props) {
   const { isDarkMode } = useSelector(stateSelector);
+  const { useNewStyles } = useTheme();
+
+
+  const getNewStyles = () => {
+    if(useNewStyles){
+        return {
+            borderRadius: BorderRadius.BR0,
+            backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.4)
+        }
+    }
+    return {
+        borderRadius: BorderRadius.BR15,
+        backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.18)
+    }
+  }
+
+  const newStyles = getNewStyles();
 
   const {
     containerStyle,
@@ -98,8 +116,8 @@ function HeaderSVG(props) {
           },
           isBorderRadius
             ? {
-                borderBottomLeftRadius: BorderRadius.BR15,
-                borderBottomRightRadius: BorderRadius.BR15,
+                borderBottomLeftRadius: newStyles.borderRadius,
+                borderBottomRightRadius: newStyles.borderRadius,
                 // borderWidth: 2,
                 // borderColor: Colors.calendarPrimaryColor
               }
@@ -118,7 +136,7 @@ function HeaderSVG(props) {
                 height: RfW(24),
                 width: RfW(24),
                 borderRadius: RfW(24),
-                backgroundColor: getColorWithOpacity(Colors.whiteSmoke, 0.18),
+                backgroundColor: newStyles.backBtnBgColor,
                 alignItems: "center",
                 justifyContent: "center",
               }}

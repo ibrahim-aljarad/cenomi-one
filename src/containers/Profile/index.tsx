@@ -377,7 +377,7 @@ function Profile({}): JSX.Element {
               lineHeight: RfH(20),
               ...CommonStyles.regularFont400Style
             }}>
-            {`${departmentName} ${businessUnitName}`}
+            {`${departmentName} Cenomi Centers`}
           </CustomText>
           <CustomText
             fontSize={12}

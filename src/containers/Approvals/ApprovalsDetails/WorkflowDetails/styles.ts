@@ -22,11 +22,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  approverContainer: {
+    marginTop: RfH(12),
+    marginHorizontal: RfW(24),
+  },
   cellContainerView: {
+    flexDirection: 'row',
+    paddingVertical: RfH(8),
+    alignItems: 'flex-start',
+  },
+  labelContainer: {
+    width: '40%',
+    paddingRight: RfW(10),
+  },
+  valueContainer: {
     flex: 1,
-    flexDirection: "row",
-    paddingTop: RfH(5),
-    paddingBottom: RfH(5),
   },
   imageStyle: {
     borderRadius: BorderRadius.BR0,

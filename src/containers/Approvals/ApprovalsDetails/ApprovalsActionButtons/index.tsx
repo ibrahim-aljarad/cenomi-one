@@ -4,7 +4,6 @@ import { TouchableOpacity, View } from "react-native";
 import {
   CustomImage,
   CustomText,
-  IconButtonWrapper,
 } from "../../../../components";
 import { Colors, CommonStyles } from "../../../../theme";
 import { RfH, RfW, getSaveData } from "../../../../utils/helpers";
@@ -36,13 +35,13 @@ import DefaultActionModal from "../DefaultActionModal";
 
 import { isEmpty } from "lodash";
 import { createStructuredSelector } from "reselect";
-import { localize } from "../../../../locale/utils";
 import { EVENT_NAME, trackEvent } from "../../../../utils/analytics";
 import { getApprovalActionDataSelector } from "../../redux/selectors";
 import YardiActionListModal from "../YardiActionListModal";
 import { getNotification } from "../../../Notifications/redux/actions";
 import CustomInAppReview from "../../../../components/CustomInAppReview";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../../utils/constants";
+import { ThemeProvider } from "../../../../theme/context";
 
 const stateSelector = createStructuredSelector({
   approvalActionData: getApprovalActionDataSelector,
@@ -110,11 +109,11 @@ const ApprovalsActionButtons = (props) => {
         imageWidth={RfW(20)}
         imageHeight={RfW(20)}
         imageResizeMode={"contain"}
-        tintColor={isDarkMode ? Colors.white : Colors.white}
+        tintColor={isDarkMode ? Colors.black : Colors.black}
       />
       <CustomText
         fontSize={12}
-        color={Colors.white}
+        color={Colors.black}
         styling={{
           marginTop: RfH(10),
           ...CommonStyles.regularFont400Style,
@@ -246,14 +245,16 @@ const ApprovalsActionButtons = (props) => {
       )}
 
       {showDefaultActionModal && (
-        <DefaultActionModal
-          isDarkMode={isDarkMode}
-          taskItem={{ ...approvalItem, ...detailData }}
-          isVisible={showDefaultActionModal}
-          onClose={() => setShowDefaultActionModal(false)}
-          actionModule={clickedActionItem}
-          onActionClick={handleOnActionClick}
-        />
+        <ThemeProvider useNewStyles={true}>
+            <DefaultActionModal
+            isDarkMode={isDarkMode}
+            taskItem={{ ...approvalItem, ...detailData }}
+            isVisible={showDefaultActionModal}
+            onClose={() => setShowDefaultActionModal(false)}
+            actionModule={clickedActionItem}
+            onActionClick={handleOnActionClick}
+            />
+        </ThemeProvider>
       )}
 
       {isSuccessModal ? (
