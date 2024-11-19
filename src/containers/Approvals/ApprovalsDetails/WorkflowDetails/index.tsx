@@ -250,23 +250,23 @@ function WorkflowDetails({
       return (
         <>
           {isFirstApprover && (
-              <View
-                style={[
-                  styles.approverContainer,
-                  { borderColor: getColorWithOpacity(Colors.black, 0.2) },
-                ]}
+            <View
+              style={[
+                styles.approverContainer,
+                { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+              ]}
+            >
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.black : Colors.white}
+                styling={{
+                  ...CommonStyles.semiboldFontStyle,
+                  width: "95%",
+                }}
               >
-                <CustomText
-                  fontSize={16}
-                  color={isDarkMode ? Colors.black : Colors.white}
-                  styling={{
-                    ...CommonStyles.semiboldFontStyle,
-                    width: "95%",
-                  }}
-                >
-                  Approvers
-                </CustomText>
-              </View>
+                Approvers
+              </CustomText>
+            </View>
           )}
           <ApproverDetails taskItem={dataField} details={details} />
         </>
@@ -289,7 +289,7 @@ function WorkflowDetails({
             >
               <CustomText
                 fontSize={16}
-                color={isDarkMode ? Colors.white : Colors.white}
+                color={isDarkMode ? Colors.white : Colors.black}
                 styling={{
                   ...CommonStyles.mediumFontStyle,
                   width: "80%",
@@ -331,7 +331,9 @@ function WorkflowDetails({
                     >
                       <CustomText
                         fontSize={14}
-                        color={textColor || Colors.white}
+                        color={
+                          textColor || bgColor ? Colors.white : Colors.black
+                        }
                         styling={{
                           marginHorizontal: RfW(5),
                           lineHeight: RfH(20),
@@ -406,7 +408,14 @@ function WorkflowDetails({
       {groupedCards?.others?.map(
         ({ title, details, dataField, component, icon, maxWidth }) =>
           component ? (
-            renderComponent({ title, details, dataField, component, maxWidth, isFirstApprover: false })
+            renderComponent({
+              title,
+              details,
+              dataField,
+              component,
+              maxWidth,
+              isFirstApprover: false,
+            })
           ) : (
             <View
               style={[

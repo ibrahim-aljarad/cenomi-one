@@ -258,7 +258,8 @@ const ApprovalsActionButtons = (props) => {
       )}
 
       {isSuccessModal ? (
-        <CustomModal
+       <ThemeProvider useNewStyles={true}>
+         <CustomModal
           title={successText}
           modalVisible={isSuccessModal}
           onRequestClose={() => setIsSuccessModal(false)}
@@ -266,6 +267,7 @@ const ApprovalsActionButtons = (props) => {
             handleDoneAction();
           }}
         />
+       </ThemeProvider>
       ) : null}
 
       {yardiActionListModal && (

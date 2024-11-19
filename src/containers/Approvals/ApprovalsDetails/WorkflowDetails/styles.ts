@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   tableContainer: {
     paddingVertical: RfH(20),
     marginHorizontal: RfW(20),
-    backgroundColor: getColorWithOpacity(Colors.midnightExpress, 0.24),
+    backgroundColor: Colors.white,
     borderRadius: BorderRadius.BR15,
     paddingHorizontal: RfW(15),
     marginTop: RfH(16),
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   tableHead: {
-    borderBottomColor: "red",
+    borderBottomColor: getColorWithOpacity(Colors.black, 0.2),
     borderBottomWidth: 1,
     marginBottom: RfH(16),
   },
   tableCell: {
-    borderColor: "white",
+    borderColor: getColorWithOpacity(Colors.black, 0.2),
     borderWidth: 1,
     paddingHorizontal: RfW(5),
   },

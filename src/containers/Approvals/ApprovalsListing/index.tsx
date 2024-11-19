@@ -59,22 +59,24 @@ const ApprovalsListing = (props: any) => {
   useEffect(() => {
     trackEvent(EVENT_NAME.SCREEN_APPROVALS_LISTING);
 
-    if (isYardiServiceModuleCheck(approvalType)) {
-      dispatch(getLeasingPendingTasks.trigger());
-    } else if (isProcurementServiceModuleCheck(approvalType)) {
-      dispatch(getProcurementPendingTask.trigger());
-    } else if (isDealWorkflowModuleCheck(approvalType)) {
-      const fetchWithUserName = async () => {
-        const userData = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_INFO);
-        dispatch(
-          getWorkflowPendingTasks.trigger({
-            loggedInUser: JSON.parse(userData || "{}")?.username,
-          })
-        );
-      };
-      fetchWithUserName();
-    } else {
-      dispatch(getApprovalPendingTasks.trigger());
+    if (!approvalPendingTasksData || !searchText) {
+      if (isYardiServiceModuleCheck(approvalType)) {
+        dispatch(getLeasingPendingTasks.trigger());
+      } else if (isProcurementServiceModuleCheck(approvalType)) {
+        dispatch(getProcurementPendingTask.trigger());
+      } else if (isDealWorkflowModuleCheck(approvalType)) {
+        const fetchWithUserName = async () => {
+          const userData = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_INFO);
+          dispatch(
+            getWorkflowPendingTasks.trigger({
+              loggedInUser: JSON.parse(userData || "{}")?.username,
+            })
+          );
+        };
+        fetchWithUserName();
+      } else {
+        dispatch(getApprovalPendingTasks.trigger());
+      }
     }
 
     dispatch(DoApprovalActionDone.trigger());
@@ -108,6 +110,12 @@ const ApprovalsListing = (props: any) => {
       setApprovalPendingTasksList([]);
     }
   }, [approvalPendingTasksData]);
+
+  useEffect(() => {
+    if (isFocused && searchText) {
+      SearchFilterFunction(searchText);
+    }
+  }, [isFocused, filterPendingTasksList]);
 
   const navigateToDetailScreen = (item) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_TASK_ITEM, { taskInfo: item });
