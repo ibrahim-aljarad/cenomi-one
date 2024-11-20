@@ -15,10 +15,10 @@ interface Operation {
 }
 
 export const APPROVER_ORDER = [
-    'OPERATIONS_MANAGER',
-    'OPERATIONS_SUPPORT',
+    'LEASING_ADMIN',
     'MALL_MANAGER',
-    'LEASING_ADMIN'
+    'OPERATIONS_SUPPORT',
+    'OPERATIONS_MANAGER',
   ];
 
 export const STATUS_COLORS = {
@@ -125,12 +125,17 @@ export const STATUS_COLORS = {
       : '';
   };
 
-  export const getSortedOperations = (operations: Operation[]): Operation[] => {
+  export const getSortedOperations = (operations: Operation[], itemStatus: string): Operation[] => {
     if (!operations || !Array.isArray(operations)) {
       return [];
     }
+    const allowedRoles = itemStatus === 'APPROVED'
+      ? ['LEASING_ADMIN', 'MALL_MANAGER', 'OPERATIONS_MANAGER']
+      : APPROVER_ORDER;
 
-    return APPROVER_ORDER.map(role =>
-      operations.find(operation => operation.assigned_role === role)
-    ).filter((operation): operation is Operation => Boolean(operation));
+    const res = allowedRoles
+    .map(role => operations.find(operation => operation.assigned_role === role))
+    .filter((operation): operation is Operation => Boolean(operation));
+
+   return res
   };
