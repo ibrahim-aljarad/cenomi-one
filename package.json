@@ -138,7 +138,7 @@
     "redux-saga-routines": "^3.2.3",
     "reselect": "^4.1.8",
     "rn-emoji-keyboard": "^1.6.0",
-    "surveysparrow-react-native-sdk": "^0.1.10",
+    "surveysparrow-react-native-sdk": "^0.2.0",
     "yarn": "^1.22.19",
     "yup": "^1.2.0"
   },

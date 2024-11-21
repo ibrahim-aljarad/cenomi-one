@@ -6,24 +6,39 @@ import { RfH } from '../../utils/helper';
 
 const CustomRenderHtml = (props: any) => {
   const { source, tagsStyles, ...restProps } = props;
+  const contentWidth = deviceWidth() - WIDTH.W50;
+
   const htmlSource = {
-    html: source //`<div style='text-align:left'>${source}</div>`,
+    html: source
+  };
+
+  const enhancedTagsStyles = {
+    img: {
+      maxWidth: contentWidth,
+      width: contentWidth,
+      height: 'auto',
+      resizeMode: 'contain',
+      marginVertical: RfH(10)
+    },
+    ...tagsStyles
+  };
+
+  const renderersProps = {
+    img: {
+      enableExperimentalPercentWidth: true,
+      computeMaxWidth: (availableWidth: number) => {
+        return Math.min(contentWidth, availableWidth);
+      }
+    }
   };
 
   return (
     <RenderHtml
-      contentWidth={deviceWidth() - WIDTH.W16}
+      contentWidth={contentWidth}
       source={htmlSource}
-      tagsStyles={{
-        ul: {
-          paddingLeft: -RfH(20)
-        },
-        li: {
-          marginTop: -RfH(13),
-          paddingLeft: RfH(5)
-        },
-        ...tagsStyles
-      }}
+      tagsStyles={enhancedTagsStyles}
+      renderersProps={renderersProps}
+      enableExperimentalMarginCollapsing={true}
       {...restProps}
     />
   );

@@ -66,12 +66,12 @@ target 'OCARHAApp' do
   pod 'Google-Maps-iOS-Utils', :git => 'https://github.com/Simon-TechForm/google-maps-ios-utils.git', :branch => 'feat/support-apple-silicon'
   # rn_maps_path = '../node_modules/react-native-maps'
   # pod 'react-native-google-maps', :path => rn_maps_path
-   
+
   pod 'react-native-in-app-review', :path => '../node_modules/react-native-in-app-review'
-  pod 'SurveySparrowSdk', :git => 'https://github.com/surveysparrow/surveysparrow-ios-sdk.git', :tag => '0.4.5'
+  pod 'SurveySparrowSdk', :git => 'https://github.com/surveysparrow/surveysparrow-ios-sdk.git', :tag => '0.5.2'
   pod 'RNCalendarEvents', :path => '../node_modules/react-native-calendar-events'
 
-  
+
   config = use_native_modules!
   use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true
@@ -94,7 +94,7 @@ target 'OCARHAApp' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
- 
+
    target 'OCARHAAppProduction' do
    inherit! :complete
   end

@@ -17,6 +17,7 @@ import DocumentView from "../Documents/DocumentView";
 import Events from "../Events";
 import EventDetails from "../Events/EventDetails";
 import Faq from "../Faq";
+import KnowledgeHubDetailsScreen from "../KnowledgeHUB/KnowledgehubDocumentsList/KnowledgeHubDetails";
 import News from "../News";
 import Notifications from "../Notifications";
 import Organisation from "../Organisation";
@@ -189,7 +190,12 @@ const HomeStack = () => (
       component={Organisation}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    
+    <Stack.Screen
+      name={NavigationRouteNames.KNOWLEDGEHUB_DETAILS}
+      component={KnowledgeHubDetailsScreen}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
     <Stack.Screen
       name={NavigationRouteNames.DISCREPANCY_LIST}
       component={DiscrepancyList}
