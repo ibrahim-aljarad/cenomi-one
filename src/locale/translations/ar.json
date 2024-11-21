@@ -186,7 +186,8 @@
     "calendarC": "التقويم",
     "attendance": "حضور",
     "corporateCommunication": "التواصل الشركاتي",
-    "discrepancy": "تناقض"
+    "discrepancy": "تناقض",
+    "meterReadings": "قراءات العدادات"
   },
   "hrRequest": {
     "annualLimit": "الحد السنوي",

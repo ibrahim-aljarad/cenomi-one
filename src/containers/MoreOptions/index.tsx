@@ -207,6 +207,23 @@ const MoreOptions = () => {
       },
     ];
   }
+
+  if (
+    getUserConfigData(
+      myProfileDetails?.config?.config,
+      CONFIG_CONSTANT?.CALENDAR,
+      featureModuleData
+    )
+  ) {
+    menuList = [
+      ...menuList,
+      {
+        name: localize("home.meterReadings"),
+        routeName: NavigationRouteNames.METER_READINGS,
+        featureName: "send_wishes",
+      },
+    ];
+  }
   useEffect(() => {
     if (isFocused) {
       try {

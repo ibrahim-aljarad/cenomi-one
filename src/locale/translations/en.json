@@ -186,7 +186,8 @@
     "calendarC": "Calendar",
     "attendance": "Attendance",
     "corporateCommunication": "Corporate Communication",
-    "discrepancy": "Discrepancy"
+    "discrepancy": "Discrepancy",
+    "meterReadings": "Meter Readings"
   },
   "hrRequest": {
     "annualLimit": "Annual Limit",
