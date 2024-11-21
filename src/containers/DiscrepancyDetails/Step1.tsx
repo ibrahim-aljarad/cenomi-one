@@ -362,7 +362,7 @@ function Step1({
           placeholder={getUnitDropdownPlaceholder()}
           onEndReached={handleDropdownScroll}
           loading={isLoading}
-          searchable={!!selectValues?.level}
+          searchable={!!selectValues?.level && !hasNoUnits}
           searchPlaceholder={selectValues?.level ? "Search Unit..." : ""}
           onSearchChange={handleSearchChange}
           searchValue={selectValues?.level ? searchTerm : ""}

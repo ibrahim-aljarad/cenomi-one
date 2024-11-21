@@ -22,7 +22,7 @@ const ListItem = (props: any) => {
     setSelectedOperation(operation);
   };
 
-  const sortedOperations = getSortedOperations(item?.operations);
+  const sortedOperations = getSortedOperations(item?.operations, item?.status);
 
   return (
     <>
@@ -73,7 +73,7 @@ const ListItem = (props: any) => {
               {localize("discrepancy.approvers")}
             </CustomText>
             <View style={styles.approversList}>
-                {item?.operations?.map((operation, index) => (
+                {sortedOperations?.map((operation, index) => (
                   <TouchableOpacity
                     key={operation.service_request_operation_id}
                     onPress={() => handleApproverPress(operation)}
