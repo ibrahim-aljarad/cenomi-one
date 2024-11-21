@@ -153,7 +153,8 @@
     "cameraPermissionMsg": "يرجى منح الإذن للوصول إلى الكاميرا ",
     "galleryPermissonMsg": " يرجى منح الإذن للوصول إلى معرض الصور",
     "uploadDocument": "تحميل المستند ",
-    "uploadAttachment": " تحميل المستند "
+    "uploadAttachment": " تحميل المستند ",
+    "uploadPhoto": "تحميل الصورة"
   },
   "home": {
     "cenomiBenefits": "حوافز سينومي",
@@ -184,7 +185,8 @@
     "chatGpt": "ChatGPT",
     "calendarC": "التقويم",
     "attendance": "حضور",
-    "corporateCommunication": "التواصل الشركاتي"
+    "corporateCommunication": "التواصل الشركاتي",
+    "discrepancy": "تناقض"
   },
   "hrRequest": {
     "annualLimit": "الحد السنوي",
@@ -316,6 +318,10 @@
     "expectedDateOfChildbirth": "تاريخ الولادة المتوقع",
     "specialConditions": "ظروف خاصة",
     "singleDay": "يوم واحد",
+    "level": "مستوى",
+    "unit": "وحدة",
+    "comment": "تعليق",
+    "others": "آحرون",
     "warning": {
       "reasonForTravelBlank": "لا يمكن أن يكون سبب السفر فارغًا",
       "travelRequestTypeBlank": "لا يمكن أن يكون نوع طلب السفر فارغًا",
@@ -337,7 +343,10 @@
       "trainingCourseCannotBeEmpty": "لا يمكن أن يكون عنوان الدورة التدريبية فارغًا",
       "trainingVenueCannotBeEmpty": "لا يمكن أن يكون مكان التدريب فارغًا",
       "commentCannotBeEmpty": "لا يمكن أن تكون التعليقات فارغة"
-    }
+    },
+    "selectFloorFirst": "الرجاء تحديد الطابق أولاً",
+    "loadingUnits": "وحدات التحميل...",
+    "noUnitsOnFloor": "لا توجد وحدات متاحة في هذا الطابق"
   },
 
   "login": {
@@ -517,5 +526,26 @@
     "sColleagues": "الزملاء لـ",
     "organisation": "التنظيم",
     "userList": "قائمة المستخدمين"
+  },
+  "discrepancy": {
+    "mall": "مول",
+    "companyName": "اسم الشركة",
+    "remainingUnits": "الوحدات المتبقية",
+    "takePhoto": "التقط صورة",
+    "takePhotoError": "مطلوب صورة واحدة على الأقل",
+    "selectStatus": "حدد الحالة",
+    "specifyStatus": "حدد حالة المراجعة",
+    "scanUnitQR": "وحدة المسح الضوئي لرمز الاستجابة السريعة",
+    "saved": "تم حفظ التناقض",
+    "continue": "يكمل",
+    "submitAll": "إرسال الكل",
+    "submitted": "تم تقديم طلب الخدمة",
+    "approvers": "الموافقون",
+    "noMoreDiscrepancy": "لا مزيد من التناقضات",
+    "title": "عنوان",
+    "selectOthers": "مطلوب حقل آخر",
+    "selectOthersDesc": "يرجى تحديد التفاصيل في حقل أخرى",
+    "invalidDataFormat": "تنسيق رمز الاستجابة السريعة غير صالح. يرجى المسح مرة أخرى.",
+    "invalidUnit": "وحدة غير صالحة. يرجى مسح الوحدة التي تنتمي إلى هذا المركز التجاري"
   }
 }

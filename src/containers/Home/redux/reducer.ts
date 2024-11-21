@@ -27,6 +27,8 @@ import {
   organizationStructure,
   getPendingAcknowledgement,
   setNotificationCount,
+  getTenantLogin,
+  getDiscrepancyList,
 } from "./actions";
 
 export const initialState = {
@@ -51,6 +53,7 @@ export const initialState = {
   organizationStructureData: undefined,
   pendingAcknowledgementData: {},
   unreadNotificationCount: undefined,
+  serviceRequestList: undefined,
 };
 
 export default (
@@ -276,6 +279,50 @@ export default (
       }
       case getPendingAcknowledgement.FAILURE: {
         draft.pendingAcknowledgementData = {};
+        break;
+      }
+
+      case getTenantLogin.TRIGGER: {
+        // draft.pendingAcknowledgementData = {};
+        break;
+      }
+      case getTenantLogin.SUCCESS: {
+        // draft.pendingAcknowledgementData = action?.payload?.data || {};
+        break;
+      }
+      case getTenantLogin.FAILURE: {
+        // draft.pendingAcknowledgementData = {};
+        break;
+      }
+
+      case getDiscrepancyList.TRIGGER: {
+        if (action?.payload?.page === 1) {
+          draft.serviceRequestList = undefined;
+        }
+        break;
+      }
+
+      case getDiscrepancyList.SUCCESS: {
+        const newData = action?.payload?.data || {};
+        const currentPage = newData?.current_page || 1;
+        if (currentPage === 1) {
+          draft.serviceRequestList = newData;
+        } else {
+          draft.serviceRequestList = {
+            ...newData,
+            list: [
+              ...(draft.serviceRequestList?.list || []),
+              ...(newData?.list || [])
+            ]
+          };
+        }
+        break;
+      }
+
+      case getDiscrepancyList.FAILURE: {
+        if (action?.payload?.page === 1) {
+          draft.serviceRequestList = [];
+        }
         break;
       }
 

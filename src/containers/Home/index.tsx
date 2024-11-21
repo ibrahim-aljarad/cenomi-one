@@ -39,6 +39,7 @@ import { getWishesListSelector, isDarkModeSelector } from "../redux/selectors";
 import {
   getPendingAcknowledgement,
   getQoutes,
+  getTenantLogin,
   submitAcknowledge,
 } from "./redux/actions";
 import {
@@ -201,11 +202,16 @@ const Home = () => {
   }, [notificationPayload]);
 
   useEffect(() => {
+    const getTenantLoginToken = async () => {
+      const user = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+      dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
+    };
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
       dispatch(getOrganizationConfig.trigger());
       dispatch(getQoutes.trigger());
       dispatch(getPendingAcknowledgement.trigger());
+      getTenantLoginToken();
 
       const jailBreakStatus = jailBreak();
       if (jailBreakStatus) {

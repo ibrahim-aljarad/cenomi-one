@@ -29,6 +29,8 @@ import NotificationSetting from "../Profile/NotificationSettings";
 import SendWishes from "../SendWishes";
 import Surveys from "../Surveys";
 import SyncProfile from "../SyncProfile";
+import DiscrepancyList from "../DiscrepancyList";
+import DiscrepancyDetails from "../DiscrepancyDetails";
 const Stack = createStackNavigator();
 
 const HomeStack = () => (
@@ -185,6 +187,18 @@ const HomeStack = () => (
     <Stack.Screen
       name={NavigationRouteNames.ORGANISATION}
       component={Organisation}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+    
+    <Stack.Screen
+      name={NavigationRouteNames.DISCREPANCY_LIST}
+      component={DiscrepancyList}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.DISCREPANCY_DETAILS}
+      component={DiscrepancyDetails}
       options={{ headerShown: false, animationEnabled: false }}
     />
   </>

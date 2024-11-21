@@ -12,6 +12,7 @@ import ApprovalsReducer from '../containers/Approvals/redux/reducer';
 import CommonReducer from '../containers/redux/reducer';
 // import RewardsReducer from '../containers/RewardsHome/redux/reducer';
 import RewardsReducer from '../containers/RewardsHome/RewardsProfile/redux/reducer';
+import DiscrepancyReducer from '../containers/DiscrepancyDetails/redux/reducer';
 
 export default () =>
   combineReducers({
@@ -25,5 +26,6 @@ export default () =>
     [REDUCER_KEY.KNOWLEDGEHUB_REDUCER]: KnowledgeHUBReducer,
     [REDUCER_KEY.APPROVALS_REDUCER]: ApprovalsReducer,
     [REDUCER_KEY.COMMON_REDUCER]: CommonReducer,
-    [REDUCER_KEY.REWARDS_PROFILE_REDUCER]: RewardsReducer
+    [REDUCER_KEY.REWARDS_PROFILE_REDUCER]: RewardsReducer,
+    [REDUCER_KEY.DISCREPANCY_REDUCER]: DiscrepancyReducer,
   });

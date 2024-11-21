@@ -175,8 +175,8 @@ const ApprovalsDetails = (props: any) => {
               >
                 <CustomImage
                   image={Images.attachment}
-                  imageWidth={WIDTH.W16}
-                  imageHeight={HEIGHT.H16}
+                  imageWidth={WIDTH.W24}
+                  imageHeight={HEIGHT.H24}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
               </TouchableOpacity>

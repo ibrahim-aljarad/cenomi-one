@@ -1,8 +1,8 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import { setGlobalError } from '../../appContainer/redux/actions';
-import { api } from '../../utils/axios';
+import { call, put, takeLatest } from "redux-saga/effects";
+import { setGlobalError } from "../../appContainer/redux/actions";
+import { api, tenantCentralApi } from "../../utils/axios";
 
-import Config from '../../utils/config';
+import Config from "../../utils/config";
 import {
   filePreview,
   fileUpload,
@@ -13,81 +13,98 @@ import {
   getSendWishesInfo,
   getOrganizationConfig,
   getNewsList,
-  getGreetingsData
-} from './actions';
+  getGreetingsData,
+  tenantFileUpload,
+} from "./actions";
+const qs = require("qs");
 
-const FILE_UPLOAD_URL = 'upload';
-const FILE_PREVIEW_URL = 'preview';
-const SYNC_PROFILE_URL = 'user/sync-profile';
-const MARK_ONBOARDED_URL = 'user/mark-onboarded';
-const STATIC_DATA_URL = 'organization/static-data';
-const PUBLIC_STATIC_DATA_URL = 'organization/public-static-data';
-const SEND_WISHES__URL = 'process/hr-request/wishes';
-const ORGANIZATION_CONFIG_URL = 'organization/config';
-const NEWS_LIST_URL = 'cms/news';
-const GRETTINGS_DATA_URL = 'cms/greetings';
+const FILE_UPLOAD_URL = "upload";
+const FILE_PREVIEW_URL = "preview";
+const SYNC_PROFILE_URL = "user/sync-profile";
+const MARK_ONBOARDED_URL = "user/mark-onboarded";
+const STATIC_DATA_URL = "organization/static-data";
+const PUBLIC_STATIC_DATA_URL = "organization/public-static-data";
+const SEND_WISHES__URL = "process/hr-request/wishes";
+const ORGANIZATION_CONFIG_URL = "organization/config";
+const NEWS_LIST_URL = "cms/news";
+const GRETTINGS_DATA_URL = "cms/greetings";
+const TENANT_FILE = "files";
 
 const fileUploadApiCall = (data: any) =>
   api({
-    method: 'POST',
+    method: "POST",
     url: `${FILE_UPLOAD_URL}`,
     data,
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      "Content-Type": "multipart/form-data",
+    },
   });
 
 const filePreviewApiCall = (filename: any) =>
   api({
-    method: 'POST',
-    url: `${FILE_PREVIEW_URL}?filename${filename}`
+    method: "POST",
+    url: `${FILE_PREVIEW_URL}?filename${filename}`,
   });
 
 const syncProfileApiCall = (firstTime) =>
   api({
-    method: 'PUT',
-    url: `${SYNC_PROFILE_URL}?first_time=${firstTime}`
+    method: "PUT",
+    url: `${SYNC_PROFILE_URL}?first_time=${firstTime}`,
   });
 
 const markOnboardedApiCall = () =>
   api({
-    method: 'PUT',
-    url: `${MARK_ONBOARDED_URL}`
+    method: "PUT",
+    url: `${MARK_ONBOARDED_URL}`,
   });
 
 const getStaticDataApiCall = () =>
   api({
-    method: 'GET',
-    url: `${STATIC_DATA_URL}`
+    method: "GET",
+    url: `${STATIC_DATA_URL}`,
   });
 
 const getPublicStaticDataApiCall = () =>
   api({
-    method: 'GET',
-    url: `${PUBLIC_STATIC_DATA_URL}?api_key=${Config.API_KEY}`
+    method: "GET",
+    url: `${PUBLIC_STATIC_DATA_URL}?api_key=${Config.API_KEY}`,
   });
 
 const getSendWishesInfoApiCall = () =>
   api({
-    method: 'GET',
-    url: `${SEND_WISHES__URL}`
+    method: "GET",
+    url: `${SEND_WISHES__URL}`,
   });
 
 const getOrganizationConfigApiCall = () =>
   api({
-    method: 'GET',
-    url: `${ORGANIZATION_CONFIG_URL}`
+    method: "GET",
+    url: `${ORGANIZATION_CONFIG_URL}`,
   });
 
 const getNewsListApiCall = () =>
   api({
-    method: 'GET',
-    url: `${NEWS_LIST_URL}`
+    method: "GET",
+    url: `${NEWS_LIST_URL}`,
   });
 const getGreetingsDataApiCall = () =>
   api({
-    method: 'GET',
-    url: `${GRETTINGS_DATA_URL}`
+    method: "GET",
+    url: `${GRETTINGS_DATA_URL}`,
+  });
+
+const tenantFileUploadApiCall = ({ file, ...data }: any) =>
+  tenantCentralApi({
+    method: "PUT",
+    url: `${TENANT_FILE}?${qs.stringify(data, {
+      arrayFormat: "repeat",
+      encode: false,
+    })}`,
+    data: file,
+    headers:  {
+      'Content-Type': 'application/octet-stream', // Set appropriate content type
+      // Other headers as necessary, e.g., Authorization
+    }
   });
 
 function* fileUploadRequest(action: any) {
@@ -95,10 +112,10 @@ function* fileUploadRequest(action: any) {
     yield put(fileUpload.request({ isLoading: true }));
     const { fileName, mime, path } = action?.payload || {};
     const formData = new FormData();
-    formData.append('file', {
+    formData.append("file", {
       name: fileName,
       type: mime,
-      uri: path
+      uri: path,
     });
 
     const response = yield call(fileUploadApiCall, formData);
@@ -143,10 +160,13 @@ function* syncProfileRequest(action: any) {
       const { data } = response;
       yield put(syncProfile.success({ data: { ...data, statusCode: 200 } }));
     } else {
-      if (response?.data?.statusCode === 401 || response?.data?.statusCode === 404) {
+      if (
+        response?.data?.statusCode === 401 ||
+        response?.data?.statusCode === 404
+      ) {
         yield put(
           syncProfile.success({
-            data: { statusCode: response?.data?.statusCode }
+            data: { statusCode: response?.data?.statusCode },
           })
         );
       } else {
@@ -213,7 +233,9 @@ function* getPublicStaticDataRequest() {
 
 function* getSendWishesInfoRequest() {
   try {
-    yield put(getSendWishesInfo.request({ isLoading: false, isAPIExecuting: true }));
+    yield put(
+      getSendWishesInfo.request({ isLoading: false, isAPIExecuting: true })
+    );
     const response = yield call(getSendWishesInfoApiCall);
     if (response.success) {
       const { data } = response;
@@ -224,7 +246,9 @@ function* getSendWishesInfoRequest() {
   } catch (error) {
     yield put(setGlobalError.success());
   } finally {
-    yield put(getSendWishesInfo.fulfill({ isLoading: false, isAPIExecuting: false }));
+    yield put(
+      getSendWishesInfo.fulfill({ isLoading: false, isAPIExecuting: false })
+    );
   }
 }
 
@@ -285,6 +309,32 @@ function* getGreetingsDataRequest() {
   }
 }
 
+function* tenantFileUploadRequest(action: any) {
+  try {
+    yield put(tenantFileUpload.request({ isLoading: true }));
+    const { fileName, mime, file, document_type_id } = action?.payload || {};
+
+    const response = yield call(tenantFileUploadApiCall, {
+      file_name: fileName,
+      file_extension: mime,
+      document_type_id,
+      signed_url: true,
+      file,
+    });
+    console.log(response,'resssssss')
+    if (response.success) {
+      const { data } = response;
+      yield put(tenantFileUpload.success({ data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(tenantFileUpload.fulfill({ isLoading: false }));
+  }
+}
+
 export default function* commonSaga() {
   yield takeLatest(fileUpload.TRIGGER, fileUploadRequest);
   yield takeLatest(filePreview.TRIGGER, filePreviewRequest);
@@ -297,4 +347,5 @@ export default function* commonSaga() {
   yield takeLatest(getOrganizationConfig.TRIGGER, getOrganizationConfigRequest);
   yield takeLatest(getNewsList.TRIGGER, getNewsListRequest);
   yield takeLatest(getGreetingsData.TRIGGER, getGreetingsDataRequest);
+  yield takeLatest(tenantFileUpload.TRIGGER, tenantFileUploadRequest);
 }
