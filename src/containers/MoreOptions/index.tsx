@@ -191,22 +191,22 @@ const MoreOptions = () => {
   }
 
 
-  if (
-    getUserConfigData(
-      myProfileDetails?.config?.config,
-      CONFIG_CONSTANT?.CALENDAR,
-      featureModuleData
-    )
-  ) {
-    menuList = [
-      ...menuList,
-      {
-        name: localize("home.discrepancy"),
-        routeName: NavigationRouteNames.DISCREPANCY_LIST,
-        featureName: "send_wishes",
-      },
-    ];
-  }
+//   if (
+//     getUserConfigData(
+//       myProfileDetails?.config?.config,
+//       CONFIG_CONSTANT?.CALENDAR,
+//       featureModuleData
+//     )
+//   ) {
+//     menuList = [
+//       ...menuList,
+//       {
+//         name: localize("home.discrepancy"),
+//         routeName: NavigationRouteNames.DISCREPANCY_LIST,
+//         featureName: "send_wishes",
+//       },
+//     ];
+//   }
   useEffect(() => {
     if (isFocused) {
       try {
