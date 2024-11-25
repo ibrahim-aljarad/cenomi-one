@@ -25,9 +25,7 @@ const ListItem = (props: ListItemProps) => {
         style={[
           styles.item_con,
           {
-            backgroundColor: isDarkMode
-              ? Colors.darkModeButton
-              : getColorWithOpacity(Colors.midnightExpress, 0.24),
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
           },
         ]}
         activeOpacity={0.8}
@@ -37,7 +35,7 @@ const ListItem = (props: ListItemProps) => {
           <CustomText
             fontSize={14}
             numberOfLines={2}
-            color={Colors.white}
+            color={isDarkMode ? Colors.black : Colors.black}
             styling={{
               ...CommonStyles.regularFont500Style,
               lineHeight: RfH(21),
@@ -48,7 +46,7 @@ const ListItem = (props: ListItemProps) => {
           <CustomText
             fontSize={14}
             numberOfLines={2}
-            color={Colors.white}
+            color={isDarkMode ? Colors.black : Colors.black}
             styling={{
               ...CommonStyles.regularFont500Style,
               lineHeight: RfH(21),
@@ -59,7 +57,7 @@ const ListItem = (props: ListItemProps) => {
           <CustomText
             fontSize={14}
             numberOfLines={2}
-            color={Colors.white}
+            color={isDarkMode ? Colors.black : Colors.black}
             styling={{
               ...CommonStyles.regularFont500Style,
               lineHeight: RfH(21),
@@ -88,12 +86,12 @@ const ListItem = (props: ListItemProps) => {
               imageHeight={RfH(18)}
               imageWidth={RfH(18)}
               imageResizeMode="contain"
-              tintColor={isDarkMode ? Colors.white : Colors.white}
+              tintColor={isDarkMode ? Colors.white : Colors.black}
             />
             <CustomText
               fontSize={14}
               numberOfLines={4}
-              color={Colors.white}
+              color={isDarkMode ? Colors.black : Colors.black}
               styling={{
                 ...CommonStyles.regularFont400Style,
                 lineHeight: RfH(21),

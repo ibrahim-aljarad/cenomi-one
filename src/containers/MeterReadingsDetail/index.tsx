@@ -1,7 +1,9 @@
 import {
-  Alert,
   BackHandler,
+  Dimensions,
+  Image,
   SafeAreaView,
+  ScrollView,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -34,18 +36,27 @@ import { RfH, RfW } from "../../utils/helper";
 import { isRTL, localize } from "../../locale/utils";
 import UploadDocument from "../../components/UploadDocument";
 import {
-  METER_NUMBER_LENGTH,
-  METER_READING_LENGTH,
   mockDetectMeterReading,
   sanitizeNumericInput,
   validateMeterForm,
 } from "./util";
 import { alertBox } from "../../utils/helpers";
 import CustomModal from "../../components/CustomModal";
+import { ThemeProvider } from "../../theme/context";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
 });
+
+const initialMeterData: MeterData = {
+  meterNumber: "",
+  meterReading: "",
+};
+
+const initialErrors: MeterValidationErrors = {
+  meterNumber: "",
+  meterReading: "",
+};
 
 export default function Index({ route }: MeterReadingDetailsProps) {
   const { id, property, srId } = route.params;
@@ -54,34 +65,67 @@ export default function Index({ route }: MeterReadingDetailsProps) {
   const navigation = useNavigation();
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
     useState(false);
+  const [capturedImage, setCapturedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [meterData, setMeterData] = useState<MeterData>({
-    meterNumber: "",
-    meterReading: "",
-  });
-  const [errors, setErrors] = useState<MeterValidationErrors>({
-    meterNumber: "",
-    meterReading: "",
-  });
+  const [meterData, setMeterData] = useState<MeterData>(initialMeterData);
+  const [errors, setErrors] = useState<MeterValidationErrors>(initialErrors);
   const [isSuccessModal, setIsSuccessModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+  const resetForm = () => {
+    setCapturedImage(null);
+    setMeterData(initialMeterData);
+    setErrors(initialErrors);
+    setIsEditing(false);
+    setImageAspectRatio(1);
+  };
+
+  const handleRetake = () => {
+    resetForm();
+    setIsShowDocumentPickerModal(true);
+  };
 
   const onPressUploadAttachment = () => {
     setIsShowDocumentPickerModal(true);
   };
 
-  const handleDocumentUpload = async () => {
+  const handleDocumentUpload = async (imageData) => {
     setIsLoading(true);
     try {
+      setCapturedImage(imageData.path);
+      Image.getSize(
+        imageData.path,
+        (width, height) => {
+          setImageAspectRatio(width / height);
+        },
+        (error) => {
+          console.error("Error getting image size:", error);
+        }
+      );
       const detectedData = await mockDetectMeterReading();
       setMeterData(detectedData);
       setIsEditing(true);
     } catch (error) {
+      resetForm();
+      alertBox(
+        localize("common.error"),
+        localize("meterReadings.detectionError"),
+        {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+        }
+      );
       console.error("Error detecting meter reading:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const screenWidth = Dimensions.get("window").width;
+  const containerPadding = 32;
+  const imageWidth = screenWidth - containerPadding;
+  const imageHeight = imageWidth / imageAspectRatio;
 
   const backHandler = (): boolean => {
     navigation.goBack();
@@ -124,7 +168,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay={true}>
       <SafeAreaView
         style={{
           ...styles.mainContainer,
@@ -133,18 +177,25 @@ export default function Index({ route }: MeterReadingDetailsProps) {
             : Colors.transparent,
         }}
       >
-        <HeaderSVG
-          isRightButtonVisible={true}
-          isBackButtonVisible={true}
-          titleText={`Service Request: ${srId}`}
-          titleFont={20}
-          onRightButtonClickHandler={() => {}}
-          onBackPressHandler={() => backHandler()}
-          isRight2BtnVisible={true}
-          onRight2BtnClick={() => {}}
-          containerStyle={{ zIndex: 99999 }}
-        />
-        <View style={styles.scrollContainer}>
+        <Loader isLoading={isLoading} />
+        <ThemeProvider useNewStyles={true}>
+          <HeaderSVG
+            isRightButtonVisible={true}
+            isBackButtonVisible={true}
+            titleText={`Service Request: ${srId}`}
+            titleFont={20}
+            onRightButtonClickHandler={() => {}}
+            onBackPressHandler={() => backHandler()}
+            isRight2BtnVisible={true}
+            onRight2BtnClick={() => {}}
+            containerStyle={{ zIndex: 99999 }}
+          />
+        </ThemeProvider>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <TouchableOpacity
             style={[
               styles.uploadItemContainer,
@@ -187,6 +238,34 @@ export default function Index({ route }: MeterReadingDetailsProps) {
             />
           </TouchableOpacity>
 
+          {capturedImage && (
+            <View style={styles.imagePreviewContainer}>
+              <Image
+                source={{ uri: capturedImage }}
+                style={[
+                  styles.previewImage,
+                  {
+                    width: imageWidth,
+                    height: imageHeight,
+                  },
+                ]}
+                resizeMode="contain"
+              />
+              <TouchableOpacity
+                style={styles.retakeButton}
+                onPress={handleRetake}
+              >
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={styles.retakeButtonText}
+                >
+                  {localize("meterReadings.retakeImage")}
+                </CustomText>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {meterData.meterNumber && (
             <View>
               <View style={{ marginBottom: RfH(16) }}>
@@ -213,7 +292,6 @@ export default function Index({ route }: MeterReadingDetailsProps) {
                     paddingHorizontal: 5,
                   }}
                   editable={isEditing}
-                  maxLength={METER_NUMBER_LENGTH}
                   keyboardType="numeric"
                   error={errors.meterNumber}
                 />
@@ -246,7 +324,6 @@ export default function Index({ route }: MeterReadingDetailsProps) {
                     paddingHorizontal: 5,
                   }}
                   editable={isEditing}
-                  maxLength={METER_READING_LENGTH}
                   error={errors.meterReading}
                 />
               </View>
@@ -260,9 +337,6 @@ export default function Index({ route }: MeterReadingDetailsProps) {
               )}
             </View>
           )}
-
-          <Loader isLoading={isLoading} />
-
           <UploadDocument
             title={localize("components.uploadPhoto")}
             isVisible={isShowDocumentPickerModal}
@@ -277,14 +351,16 @@ export default function Index({ route }: MeterReadingDetailsProps) {
           />
 
           {isSuccessModal && (
-            <CustomModal
-              title={localize("meterReadings.submitSuccess")}
-              modalVisible={isSuccessModal}
-              onRequestClose={() => setIsSuccessModal(false)}
-              onRequestActionButton={() => navigation.goBack()}
-            />
+            <ThemeProvider useNewStyles={true}>
+              <CustomModal
+                title={localize("meterReadings.submitSuccess")}
+                modalVisible={isSuccessModal}
+                onRequestClose={() => setIsSuccessModal(false)}
+                onRequestActionButton={() => navigation.goBack()}
+              />
+            </ThemeProvider>
           )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </WrapperContainer>
   );

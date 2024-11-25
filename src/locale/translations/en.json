@@ -552,11 +552,13 @@
   "meterReadings": {
     "meterNumber": "Meter Number",
     "meterReading": "Meter Reading",
+    "retakeImage": "Retake Image",
     "validation": {
-        "meterNumberError": "Meter number must be exactly {{length}} digits",
-        "meterReadingError": "Meter reading must be exactly {{length}} digits"
+        "invalidMeterNumber": "Meter number must only contain digits",
+        "invalidMeterReading": "Meter reading must only contain digits"
       },
     "validationError": "Validation Error",
+    "detectionError": "Error detecting meter reading",
     "pleaseCorrectErrors": "Please correct the errors before saving.",
     "submitSuccess": "Meter Reading Submitted Successfully"
   }

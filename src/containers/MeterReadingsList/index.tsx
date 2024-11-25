@@ -17,6 +17,7 @@ import { EVENT_NAME, trackEvent } from "../../utils/analytics";
 import { useNavigation } from "@react-navigation/core";
 import NavigationRouteNames from "../../routes/ScreenNames";
 import { MeterReadingItemsType } from "./type";
+import { ThemeProvider } from "../../theme/context";
 
 const meterReadingItems = [
   {
@@ -101,7 +102,7 @@ export default function MeterReadings() {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay={true}>
       <SafeAreaView
         style={{
           ...styles.mainContainer,
@@ -110,12 +111,14 @@ export default function MeterReadings() {
             : Colors.transparent,
         }}
       >
-        <HeaderSVG
-          isBackButtonVisible={true}
-          isRightButtonVisible={true}
-          titleText={localize("home.meterReadings")}
-          titleFont={20}
-        />
+        <ThemeProvider useNewStyles={true}>
+          <HeaderSVG
+            isBackButtonVisible={true}
+            isRightButtonVisible={true}
+            titleText={localize("home.meterReadings")}
+            titleFont={20}
+          />
+        </ThemeProvider>
 
         <View
           style={[

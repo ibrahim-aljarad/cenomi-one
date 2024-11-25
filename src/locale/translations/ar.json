@@ -552,11 +552,13 @@
   "meterReadings": {
     "meterNumber": "رقم العداد",
     "meterReading": "قراءة العداد",
+    "retakeImage": "إعادة التقاط الصورة",
     "validation": {
-        "meterNumberError": "يجب أن يتكون رقم العداد من أرقام {{length}} بالضبط",
-        "meterReadingError": "يجب أن تكون قراءة العداد أرقام {{length}} بالضبط"
+        "invalidMeterNumber": "يجب أن يحتوي رقم العداد على أرقام فقط",
+        "invalidMeterReading": "يجب أن تحتوي قراءة العداد على أرقام فقط"
       },
     "validationError": "خطأ في التحقق",
+    "detectionError": "خطأ في اكتشاف قراءة العداد",
     "pleaseCorrectErrors": "يرجى تصحيح الأخطاء قبل الحفظ.",
     "submitSuccess": "تم إرسال قراءة العداد بنجاح"
   }
