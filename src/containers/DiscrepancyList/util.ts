@@ -125,16 +125,25 @@ export const STATUS_COLORS = {
       : '';
   };
 
-  export const getSortedOperations = (operations: Operation[], itemStatus: string): Operation[] => {
+
+  export const getSortedOperations = (operations: Operation[]): Operation[] => {
     if (!operations || !Array.isArray(operations)) {
       return [];
     }
-    const allowedRoles = itemStatus === 'APPROVED'
-      ? [ 'OPERATIONS_SUPPORT','MALL_MANAGER','LEASING_ADMIN', ]
-      : APPROVER_ORDER;
+    const osOperation = operations.find(op => op.assigned_role === 'OPERATIONS_SUPPORT');
+    const omOperation = operations.find(op => op.assigned_role === 'OPERATIONS_MANAGER');
 
-    const res = allowedRoles
-    .map(role => operations.find(operation => operation.assigned_role === role))
-    .filter((operation): operation is Operation => Boolean(operation));
-   return res
+    let allowedRoles = APPROVER_ORDER;
+
+    if (osOperation && ['COMPLETED', 'APPROVED', 'FINISHED'].includes(osOperation.status)) {
+      allowedRoles = allowedRoles.filter(role => role !== 'OPERATIONS_MANAGER');
+    }
+
+    if (omOperation && ['COMPLETED', 'APPROVED', 'FINISHED'].includes(omOperation.status)) {
+      allowedRoles = allowedRoles.filter(role => role !== 'OPERATIONS_SUPPORT');
+    }
+
+    return allowedRoles
+      .map(role => operations.find(operation => operation.assigned_role === role))
+      .filter((operation): operation is Operation => Boolean(operation));
   };

@@ -18,11 +18,16 @@ import {
   LEAVE_STATUS,
   monthNameList,
 } from "../../utils/constants";
-import { getAttendances } from "../HrRequest/redux/actions";
+import {
+  createPublicHoliday,
+  getAttendances,
+  getPublicHolidayStatus,
+} from "../HrRequest/redux/actions";
 import { getAbsenseData } from "../HrRequest/redux/actions";
 import {
   getAbsenseDataSelector,
   getAttendanceSelector,
+  getPublicHolidayStatusSelector,
 } from "../HrRequest/redux/selectors";
 import moment from "moment";
 import { isArray, isEmpty } from "lodash";
@@ -56,6 +61,7 @@ const stateSelector = createStructuredSelector({
   organizationConfig: getOrganizationConfigSelector,
   organizationStructureData: getOrganizationStructureDataSelector,
   myProfileData: getMyProfileDetailsSelector,
+  publicHolidayData: getPublicHolidayStatusSelector,
 });
 
 const Calendar = () => {
@@ -67,8 +73,8 @@ const Calendar = () => {
     myProfileData,
     organizationStructureData,
     organizationConfig,
+    publicHolidayData,
   } = useSelector(stateSelector);
-
   const weekend = organizationConfig?.configuration?.weekend;
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -121,6 +127,8 @@ const Calendar = () => {
     if (isFocused) {
       const id = myProfileData?.id;
       dispatch(organizationStructure.trigger({ id }));
+      dispatch(createPublicHoliday.trigger());
+      dispatch(getPublicHolidayStatus.trigger());
     }
   }, [isFocused]);
 
@@ -225,28 +233,57 @@ const Calendar = () => {
     }
 
     if (attendanceData?.length > 0) {
-      formattedData = attendanceData.reduce((acc, item) => {
-        const date = item.DateTime.split("T")[0]; // Extract date part
-        const time = formatTime(item.DateTime); // Extract time part
+        const uniqueEntries = new Map();
 
-        if (!acc[date]) {
-          acc[date] = {
+        attendanceData.forEach(item => {
+          const date = item.DateTime.split("T")[0];
+          const time = formatTime(item.DateTime);
+          const key = `${date}-${time}`; // Creates a unique key for each date-time combination
+          if (!uniqueEntries.has(key)) {
+            uniqueEntries.set(key, {
+              date,
+              time,
+              EMPLOYEEID: item.EMPLOYEEID,
+              MATCHINGSCORE: item.MATCHINGSCORE
+            });
+          }
+        });
+
+        formattedData = Array.from(uniqueEntries.values()).reduce((acc, item) => {
+          if (!acc[item.date]) {
+            acc[item.date] = {
+              marked: true,
+              dots: [
+                {
+                  key: "customDot",
+                  color: Colors.green,
+                },
+              ],
+              timestamps: [],
+            };
+          }
+
+          acc[item.date].timestamps.push(item.time);
+          return acc;
+        }, {});
+      }
+
+      if (publicHolidayData?.status) {
+        const holidayDate = moment(publicHolidayData.date).format("YYYY-MM-DD");
+        if (!formattedData[holidayDate]) {
+          formattedData[holidayDate] = {
             marked: true,
             dots: [
               {
-                key: "customDot",
+                key: "holidayDot",
                 color: Colors.green,
               },
             ],
             timestamps: [],
           };
         }
+      }
 
-        acc[date].timestamps.push(time); // Add the time to the timestamps array
-
-        return acc;
-      }, {});
-    }
     const updatedData = calculateTimestampDifferences(
       formattedData,
       selectedMonth
@@ -272,25 +309,29 @@ const Calendar = () => {
         moment(date?.dateString).format("YYYY-MM-DD") <= info?.endDate
     );
 
-    const attendenceDatas =
-      eventDateList[moment(date?.dateString).format("YYYY-MM-DD")];
+    const attendenceDatas = eventDateList[temp];
 
-    if (filteredData.length > 0 && attendenceDatas.dots.length > 0) {
-      setSelectedDateEventList([...filteredData, attendenceDatas]);
+    let selectedDateEvents = [];
+    if (filteredData.length > 0 && attendenceDatas?.dots?.length > 0) {
+      selectedDateEvents = [...filteredData, attendenceDatas];
     } else if (filteredData.length > 0) {
-      setSelectedDateEventList(filteredData);
-    } else {
-      setSelectedDateEventList(attendenceDatas);
+      selectedDateEvents = filteredData;
+    } else if (attendenceDatas) {
+      selectedDateEvents = [attendenceDatas];
     }
+
+    setSelectedDateEventList(selectedDateEvents);
+
     const modifiedEventList = {
       ...getEventList(),
       [temp]: {
+        ...eventDateList[temp],
         selected: true,
       },
     };
-    setEventDateList({ ...modifiedEventList });
-    setIsClearFilter(true);
 
+    setEventDateList(modifiedEventList);
+    setIsClearFilter(true);
     setSelectedDate(date?.dateString);
   };
 
@@ -384,11 +425,15 @@ const Calendar = () => {
   };
 
   const renderAttendance = ({ item }) => {
-    const title = getStatusTitle({
-      timestampDifferences: Math.abs(item?.timestampDifferences[0]),
-      timestamps: item?.timestamps,
-    });
-
+    const isPublicHoliday =
+      publicHolidayData?.status &&
+      moment(publicHolidayData.date).format("YYYY-MM-DD") === item.date;
+    const title = isPublicHoliday
+      ? "Public Holiday"
+      : getStatusTitle({
+          timestampDifferences: Math.abs(item?.timestampDifferences[0]),
+          timestamps: item?.timestamps,
+        });
     const startTime = item?.timestamps[0];
     const endTime = item?.timestamps[1] ? item?.timestamps[1] : "";
     let duration = item?.timestampDifferences[0];
@@ -404,16 +449,18 @@ const Calendar = () => {
               lineHeight: RfH(19.2),
             }}
           >
-            {title + "  " + item?.date || ""}
+            {`${title}  ${item.date || ""}`}
           </CustomText>
           <View
             style={[
               {
-                backgroundColor: getStatusColors({
-                  startTime,
-                  duration,
-                  timestamps: item.timestamps,
-                }),
+                backgroundColor: isPublicHoliday
+                  ? Colors.green
+                  : getStatusColors({
+                      startTime,
+                      duration,
+                      timestamps: item.timestamps,
+                    }),
               },
               styles.statusColor,
             ]}
@@ -425,32 +472,36 @@ const Calendar = () => {
             paddingTop: RfH(10),
           }}
         >
-          <CustomText
-            fontSize={14}
-            color={Colors.white}
-            styling={{
-              ...CommonStyles.regularFont400Style,
-              lineHeight: RfH(16.8),
-            }}
-          >
-            {startTime === undefined
-              ? ""
-              : `${startTime} ${endTime ? "to " + endTime : ""}`}
-          </CustomText>
-          {!isNaN(duration) ? (
-            <CustomText
-              fontSize={14}
-              color={Colors.white}
-              styling={{
-                ...CommonStyles.regularFont400Style,
-                lineHeight: RfH(16.8),
-              }}
-            >
-              {`${convertHoursToHoursAndMinutes(
-                item?.timestampDifferences[0].toFixed(2)
-              )} hours` || ""}
-            </CustomText>
-          ) : null}
+          {!isPublicHoliday && (
+            <>
+              <CustomText
+                fontSize={14}
+                color={Colors.white}
+                styling={{
+                  ...CommonStyles.regularFont400Style,
+                  lineHeight: RfH(16.8),
+                }}
+              >
+                {startTime === undefined
+                  ? ""
+                  : `${startTime} ${endTime ? "to " + endTime : ""}`}
+              </CustomText>
+              {!isNaN(duration) && (
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    ...CommonStyles.regularFont400Style,
+                    lineHeight: RfH(16.8),
+                  }}
+                >
+                  {`${convertHoursToHoursAndMinutes(
+                    item?.timestampDifferences[0].toFixed(2)
+                  )} hours` || ""}
+                </CustomText>
+              )}
+            </>
+          )}
         </View>
       </View>
     );

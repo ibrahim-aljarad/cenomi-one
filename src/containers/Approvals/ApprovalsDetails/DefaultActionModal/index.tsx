@@ -7,11 +7,9 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Shadow } from "react-native-shadow-2";
 import {
   CustomText,
   IconButtonWrapper,
@@ -26,7 +24,6 @@ import styles from "./styles";
 // import ThemeContext from '../../../../appContainer/theme.context';
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import COLORS from "../../../../theme/colors";
 import { BorderRadius } from "../../../../theme/sizes";
 import { getUserSearchList, getWorkflowUserList } from "../../redux/actions";
 import {
@@ -36,7 +33,8 @@ import {
 import CustomEditComment from "../../../../components/CustomEditComment";
 import { isRTL, localize } from "../../../../locale/utils";
 import { getColorWithOpacity } from "../../../../utils/helper";
-import CustomBottomSheet from "../../../../components/CustomBottomSheet";
+import { useTheme } from "../../../../theme/context";
+import { ThemeProvider } from "../../../../theme/context";
 
 const stateSelector = createStructuredSelector({
   userSearchListData: getUserSearchListSelector,
@@ -60,9 +58,46 @@ function DefaultActionModal(props) {
   const dispatch = useDispatch();
   const { userSearchListData, workflowUserListData } =
     useSelector(stateSelector);
-
+  const { useNewStyles } = useTheme();
   const isWorkflowRequest = actionModule?.module === "workflow";
-  
+
+  const getNewStyles = () => {
+    if(useNewStyles){
+        return {
+            approverSectionTextColor: Colors.black,
+            approverSectionIconColor: Colors.black,
+            approverSectionBackgroundColor: getColorWithOpacity(Colors.grey, 0.37),
+            nameWrapperBgColor:  getColorWithOpacity(Colors.blueBayoux, 0.37),
+            nameWrapperTextColor: Colors.black,
+            modalHeaderBgColor: Colors.white,
+            modalHeaderLabelColor: Colors.black,
+            modalHeaderIconImg: Images.crossBlack,
+            displayNameColor: Colors.black,
+            modalBgColor: Colors.white,
+            modalBodyBgColor: Colors.white,
+            searchBgColor:  getColorWithOpacity(Colors.grey, 0.37),
+        }
+    }
+    return {
+        approverSectionTextColor: Colors.white,
+            approverSectionIconColor: Colors.white,
+            approverSectionBackgroundColor: getColorWithOpacity(Colors.blueBayoux, 0.37),
+            nameWrapperBgColor: Colors.grayBorder,
+            nameWrapperTextColor: Colors.app_black,
+            modalHeaderBgColor: Colors.modalForegroundColor,
+            modalHeaderLabelColor: Colors.white,
+            modalHeaderIconImg: Images.crossWhite,
+            displayNameColor: Colors.white,
+            modalBgColor: Colors.transparent,
+            modalBodyBgColor: Colors.modalForegroundColor,
+            searchBgColor: getColorWithOpacity(Colors.white, 0.24),
+    }
+  }
+
+
+  const newStyles = getNewStyles();
+
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -160,7 +195,10 @@ function DefaultActionModal(props) {
         alertBox("", localize("approvals.commentRequired"));
         return;
       }
-      if (actionModule.commentLength  && commentValue?.trim()?.length < actionModule.commentLength) {
+      if (
+        actionModule.commentLength &&
+        commentValue?.trim()?.length < actionModule.commentLength
+      ) {
         alertBox("", localize("approvals.atLeast20"));
         return;
       }
@@ -198,7 +236,7 @@ function DefaultActionModal(props) {
           >
             <CustomText
               fontSize={14}
-              color={Colors.white}
+              color={newStyles.approverSectionTextColor}
               styling={CommonStyles.regularFont400Style}
             >
               {actionModule.approverSectionText}
@@ -208,7 +246,7 @@ function DefaultActionModal(props) {
               iconWidth={RfW(8)}
               iconHeight={RfH(14)}
               imageResizeMode={"contain"}
-              styling={{ marginLeft: RfW(7), tintColor: Colors.white }}
+              styling={{ marginLeft: RfW(7), tintColor: newStyles.approverSectionIconColor }}
             />
           </TouchableOpacity>
         </View>
@@ -225,7 +263,7 @@ function DefaultActionModal(props) {
             borderRadius: BorderRadius.BR10,
             backgroundColor: isDarkMode
               ? Colors.darkModeButton
-              : getColorWithOpacity(Colors.blueBayoux, 0.37),
+              : newStyles.approverSectionBackgroundColor,
           }}
         >
           <NameWrapper
@@ -233,10 +271,10 @@ function DefaultActionModal(props) {
             height={RfH(48)}
             fontSize={16}
             name={getName(selectUserInfo)}
-            backgroundColor={Colors.grayBorder}
+            backgroundColor={newStyles.nameWrapperBgColor}
             textStyle={{
               ...CommonStyles.mediumFontStyle,
-              color: Colors.app_black,
+              color: newStyles.nameWrapperTextColor,
             }}
           />
           <View>
@@ -255,7 +293,7 @@ function DefaultActionModal(props) {
                     )} */}
             <CustomText
               fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
+              color={isDarkMode ? Colors.white : Colors.black}
               styling={{
                 marginHorizontal: RfW(8),
                 ...CommonStyles.regularFont400Style,
@@ -276,7 +314,7 @@ function DefaultActionModal(props) {
         {
           backgroundColor: isDarkMode
             ? Colors.darkModeBackground
-            : Colors.modalForegroundColor,
+            : newStyles.modalHeaderBgColor,
         },
       ]}
     >
@@ -297,7 +335,7 @@ function DefaultActionModal(props) {
         }}
       >
         <CustomText
-          color={isDarkMode ? Colors.white : Colors.white}
+          color={isDarkMode ? Colors.white : newStyles.modalHeaderLabelColor}
           fontSize={20}
           styling={CommonStyles.mediumFontStyle}
         >
@@ -311,7 +349,7 @@ function DefaultActionModal(props) {
           <IconButtonWrapper
             iconWidth={RfH(18)}
             iconHeight={RfH(18)}
-            iconImage={isDarkMode ? Images.crossWhite : Images.crossWhite}
+            iconImage={isDarkMode ? Images.crossWhite : newStyles.modalHeaderIconImg}
           />
         </TouchableOpacity>
       </View>
@@ -361,7 +399,7 @@ function DefaultActionModal(props) {
           )} */}
           <CustomText
             fontSize={16}
-            color={isDarkMode ? Colors.white : Colors.white}
+            color={isDarkMode ? Colors.white : newStyles.displayNameColor}
             styling={{ marginTop: RfH(2), ...CommonStyles.regularFont400Style }}
           >
             {item.displayName}
@@ -389,7 +427,7 @@ function DefaultActionModal(props) {
           {
             backgroundColor: isDarkMode
               ? Colors.darkModeBackground
-              : Colors.transparent,
+              : newStyles.modalBgColor,
           },
         ]}
       >
@@ -399,22 +437,24 @@ function DefaultActionModal(props) {
             flex: 1,
             backgroundColor: isDarkMode
               ? Colors.darkModeBackground
-              : Colors.modalForegroundColor,
+              : newStyles.modalBodyBgColor,
           }}
         >
           {!isSelectUser ? (
             <>
-              <SearchComponent
-                placeholder="Search"
-                value={searchKeyword}
-                onChangeText={(search) => updateSearch(search)}
-                styling={{
-                  backgroundColor: isDarkMode
-                    ? Colors.darkModeDisabledColor
-                    : getColorWithOpacity(Colors.white, 0.24),
-                }}
-                keyboardType={"default"}
-              />
+              <ThemeProvider useNewStyles={true}>
+                <SearchComponent
+                  placeholder="Search"
+                  value={searchKeyword}
+                  onChangeText={(search) => updateSearch(search)}
+                  styling={{
+                    backgroundColor: isDarkMode
+                      ? Colors.darkModeDisabledColor
+                      : newStyles.searchBgColor,
+                  }}
+                  keyboardType={"default"}
+                />
+              </ThemeProvider>
               <View
                 style={{
                   flex: 1,
@@ -456,17 +496,18 @@ function DefaultActionModal(props) {
                 </View>
 
                 <View style={{}}>
-                  <CustomEditComment
-                    usedForLeaveForm={false}
-                    label={
-                      actionModule.isCommentRequired
-                        ? localize("common.comments")
-                        : localize("common.commentsOptional")
-                    }
-                    placeholder={localize("leave.typeYourComments")}
-                    onCommentChange={onChangeTextComment}
-                    // backgroundColor={isDarkMode ? Colors.transparent : Colors.white}
-                  />
+                  <ThemeProvider useNewStyles={true}>
+                    <CustomEditComment
+                      usedForLeaveForm={false}
+                      label={
+                        actionModule.isCommentRequired
+                          ? localize("common.comments")
+                          : localize("common.commentsOptional")
+                      }
+                      placeholder={localize("leave.typeYourComments")}
+                      onCommentChange={onChangeTextComment}
+                    />
+                  </ThemeProvider>
                 </View>
               </View>
 

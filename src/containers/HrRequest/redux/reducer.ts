@@ -11,6 +11,7 @@ import {
   getAbsenseReasons,
   getPayslipDetails,
   getAttendances,
+  getPublicHolidayStatus,
 } from "./actions";
 
 export const initialState = {
@@ -24,6 +25,10 @@ export const initialState = {
   cancelledAbsenceData: false,
   absenseReason: {},
   attendanceList: [],
+  publicHolidayData: {
+    status: false,
+    date: null,
+  },
 };
 
 export default (
@@ -143,6 +148,19 @@ export default (
       case getAttendances.SUCCESS: {
         const { data } = action?.payload || {};
         draft.attendanceList = data;
+        break;
+      }
+      case getPublicHolidayStatus.TRIGGER: {
+        draft.publicHolidayData = { status: false, date: null };
+        break;
+      }
+      case getPublicHolidayStatus.SUCCESS: {
+        const { status, date } = action.payload?.data || {};
+        draft.publicHolidayData = { status, date };
+        break;
+      }
+      case getPublicHolidayStatus.FAILURE: {
+        draft.publicHolidayData = { status: false, date: null };
         break;
       }
 

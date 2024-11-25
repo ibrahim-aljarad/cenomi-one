@@ -56,7 +56,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: RfW(5),
     paddingTop: RfH(10),
     paddingBottom: RfH(20),
-    backgroundColor: Colors.white
-  }
+    backgroundColor: Colors.white,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: -3,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0,0,0,0.1)',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+      },
+    }),
+}
 });
 export default styles;

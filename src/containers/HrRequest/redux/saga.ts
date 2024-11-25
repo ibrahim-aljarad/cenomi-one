@@ -15,6 +15,8 @@ import {
   getPayslipDocument,
   hrApplyLeave,
   putCancelAbsense,
+  createPublicHoliday,
+  getPublicHolidayStatus,
 } from "./actions";
 
 const PAYSLIP_URL = "process/hr-request/payslips";
@@ -25,6 +27,9 @@ const ABSENSE_DATA_URL = "process/hr-request/absense-history";
 const CANCEL_ABSENSE_DATA_URL = "process/hr-request/cancel-leave";
 const GET_ABSENSE_REASONS_URL = "process/hr-request/absense-reasons";
 const GET_ATTENDANCE_URL = "attendence/your-entity";
+const CREATE_PUBLIC_HOLIDAY_URL = "public-holiday/public-holiday/create";
+const GET_PUBLIC_HOLIDAY_STATUS_URL = "public-holiday/public-holiday/latest";
+
 const getPayslipApiCall = () =>
   api({
     method: "GET",
@@ -85,6 +90,19 @@ const getAttendanceApiCall = (id: number) =>
   api({
     method: "GET",
     url: `${GET_ATTENDANCE_URL}/${id}`,
+  });
+
+const createPublicHolidayApiCall = () =>
+  api({
+    method: "POST",
+    url: CREATE_PUBLIC_HOLIDAY_URL,
+    data: { status: false },
+  });
+
+const getPublicHolidayStatusApiCall = () =>
+  api({
+    method: "GET",
+    url: GET_PUBLIC_HOLIDAY_STATUS_URL,
   });
 
 function* getPaySlipRequest(action: any) {
@@ -283,6 +301,39 @@ function* getAttendanceList(action: any) {
     yield put(getAttendances.fulfill({ isLoading: false }));
   }
 }
+
+function* createPublicHolidayRequest() {
+  try {
+    yield put(createPublicHoliday.request());
+    const response = yield call(createPublicHolidayApiCall);
+    if (response.success) {
+      yield put(createPublicHoliday.success({ data: response.data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(createPublicHoliday.fulfill({ isLoading: false }));
+  }
+}
+
+function* getPublicHolidayStatusRequest() {
+  try {
+    yield put(getPublicHolidayStatus.request());
+    const response = yield call(getPublicHolidayStatusApiCall);
+    if (response.success) {
+      yield put(getPublicHolidayStatus.success({ data: response.data }));
+    } else {
+      yield put(setGlobalError.success());
+    }
+  } catch (error) {
+    yield put(setGlobalError.success());
+  } finally {
+    yield put(getPublicHolidayStatus.fulfill({ isLoading: false }));
+  }
+}
+
 export default function* hrRequestSaga() {
   yield takeLatest(getPayslip.TRIGGER, getPaySlipRequest);
   yield takeLatest(getPayslipDetails.TRIGGER, getPayslipDetailsRequest);
@@ -294,4 +345,9 @@ export default function* hrRequestSaga() {
   yield takeLatest(putCancelAbsense.TRIGGER, putCancelAbsenseRequest);
   yield takeLatest(getAbsenseReasons.TRIGGER, getAbsenseReasonsRequest);
   yield takeLatest(getAttendances.TRIGGER, getAttendanceList);
+  yield takeLatest(createPublicHoliday.TRIGGER, createPublicHolidayRequest);
+  yield takeLatest(
+    getPublicHolidayStatus.TRIGGER,
+    getPublicHolidayStatusRequest
+  );
 }

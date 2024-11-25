@@ -137,7 +137,7 @@ const Home = () => {
     if (!isEmpty(notificationPayload)) {
       let payload = notificationPayload?.payload;
 
-      dispatch(markReadNotification.trigger({ id: payload?.id }));
+      dispatch(markReadNotification.trigger({ id: payload?.externalId }));
 
       if (payload.action === "open_module_details" && !payload.foreground) {
         // clean state for notificationPayload
@@ -187,6 +187,15 @@ const Home = () => {
             navigation.navigate(NavigationRouteNames.DOCUMENT_VIEW as never, {
               id: payload.externalId,
             });
+          }
+        } else if (payload.featureModule === CONFIG_CONSTANT?.KNOWLEDGE_HUB) {
+          if (payload.externalId) {
+            navigation.navigate(
+              NavigationRouteNames.KNOWLEDGEHUB_DETAILS as never,
+              {
+                externalId: payload.externalId,
+              }
+            );
           }
         } else if (payload.featureModule === CONFIG_CONSTANT?.SEND_WISHES) {
           if (!isEmpty(payload?.additionalInfo)) {
@@ -262,14 +271,12 @@ const Home = () => {
     getSaveData(LOCAL_STORAGE_DATA_KEY.QUOTES_READED_DATA).then((item) => {
       const allSavedData = JSON.parse(item || `{}`);
       let lastViewedDatetime = allSavedData?.[myProfileDetails?.username];
-
       const sortedData = qoutesList?.slice()?.sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-
       const filteredData = lastViewedDatetime
         ? sortedData?.filter((item) => {
-            if (!item?.quote?.content) {
+            if (!item?.quote) {
               return;
             }
             if (new Date(item?.createdAt) > new Date(lastViewedDatetime)) {
@@ -277,14 +284,13 @@ const Home = () => {
             }
           })
         : sortedData?.filter((item) => {
-            if (!item?.quote?.content) {
+            if (!item?.quote) {
               return;
             }
             return true;
           });
 
       const slicedData = filteredData.slice(0, 4) || [];
-
       setQouteList(slicedData || []);
       const isActiveQoutes = getUserConfigData(
         myProfileDetails?.config?.config,
@@ -293,7 +299,6 @@ const Home = () => {
       );
 
       setIsVisibleQuotes((isActiveQoutes && slicedData?.length > 0) || false);
-      // console.log(" pprofile details", qoutesList);
     });
   }, [qoutesList]);
 
@@ -447,19 +452,17 @@ const Home = () => {
   }, [pendingAcknowledgementData]);
 
   useEffect(() => {
-    const sub = onSurveyResponseListener.addListener(
-      "onSurveyResponse",
-      (data: any) => {
+    const sub = onSurveyResponseListener.addListener("onSurveyResponse", () => {
+      if (selectedSurveyInfo?.id) {
         const info = {
           featureId: selectedSurveyInfo?.id,
           featureModule: CONFIG_CONSTANT?.SURVEYS,
           metadata: {},
         };
-
         setSelectedSurveyInfo({});
         dispatch(submitAcknowledge.trigger({ data: info }));
       }
-    );
+    });
     return () => sub.remove();
   }, [selectedSurveyInfo]);
 
@@ -715,7 +718,7 @@ const Home = () => {
 
       {isVisibleQuotes && qouteList?.length > 0 ? (
         <Quotes
-          list={qouteList || []}
+          item={qouteList[0] || []}
           isVisible={isVisibleQuotes}
           onRequestClose={handleOnRequestCloseQoutes}
           isDarkMode={isDarkMode}

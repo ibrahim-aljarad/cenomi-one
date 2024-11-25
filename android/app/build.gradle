@@ -111,7 +111,7 @@ android {
         production {
             dimension = project.APP_DIMENSION
             applicationId = project.PROD_APPLICATION_ID
-            versionCode = 65
+            versionCode = 70
             versionName = project.PROD_VERSION_NAME
             multiDexEnabled = true
         }
@@ -128,7 +128,7 @@ android {
         versionCode Integer.parseInt(project.DEV_VERSION_CODE)
         versionName project.DEV_VERSION_NAME
         vectorDrawables.useSupportLibrary = true
-        
+
     }
 
     signingConfigs {

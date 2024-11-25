@@ -1,11 +1,308 @@
 diff --git a/node_modules/react-native-orientation/android/build.gradle b/node_modules/react-native-orientation/android/build.gradle
-index e09fb27..f5b1e04 100644
+index e09fb27..aaf30a6 100644
 --- a/node_modules/react-native-orientation/android/build.gradle
 +++ b/node_modules/react-native-orientation/android/build.gradle
-@@ -16,5 +16,5 @@ android {
+@@ -1,20 +1,20 @@
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 23
+-    buildToolsVersion "23.0.1"
++    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : 23
++    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : "23.0.1"
+ 
+     defaultConfig {
+-        minSdkVersion 16
+-        targetSdkVersion 22
++        minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : 16
++        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : 22
+         versionCode 1
+         versionName "1.0"
+-        ndk {
+-            abiFilters "armeabi-v7a", "x86"
+-        }
++        // ndk {
++        //     abiFilters "armeabi-v7a", "x86"
++        // }
+     }
  }
  
  dependencies {
 -    compile "com.facebook.react:react-native:+"
 +    implementation "com.facebook.react:react-native:+"
  }
+diff --git a/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/results.bin b/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/transformed/classes/classes_dex/classes.dex b/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..7cee2f8
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/.transforms/40047b2c9a24d7c56185ce75ce1abe16/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/react-native-orientation/android/build/.transforms/92395caf8d2d67676e4cd3275f550b24/results.bin b/node_modules/react-native-orientation/android/build/.transforms/92395caf8d2d67676e4cd3275f550b24/results.bin
+new file mode 100644
+index 0000000..e3f0ff0
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/.transforms/92395caf8d2d67676e4cd3275f550b24/results.bin
+@@ -0,0 +1 @@
++i/classes_global-synthetics
+diff --git a/node_modules/react-native-orientation/android/build/.transforms/dda5b6821459d228ce13ec760351148e/results.bin b/node_modules/react-native-orientation/android/build/.transforms/dda5b6821459d228ce13ec760351148e/results.bin
+new file mode 100644
+index 0000000..61a58fa
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/.transforms/dda5b6821459d228ce13ec760351148e/results.bin
+@@ -0,0 +1 @@
++i/classes_dex
+diff --git a/node_modules/react-native-orientation/android/build/generated/source/buildConfig/debug/com/github/yamill/orientation/BuildConfig.java b/node_modules/react-native-orientation/android/build/generated/source/buildConfig/debug/com/github/yamill/orientation/BuildConfig.java
+new file mode 100644
+index 0000000..2b7ab85
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/generated/source/buildConfig/debug/com/github/yamill/orientation/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.github.yamill.orientation;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.github.yamill.orientation";
++  public static final String BUILD_TYPE = "debug";
++}
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..f9b0c10
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.github.yamill.orientation" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+new file mode 100644
+index 0000000..cdc0bb6
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.github.yamill.orientation",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-orientation/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/react-native-orientation/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/react-native-orientation/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..40ed66a
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/react-native-orientation/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..8773e18
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/react-native-orientation/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..8c31ad2
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu Nov 21 17:02:19 IST 2024
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..7af6568
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..2a343f8
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..76d4e86
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/react-native-orientation/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..2f751be
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/build/intermediates/shader_assets/debug/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/BuildConfig.class b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/BuildConfig.class
+new file mode 100644
+index 0000000..a02ea4b
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/BuildConfig.class differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule$1.class b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule$1.class
+new file mode 100644
+index 0000000..e94a9a6
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule$1.class differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule.class b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule.class
+new file mode 100644
+index 0000000..91d16be
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationModule.class differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationPackage.class b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationPackage.class
+new file mode 100644
+index 0000000..7783b58
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/javac/debug/classes/com/github/yamill/orientation/OrientationPackage.class differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/react-native-orientation/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/react-native-orientation/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..495ab9a
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,7 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.github.yamill.orientation" >
++4
++5    <uses-sdk android:minSdkVersion="16" />
++6
++7</manifest>
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/react-native-orientation/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..f9b0c10
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.github.yamill.orientation" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/react-native-orientation/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar b/node_modules/react-native-orientation/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..e976dd9
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/react-native-orientation/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/react-native-orientation/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..227a9c4
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.github.yamill.orientation
+diff --git a/node_modules/react-native-orientation/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-orientation/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..82265df
+--- /dev/null
++++ b/node_modules/react-native-orientation/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,17 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml:1:1-4:12
++INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml:1:1-4:12
++	package
++		ADDED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml:2:11-50
++		INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml:1:11-69
++uses-sdk
++INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml
++INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/webknottechnologies/Desktop/webknot/cenomi-one/node_modules/react-native-orientation/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-orientation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-orientation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..07b40a0
+Binary files /dev/null and b/node_modules/react-native-orientation/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-orientation/android/src/main/java/com/github/yamill/orientation/OrientationModule.java b/node_modules/react-native-orientation/android/src/main/java/com/github/yamill/orientation/OrientationModule.java
+index 85331ae..f682bf4 100644
+--- a/node_modules/react-native-orientation/android/src/main/java/com/github/yamill/orientation/OrientationModule.java
++++ b/node_modules/react-native-orientation/android/src/main/java/com/github/yamill/orientation/OrientationModule.java
+@@ -7,6 +7,7 @@ import android.content.Intent;
+ import android.content.IntentFilter;
+ import android.content.pm.ActivityInfo;
+ import android.content.res.Configuration;
++import android.os.Build;
+ import android.util.Log;
+ 
+ import com.facebook.common.logging.FLog;
+@@ -150,7 +151,11 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
+             FLog.e(ReactConstants.TAG, "no activity to register receiver");
+             return;
+         }
+-        activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
++        if(Build.VERSION.SDK_INT >= 34 && activity.getApplicationInfo().targetSdkVersion >= 34) {
++             activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"), Context.RECEIVER_EXPORTED);
++         } else {
++             activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
++         }
+     }
+     @Override
+     public void onHostPause() {
