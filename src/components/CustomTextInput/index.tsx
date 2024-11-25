@@ -144,7 +144,7 @@ function CustomTextInput(props) {
                 {
                   ...styles.inputStyle,
                   textAlign: I18nManager.isRTL ? 'right' : 'left',
-                  paddingBottom: 12,
+                //   paddingBottom: 12,
                   ...textInputStyle,
                   color: isDarkMode ? Colors.white : Colors.white
                 }

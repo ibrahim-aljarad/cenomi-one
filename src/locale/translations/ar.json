@@ -548,5 +548,16 @@
     "selectOthersDesc": "يرجى تحديد التفاصيل في حقل أخرى",
     "invalidDataFormat": "تنسيق رمز الاستجابة السريعة غير صالح. يرجى المسح مرة أخرى.",
     "invalidUnit": "وحدة غير صالحة. يرجى مسح الوحدة التي تنتمي إلى هذا المركز التجاري"
+  },
+  "meterReadings": {
+    "meterNumber": "رقم العداد",
+    "meterReading": "قراءة العداد",
+    "validation": {
+        "meterNumberError": "يجب أن يتكون رقم العداد من أرقام {{length}} بالضبط",
+        "meterReadingError": "يجب أن تكون قراءة العداد أرقام {{length}} بالضبط"
+      },
+    "validationError": "خطأ في التحقق",
+    "pleaseCorrectErrors": "يرجى تصحيح الأخطاء قبل الحفظ.",
+    "submitSuccess": "تم إرسال قراءة العداد بنجاح"
   }
 }

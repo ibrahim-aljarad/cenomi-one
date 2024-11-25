@@ -548,5 +548,16 @@
     "selectOthersDesc": "Please specify details in Others field",
     "invalidDataFormat": "Invalid QR code format. Please scan again.",
     "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall"
+  },
+  "meterReadings": {
+    "meterNumber": "Meter Number",
+    "meterReading": "Meter Reading",
+    "validation": {
+        "meterNumberError": "Meter number must be exactly {{length}} digits",
+        "meterReadingError": "Meter reading must be exactly {{length}} digits"
+      },
+    "validationError": "Validation Error",
+    "pleaseCorrectErrors": "Please correct the errors before saving.",
+    "submitSuccess": "Meter Reading Submitted Successfully"
   }
 }

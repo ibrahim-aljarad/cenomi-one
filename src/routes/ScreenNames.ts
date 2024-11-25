@@ -53,6 +53,7 @@ const NavigationRouteNames = {
   DISCREPANCY_LIST: "Discrepancy_List",
   DISCREPANCY_DETAILS: "Discrepancy_details",
   METER_READINGS: "Meter_Readings",
+  METER_READING_DETAILS: "Meter_Reading_Details",
 };
 
 export default NavigationRouteNames;
