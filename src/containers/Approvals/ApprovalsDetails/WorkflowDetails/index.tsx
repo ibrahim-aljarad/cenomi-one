@@ -4,9 +4,9 @@ import {
   CustomRenderHtml,
   CustomText,
 } from "../../../../components";
-import { FlatList, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
-import { Colors, CommonStyles } from "../../../../theme";
+import { Colors, CommonStyles, Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
   colorValue,
@@ -24,6 +24,8 @@ import {
 import { localize } from "../../../../locale/utils";
 import { isString, sortBy } from "lodash";
 import ApproverDetails from "../../../../components/ApproverDetails";
+import DocumentsViewModal from "../../../../components/DocumentsViewModal";
+import DocumentViewer from "./DocumentViewer";
 
 function WorkflowDetails({
   data,
@@ -35,8 +37,32 @@ function WorkflowDetails({
   isDarkMode?: boolean;
   formName?: string;
 }) {
-  const { requestData, taskData, requestDataUrl } = data || {};
+  const { requestData, taskData, requestDataUrl, documentData } = data || {};
   const [memoMessage, setMemoMessage] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState({
+    isVisible: false,
+    url: "",
+    title: "",
+    fileType: "",
+  });
+
+  const handleDocumentOpen = (attachment) => {
+    setSelectedDocument({
+      isVisible: true,
+      url: attachment.document_BLOB_url,
+      title: attachment.name,
+      fileType: attachment.extension,
+    });
+  };
+
+  const handleCloseDocument = () => {
+    setSelectedDocument({
+      isVisible: false,
+      url: "",
+      title: "",
+      fileType: "",
+    });
+  };
 
   const fetchMemoMessage = async (url: string) => {
     if (!url) return;
@@ -70,6 +96,84 @@ function WorkflowDetails({
       return `${taskItem?.groupName} - ${taskItem?.name}`;
     }
     return taskItem?.name;
+  };
+
+  const renderAttachmentItem = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.attachmentCard,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          borderColor: getColorWithOpacity(Colors.black, 0.2),
+        },
+      ]}
+      onPress={() => handleDocumentOpen(item)}
+    >
+      <CustomImage
+        image={Images.documentAcknowledge}
+        imageWidth={40}
+        imageHeight={40}
+        imageResizeMode={"contain"}
+        styling={{ marginBottom: RfH(8) }}
+      />
+      <CustomText
+        fontSize={12}
+        color={isDarkMode ? Colors.black : Colors.black}
+        styling={{
+          ...CommonStyles.regularFont400Style,
+          textAlign: "center",
+        }}
+        numberOfLines={2}
+      >
+        {item.name}
+      </CustomText>
+    </TouchableOpacity>
+  );
+
+  const renderAttachmentsSection = () => {
+    if (!documentData?.attachements?.length) return null;
+
+    return (
+      <View
+        style={[
+          styles.requestCellView,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.topHeader,
+            { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+          ]}
+        >
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.black : Colors.black}
+            styling={{
+              ...CommonStyles.mediumFontStyle,
+              width: "95%",
+            }}
+          >
+            Attachments
+          </CustomText>
+        </View>
+        <FlatList
+          data={documentData?.attachements || []}
+          renderItem={renderAttachmentItem}
+          keyExtractor={(item) => item.documentIdPk.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.attachmentsContainer}
+        />
+      </View>
+    );
+  };
+
+  const renderLodDocumentSection = () => {
+    if (!documentData?.lodDocument?.length) return null;
+    return <DocumentViewer documentId={documentData?.lodDocument[0]} />;
   };
 
   const dealCardsData: any = [
@@ -179,6 +283,15 @@ function WorkflowDetails({
         ]
       : []),
 
+    ...(documentData?.attachements?.length
+      ? [
+          {
+            title: "Attachments",
+            component: "attachments",
+          },
+        ]
+      : []),
+
     //for all
     ...sortBy(taskData?.data || [], ({ order }) => order).map(
       (taskItem, index, allTaskData) => ({
@@ -246,6 +359,9 @@ function WorkflowDetails({
     maxWidth,
     isFirstApprover,
   }) => {
+    if (component === "attachments") {
+      return renderAttachmentsSection();
+    }
     if (component === "card") {
       return (
         <>
@@ -281,7 +397,7 @@ function WorkflowDetails({
               style={[
                 styles.topHeader,
                 {
-                  borderColor: getColorWithOpacity(Colors.white, 0.2),
+                  borderColor: getColorWithOpacity(Colors.black, 0.2),
                   paddingTop: RfH(0),
                   ...styles.tableHead,
                 },
@@ -494,6 +610,8 @@ function WorkflowDetails({
           )
       )}
 
+      {renderLodDocumentSection()}
+
       {groupedCards.approvers.map((card, index) =>
         renderComponent({
           ...card,
@@ -502,6 +620,15 @@ function WorkflowDetails({
       )}
 
       <View style={{ height: RfH(30) }} />
+      <DocumentsViewModal
+        isVisible={selectedDocument.isVisible}
+        onRequestClose={handleCloseDocument}
+        documentInfo={{
+          url: selectedDocument.url,
+          title: selectedDocument.title,
+          fileType: selectedDocument.fileType,
+        }}
+      />
     </>
   );
 }

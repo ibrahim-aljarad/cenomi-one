@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
     marginHorizontal: RfW(24),
   },
   cellContainerView: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: RfH(8),
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   labelContainer: {
-    width: '40%',
+    width: "40%",
     paddingRight: RfW(10),
   },
   valueContainer: {
@@ -123,6 +123,18 @@ const styles = StyleSheet.create({
     paddingBottom: RfH(10),
     borderBottomWidth: 4,
     borderBottomColor: getColorWithOpacity(Colors.white, 0.24),
+  },
+  attachmentCard: {
+    padding: RfW(12),
+    borderRadius: BorderRadius.BR10,
+    borderWidth: 1,
+    alignItems: "center",
+    width: RfW(100),
+    marginRight: RfW(12),
+    marginVertical: RfH(12),
+  },
+  attachmentsContainer: {
+    paddingVertical: RfH(8),
   },
 });
 export default styles;

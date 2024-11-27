@@ -1,18 +1,25 @@
-import { BackHandler, Modal, Platform, SafeAreaView, Text, View } from 'react-native';
+import {
+  BackHandler,
+  Modal,
+  Platform,
+  SafeAreaView,
+  Text,
+  View,
+} from "react-native";
 
-import { useFocusEffect } from '@react-navigation/core';
-import PropTypes from 'prop-types';
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import Orientation from 'react-native-orientation';
-import Pdf from 'react-native-pdf';
-import Video from 'react-native-video';
-import { WebView } from 'react-native-webview';
-import YoutubePlayer from 'react-native-youtube-iframe';
-import { useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import { isDarkModeSelector } from '../../containers/redux/selectors';
-import { localize } from '../../locale/utils';
-import { Colors } from '../../theme';
+import { useFocusEffect } from "@react-navigation/core";
+import PropTypes from "prop-types";
+import React, { memo, useCallback, useEffect, useState } from "react";
+import Orientation from "react-native-orientation";
+import Pdf from "react-native-pdf";
+import Video from "react-native-video";
+import { WebView } from "react-native-webview";
+import YoutubePlayer from "react-native-youtube-iframe";
+import { useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { isDarkModeSelector } from "../../containers/redux/selectors";
+import { localize } from "../../locale/utils";
+import { Colors } from "../../theme";
 import {
   DOCUMENTS_CSV,
   DOCUMENTS_DOC,
@@ -25,18 +32,24 @@ import {
   DOCUMENTS_PNG,
   DOCUMENTS_VIDEO,
   DOCUMENTS_XLS,
-  DOCUMENTS_XLSX
-} from '../../utils/constants';
-import { downloadFile, getImageUrl } from '../../utils/helper';
-import { RfH, deviceHeight, deviceWidth, isValidYouTubeUrl } from '../../utils/helpers';
-import CustomImage from '../CustomImage';
-import HeaderSVG from '../HeaderSVG';
-import Loader from '../Loader';
-import styles from './styles';
-import WrapperContainer from '../WrapperContainer';
+  DOCUMENTS_XLSX,
+} from "../../utils/constants";
+import { downloadFile, getImageUrl, processUrl } from "../../utils/helper";
+import {
+  RfH,
+  deviceHeight,
+  deviceWidth,
+  isValidYouTubeUrl,
+} from "../../utils/helpers";
+import CustomImage from "../CustomImage";
+import HeaderSVG from "../HeaderSVG";
+import Loader from "../Loader";
+import styles from "./styles";
+import WrapperContainer from "../WrapperContainer";
+import { ThemeProvider } from "../../theme/context";
 
 const stateStructure = createStructuredSelector({
-  isDarkMode: isDarkModeSelector
+  isDarkMode: isDarkModeSelector,
 });
 
 function DocumentsViewModal(props) {
@@ -60,9 +73,9 @@ function DocumentsViewModal(props) {
 
   useFocusEffect(
     React.useCallback(() => {
-      BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+      BackHandler.addEventListener("hardwareBackPress", handleBackPress);
       return () => {
-        BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
       };
     }, [])
   );
@@ -102,10 +115,10 @@ function DocumentsViewModal(props) {
   }, [isError]);
 
   const onStateChange = useCallback((state) => {
-    if (state === 'ended') {
+    if (state === "ended") {
       setPlaying(false);
       loadingFalse();
-    } else if (state === 'unstarted') {
+    } else if (state === "unstarted") {
       console.log(state);
       loadingStart();
     } else {
@@ -117,8 +130,9 @@ function DocumentsViewModal(props) {
     <View
       style={[
         styles.documentViewContainer,
-        { backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white }
-      ]}>
+        { backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white },
+      ]}
+    >
       {/* <ImageBackground
         imageStyle={
           {
@@ -134,14 +148,14 @@ function DocumentsViewModal(props) {
         }}
       /> */}
       <CustomImage
-        image={''}
+        image={""}
         sourceObject={{
-          uri: getImageUrl(documentInfo?.url),
-          headers: documentInfo?.headers
+          uri: processUrl(documentInfo?.url),
+          headers: documentInfo?.headers,
         }}
         imageHeight={deviceHeight() - RfH(200)}
         imageWidth={deviceWidth()}
-        imageResizeMode={'contain'}
+        imageResizeMode={"contain"}
         onLoadCompleted={() => loadingFalse()}
         onGettingError={() => {
           loadingFalse();
@@ -156,17 +170,18 @@ function DocumentsViewModal(props) {
       style={{
         // flex: 1,
         backgroundColor: Colors.white,
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%'
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
         // paddingTop: RfH(Platform.OS === 'ios' ? 100 : 0)
-      }}>
+      }}
+    >
       {!isError && (
         <Pdf
           trustAllCerts={false}
           source={{
-            uri: getImageUrl(documentInfo?.url),
-            headers: documentInfo?.headers
+            uri: processUrl(documentInfo?.url),
+            headers: documentInfo?.headers,
           }}
           onLoadComplete={(numberOfPages, path) => {
             // onLoadComplete(numberOfPages, path);
@@ -178,26 +193,31 @@ function DocumentsViewModal(props) {
             loadingFalse();
             setIsError(true);
           }}
-          style={[styles.pdf, { paddingBottom: RfH(Platform.OS === 'ios' ? 0 : 80) }]}
+          style={[
+            styles.pdf,
+            { paddingBottom: RfH(Platform.OS === "ios" ? 0 : 80) },
+          ]}
         />
       )}
       {isError && (
         <View
           style={{
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-          <Text>{localize('common.someThingWentWrong')}</Text>
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text>{localize("common.someThingWentWrong")}</Text>
         </View>
       )}
     </View>
   );
   const getYoutubeVedioId = (url) => {
-    return url?.split('v=')[1]?.trim();
+    return url?.split("v=")[1]?.trim();
   };
   const isFileExtentions = () => {
-    let type = documentInfo?.url?.split('.');
-    const fileExtention = type?.length > 0 ? type[type?.length - 1].toLowerCase() : '';
+    let type = documentInfo?.url?.split(".");
+    const fileExtention =
+      type?.length > 0 ? type[type?.length - 1].toLowerCase() : "";
 
     if (
       fileExtention === DOCUMENTS_XLS.toLowerCase() ||
@@ -234,7 +254,7 @@ function DocumentsViewModal(props) {
   );
 
   function getUrlExtension(url) {
-    return url.split(/[#?]/)[0].split('.').pop().trim();
+    return url.split(/[#?]/)[0].split(".").pop().trim();
   }
 
   const renderWebView = () => {
@@ -258,8 +278,10 @@ function DocumentsViewModal(props) {
         />
 
         {isError && (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{localize('common.somethingWentWrong')}</Text>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text>{localize("common.somethingWentWrong")}</Text>
           </View>
         )}
       </View>
@@ -273,13 +295,16 @@ function DocumentsViewModal(props) {
     return (
       <View
         style={{
-          height: '100%',
-          paddingTop: '75%',
-          alignItems: 'center',
-          backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.white
-        }}>
+          height: "100%",
+          paddingTop: "75%",
+          alignItems: "center",
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.white,
+        }}
+      >
         <Text style={{ color: isDarkMode ? Colors.white : Colors.black }}>
-          {localize('components.thisFileCantBePreview')}
+          {localize("components.thisFileCantBePreview")}
         </Text>
       </View>
     );
@@ -287,8 +312,8 @@ function DocumentsViewModal(props) {
 
   const renderOtherFileType = () => {
     if (isCorrectFileExtension) {
-      if (Platform.OS === 'android') {
-        downloadFile(getImageUrl(documentInfo?.url), 'cenomi-one', true);
+      if (Platform.OS === "android") {
+        downloadFile(getImageUrl(documentInfo?.url), "cenomi-one", true);
 
         handleBackPress();
 
@@ -303,13 +328,16 @@ function DocumentsViewModal(props) {
       return (
         <View
           style={{
-            height: '100%',
-            paddingTop: '75%',
-            alignItems: 'center',
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.white
-          }}>
+            height: "100%",
+            paddingTop: "75%",
+            alignItems: "center",
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.white,
+          }}
+        >
           <Text style={{ color: isDarkMode ? Colors.white : Colors.black }}>
-            {localize('components.thisFileCantBePreview')}
+            {localize("components.thisFileCantBePreview")}
           </Text>
         </View>
       );
@@ -333,9 +361,9 @@ function DocumentsViewModal(props) {
         onError={(err) => {
           console.error(err);
         }}
-        resizeMode={'contain'}
+        resizeMode={"contain"}
         source={{ uri: videoUrl }}
-        fullscreenOrientation={'all'}
+        fullscreenOrientation={"all"}
         fullscreenAutorotate={true}
         fullscreen={true}
       />
@@ -367,9 +395,10 @@ function DocumentsViewModal(props) {
   const mainView = () => (
     <View
       style={{
-        justifyContent: 'center',
-        flex: 1
-      }}>
+        justifyContent: "center",
+        flex: 1,
+      }}
+    >
       {documentSection(documentInfo?.fileType)}
     </View>
   );
@@ -377,29 +406,41 @@ function DocumentsViewModal(props) {
   return (
     <Modal
       visible={isVisible}
-      animationType={'slide'}
+      animationType={"slide"}
       backdropOpacity={1}
       transparent={true}
-      onRequestClose={handleBackPress}>
-      <WrapperContainer>
+      onRequestClose={handleBackPress}
+    >
+      <WrapperContainer showOverlay>
         <SafeAreaView
           style={{
             flex: 1,
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.transparent
-          }}>
-          <HeaderSVG
-            isRightButtonVisible={false}
-            isBackButtonVisible={true}
-            titleText={documentInfo?.title || ''}
-            titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={handleBackPress}
-            isRight2BtnVisible={false}
-          />
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.transparent,
+          }}
+        >
+          <ThemeProvider useNewStyles={true}>
+            <HeaderSVG
+              isRightButtonVisible={false}
+              isBackButtonVisible={true}
+              titleText={documentInfo?.title || ""}
+              titleFont={20}
+              onRightButtonClickHandler={() => {}}
+              onBackPressHandler={handleBackPress}
+              isRight2BtnVisible={false}
+            />
+          </ThemeProvider>
           {mainView()}
           {isError && (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text>{localize('common.somethingWentWrong')}</Text>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text>{localize("common.somethingWentWrong")}</Text>
             </View>
           )}
 
@@ -414,11 +455,11 @@ DocumentsViewModal.propTypes = {
   isVisible: PropTypes.bool,
   onRequestClose: PropTypes.func,
   onClick: PropTypes.func,
-  documentInfo: PropTypes.object
+  documentInfo: PropTypes.object,
 };
 DocumentsViewModal.defaultProps = {
   isVisible: false,
   onRequestClose: null,
-  onClick: null
+  onClick: null,
 };
 export default memo(DocumentsViewModal);
