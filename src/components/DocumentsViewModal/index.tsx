@@ -3,6 +3,7 @@ import {
   Modal,
   Platform,
   SafeAreaView,
+  ScrollView,
   Text,
   View,
 } from "react-native";
@@ -27,6 +28,7 @@ import {
   DOCUMENTS_IMAGE,
   DOCUMENTS_JPEG,
   DOCUMENTS_JPG,
+  DOCUMENTS_MSG,
   DOCUMENTS_OTHERS,
   DOCUMENTS_PDF,
   DOCUMENTS_PNG,
@@ -54,10 +56,19 @@ const stateStructure = createStructuredSelector({
 
 function DocumentsViewModal(props) {
   const { isVisible, onRequestClose, documentInfo } = props;
+  console.log('documentInfo', documentInfo);
   const [isError, setIsError] = useState(false);
   const [playing, setPlaying] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isCorrectFileExtension, setIsCorrectFileExtension] = useState(true);
+
+  const [msgContent, setMsgContent] = useState({
+    subject: '',
+    body: '',
+    from: '',
+    to: '',
+    date: ''
+  });
 
   const { isDarkMode } = useSelector(stateStructure);
 
@@ -79,6 +90,51 @@ function DocumentsViewModal(props) {
       };
     }, [])
   );
+
+  const fetchAndProcessMsg = async (url) => {
+    try {
+      loadingStart();
+      const response = await fetch(url, {
+        headers: documentInfo?.headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response failed');
+      }
+
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onload = () => {
+        const arrayBuffer = reader.result;
+        const uint8Array = new Uint8Array(arrayBuffer as ArrayBuffer);
+        const decoder = new TextDecoder('utf-8');
+        let text = decoder.decode(uint8Array);
+        text = text.replace(/\u0000/g, '').replace(/[\x00-\x09\x0B-\x1F]/g, '');
+
+        const emailContent = {
+          subject: text.match(/Subject:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
+          from: text.match(/From:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
+          to: text.match(/To:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
+          date: text.match(/Date:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
+          body: text.split(/\r?\n\r?\n/).slice(1).join('\n').trim()
+        };
+
+        setMsgContent(emailContent);
+        loadingFalse();
+      };
+      reader.readAsArrayBuffer(blob);
+    } catch (error) {
+      console.error('Error processing MSG:', error);
+      setIsError(true);
+      loadingFalse();
+    }
+  };
+
+  useEffect(() => {
+    if (documentInfo?.fileType?.toLowerCase() === DOCUMENTS_MSG && documentInfo?.url) {
+      fetchAndProcessMsg(documentInfo.url);
+    }
+  }, [documentInfo]);
 
   const loadingFalse = () => {
     setTimeout(() => {
@@ -370,6 +426,39 @@ function DocumentsViewModal(props) {
     );
   };
 
+
+  const renderMsgView = () => (
+    <ScrollView
+      style={[
+        styles.documentViewContainer,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          padding: 16
+        }
+      ]}
+    >
+      <View style={styles.emailHeader}>
+        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+          From: {msgContent.from}
+        </Text>
+        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+          To: {msgContent.to}
+        </Text>
+        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+          Subject: {msgContent.subject}
+        </Text>
+        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+          Date: {msgContent.date}
+        </Text>
+      </View>
+      <View style={styles.emailBody}>
+        <Text style={{ color: isDarkMode ? Colors.white : Colors.black }}>
+          {msgContent.body}
+        </Text>
+      </View>
+    </ScrollView>
+  );
+
   const documentSection = (fileType: any) => {
     switch (fileType?.toLowerCase()) {
       case DOCUMENTS_IMAGE.toLowerCase():
@@ -384,6 +473,8 @@ function DocumentsViewModal(props) {
         return isValidYouTubeUrl(documentInfo?.url)
           ? renderYoutubeView()
           : renderVideoPlayer(documentInfo?.url);
+      case DOCUMENTS_MSG.toLowerCase():
+            return renderMsgView();
 
       case DOCUMENTS_OTHERS.toLowerCase():
         return renderOtherFileType();

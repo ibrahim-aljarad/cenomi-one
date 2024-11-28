@@ -4,9 +4,9 @@ import {
   CustomRenderHtml,
   CustomText,
 } from "../../../../components";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
-import { Colors, CommonStyles, Images } from "../../../../theme";
+import { Colors, CommonStyles } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
   colorValue,
@@ -38,7 +38,7 @@ function WorkflowDetails({
   formName?: string;
 }) {
   const { requestData, taskData, requestDataUrl, documentData } = data || {};
-  const [memoMessage, setMemoMessage] = useState(null);
+  const [memoMessage, setMemoMessage] = useState<string | null>(null);
   const [selectedDocument, setSelectedDocument] = useState({
     isVisible: false,
     url: "",
@@ -101,32 +101,37 @@ function WorkflowDetails({
   const renderAttachmentItem = ({ item }) => (
     <TouchableOpacity
       style={[
-        styles.attachmentCard,
+        styles.attachmentRow,
         {
           backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-          borderColor: getColorWithOpacity(Colors.black, 0.2),
         },
       ]}
       onPress={() => handleDocumentOpen(item)}
     >
-      <CustomImage
-        image={Images.documentAcknowledge}
-        imageWidth={40}
-        imageHeight={40}
-        imageResizeMode={"contain"}
-        styling={{ marginBottom: RfH(8) }}
-      />
-      <CustomText
-        fontSize={12}
-        color={isDarkMode ? Colors.black : Colors.black}
-        styling={{
-          ...CommonStyles.regularFont400Style,
-          textAlign: "center",
-        }}
-        numberOfLines={2}
-      >
-        {item.name}
-      </CustomText>
+      <View style={styles.attachmentContent}>
+        <CustomText
+          fontSize={14}
+          color={isDarkMode ? Colors.black : Colors.black}
+          styling={{
+            ...CommonStyles.regularFont400Style,
+          }}
+          numberOfLines={1}
+        >
+          {item.name}
+        </CustomText>
+      </View>
+
+      <View style={styles.attachmentCTA}>
+        <CustomText
+          fontSize={14}
+          color={Colors.blue}
+          styling={{
+            ...CommonStyles.regularFont400Style,
+          }}
+        >
+          Open
+        </CustomText>
+      </View>
     </TouchableOpacity>
   );
 
@@ -163,7 +168,6 @@ function WorkflowDetails({
           data={documentData?.attachements || []}
           renderItem={renderAttachmentItem}
           keyExtractor={(item) => item.documentIdPk.toString()}
-          horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.attachmentsContainer}
         />
@@ -176,22 +180,51 @@ function WorkflowDetails({
     return <DocumentViewer documentId={documentData?.lodDocument[0]} />;
   };
 
+  const renderCommentsSection = (details) => (
+    <View
+      style={[
+        styles.requestCellView,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.topHeader,
+          { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+        ]}
+      >
+        <CustomText
+          fontSize={16}
+          color={isDarkMode ? Colors.black : Colors.black}
+          styling={{ ...CommonStyles.mediumFontStyle, width: "95%" }}
+        >
+          Additional Comments
+        </CustomText>
+      </View>
+      <View style={styles.commentBox}>
+        <Text style={styles.commentText}>{details.userNotes}</Text>
+      </View>
+    </View>
+  );
+
   const dealCardsData: any = [
     {
       title: "General",
       details: getGenaralDetailsCard(formName) || generalDetailsTermination,
       dataField: { ...data, ...requestData, ...taskData },
     },
-    ...(memoMessage
-      ? [
-          {
-            title: "Memo",
-            details: {},
-            component: true,
-          },
-        ]
-      : []),
-    ,
+    // for Imemo message
+    ...(memoMessage?.trim()
+    ? [
+        {
+          title: "Memo",
+          details: {},
+          component: "memo",
+        },
+      ]
+    : []),
     //for Termination Committee Approval
     ...(requestData?.terminationGridData
       ? [
@@ -283,38 +316,48 @@ function WorkflowDetails({
         ]
       : []),
 
-    ...(documentData?.attachements?.length
-      ? [
-          {
-            title: "Attachments",
-            component: "attachments",
-          },
-        ]
-      : []),
-
-    //for all
-    ...sortBy(taskData?.data || [], ({ order }) => order).map(
-      (taskItem, index, allTaskData) => ({
-        title: getApprovalTitle(taskItem, index, allTaskData),
-        details: taskDataFields,
-        dataField: taskItem,
-        component: "card",
-      })
-    ),
+      ...(documentData?.lodDocument?.length
+        ? [
+            {
+              title: "LOD Document",
+              component: "lod",
+            },
+          ]
+        : []),
+      ...(documentData?.attachements?.length
+        ? [
+            {
+              title: "Attachments",
+              component: "attachments",
+            },
+          ]
+        : []),
+      ...(requestData?.userNotes
+        ? [
+            {
+              title: "Comments",
+              details: { userNotes: requestData.userNotes },
+              component: "comments",
+            },
+          ]
+        : []),
   ];
 
-  // Group deals data cards by component type, also to render the approvers section separately with a title
-  const groupedCards = dealCardsData.reduce(
-    (acc, card) => {
-      if (card?.component === "card") {
-        acc.approvers.push(card);
-      } else {
-        acc.others.push(card);
-      }
-      return acc;
-    },
-    { approvers: [], others: [] }
+
+  const generalCards = dealCardsData.filter(
+    card => !['attachments', 'comments', 'card'].includes(card?.component)
   );
+
+  const approverCards = sortBy(taskData?.data || [], ({ order }) => order).map(
+    (taskItem, index, allTaskData) => ({
+      title: getApprovalTitle(taskItem, index, allTaskData),
+      details: taskDataFields,
+      dataField: taskItem,
+      component: "card",
+    })
+  );
+
+
 
   const horizontalDataConversion = ({ details, dataField }) =>
     details
@@ -359,9 +402,6 @@ function WorkflowDetails({
     maxWidth,
     isFirstApprover,
   }) => {
-    if (component === "attachments") {
-      return renderAttachmentsSection();
-    }
     if (component === "card") {
       return (
         <>
@@ -472,43 +512,51 @@ function WorkflowDetails({
         </View>
       );
 
-    return (
-      <View
-        style={[
-          styles.requestCellView,
-          {
-            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-          },
-        ]}
-      >
-        <View
-          style={[
-            styles.topHeader,
-            { borderColor: getColorWithOpacity(Colors.black, 0.2) },
-          ]}
-        >
-          <CustomText
-            fontSize={16}
-            color={isDarkMode ? Colors.black : Colors.black}
-            styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+      if (title === "Memo" && (!memoMessage || !memoMessage.trim())) {
+        return null;
+      }
+
+      // Regular memo rendering with content
+    if (title === "Memo" && memoMessage?.trim()) {
+        return (
+          <View
+            style={[
+              styles.requestCellView,
+              {
+                backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+              },
+            ]}
           >
-            {localize("Memo")}
-          </CustomText>
-        </View>
-        <CustomRenderHtml
-          source={memoMessage}
-          tagsStyles={{
-            body: {
-              whiteSpace: "normal",
-              color: isDarkMode ? Colors.black : Colors.black,
-              fontSize: 14,
-              lineHeight: 22,
-              ...CommonStyles.regularFont400Style,
-            },
-          }}
-        />
-      </View>
-    );
+            <View
+              style={[
+                styles.topHeader,
+                { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+              ]}
+            >
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.black : Colors.black}
+                styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+              >
+                {localize("Memo")}
+              </CustomText>
+            </View>
+            <CustomRenderHtml
+              source={memoMessage}
+              tagsStyles={{
+                body: {
+                  whiteSpace: "normal",
+                  color: isDarkMode ? Colors.black : Colors.black,
+                  fontSize: 14,
+                  lineHeight: 22,
+                  ...CommonStyles.regularFont400Style,
+                },
+              }}
+            />
+          </View>
+        );
+      }
+
   };
 
   if (!data) return <></>;
@@ -521,7 +569,7 @@ function WorkflowDetails({
 
   return (
     <>
-      {groupedCards?.others?.map(
+      {generalCards?.map(
         ({ title, details, dataField, component, icon, maxWidth }) =>
           component ? (
             renderComponent({
@@ -610,9 +658,13 @@ function WorkflowDetails({
           )
       )}
 
-      {renderLodDocumentSection()}
+      {documentData?.lodDocument?.length > 0 && renderLodDocumentSection()}
 
-      {groupedCards.approvers.map((card, index) =>
+      {renderAttachmentsSection()}
+
+      {requestData?.userNotes && renderCommentsSection({ userNotes: requestData.userNotes })}
+
+      {approverCards.map((card, index) =>
         renderComponent({
           ...card,
           isFirstApprover: index === 0,
