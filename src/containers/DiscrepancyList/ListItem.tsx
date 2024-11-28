@@ -22,7 +22,7 @@ const ListItem = (props: any) => {
     setSelectedOperation(operation);
   };
 
-  const sortedOperations = getSortedOperations(item?.operations, item?.status);
+  const sortedOperations = getSortedOperations(item?.operations);
 
   return (
     <>
