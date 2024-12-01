@@ -19,21 +19,19 @@ const ApprovalsListItems = (props: any) => {
       style={[
         styles.requestCellView,
         {
-          backgroundColor: isDarkMode
-            ? Colors.darkModeButton
-            : getColorWithOpacity(Colors.midnightExpress, 0.24),
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
         },
       ]}
     >
       <View
         style={[
           styles.topHeader,
-          { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+          { borderColor: getColorWithOpacity(Colors.black, 0.2) },
         ]}
       >
         <CustomText
           fontSize={14}
-          color={isDarkMode ? Colors.white : Colors.white}
+          color={isDarkMode ? Colors.black : Colors.black}
           styling={{ ...CommonStyles.mediumFontStyle }}
         >
           {isYardiServiceModuleCheck(approvalItem)
@@ -64,7 +62,7 @@ const ApprovalsListItems = (props: any) => {
           <View style={styles.topTitle}>
             <CustomText
               fontSize={16}
-              color={isDarkMode ? Colors.white : Colors.white}
+              color={isDarkMode ? Colors.black : Colors.black}
               styling={{
                 lineHeight: RfH(20),
                 ...CommonStyles.regularFont500Style,
@@ -78,7 +76,7 @@ const ApprovalsListItems = (props: any) => {
             {isYardiServiceModuleCheck(approvalItem) && (
               <CustomText
                 fontSize={14}
-                color={isDarkMode ? Colors.white : Colors.white}
+                color={isDarkMode ? Colors.black : Colors.black}
                 styling={{
                   lineHeight: RfH(20),
                   ...CommonStyles.regularFont400Style,
@@ -100,22 +98,32 @@ const ApprovalsListItems = (props: any) => {
                 iconWidth={RfW(14)}
                 iconHeight={RfH(14)}
                 styling={{
-                  tintColor: isDarkMode ? Colors.white : Colors.white,
+                  tintColor: isDarkMode ? Colors.black : Colors.black,
                 }}
                 imageResizeMode={"contain"}
               />
               <CustomText
                 fontSize={14}
-                color={Colors.white}
+                color={Colors.darkGrey113}
                 styling={{
                   marginStart: RfW(5),
                   lineHeight: RfH(20),
                   ...CommonStyles.regularFont400Style,
                 }}
               >
+                {"From : "}
+              </CustomText>
+              <CustomText
+                fontSize={14}
+                color={Colors.black}
+                styling={{
+                  lineHeight: RfH(20),
+                  ...CommonStyles.regularFont400Style,
+                }}
+              >
                 {isYardiServiceModuleCheck(approvalItem)
-                  ? "From : " + approvalItem.Requester_Name
-                  : "From : " + getName(approvalItem)}
+                  ? approvalItem.Requester_Name
+                  : getName(approvalItem)}
               </CustomText>
             </View>
             <View
@@ -131,20 +139,29 @@ const ApprovalsListItems = (props: any) => {
                 iconHeight={RfH(14)}
                 imageResizeMode={"contain"}
                 styling={{
-                  tintColor: isDarkMode ? Colors.white : Colors.white,
+                  tintColor: isDarkMode ? Colors.black : Colors.black,
                 }}
               />
               <CustomText
                 fontSize={14}
-                color={Colors.white}
+                color={Colors.darkGrey113}
                 styling={{
                   marginStart: RfW(5),
                   lineHeight: RfH(20),
                   ...CommonStyles.regularFont400Style,
                 }}
               >
-                {"Date : " +
-                  getDateFormat(approvalItem?.date || approvalItem?.createdOn)}
+                {"Date : "}
+              </CustomText>
+              <CustomText
+                fontSize={14}
+                color={Colors.black}
+                styling={{
+                  lineHeight: RfH(20),
+                  ...CommonStyles.regularFont400Style,
+                }}
+              >
+                {getDateFormat(approvalItem?.date || approvalItem?.createdOn)}
               </CustomText>
             </View>
           </View>

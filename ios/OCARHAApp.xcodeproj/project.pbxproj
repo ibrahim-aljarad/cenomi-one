@@ -682,7 +682,7 @@
 				CODE_SIGN_ENTITLEMENTS = OCARHAApp/OCARHAApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = H7Y4Z32BAT;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "OCARHAAppProduction-Info.plist";
@@ -691,7 +691,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -715,7 +715,7 @@
 				CODE_SIGN_ENTITLEMENTS = OCARHAAppProductionRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_TEAM = H7Y4Z32BAT;
 				INFOPLIST_FILE = "OCARHAAppProduction-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Cenomi One";
@@ -723,7 +723,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.2;
+				MARKETING_VERSION = 1.5.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

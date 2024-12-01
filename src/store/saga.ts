@@ -11,6 +11,7 @@ import approvalsSaga from '../containers/Approvals/redux/saga';
 import commonSaga from '../containers/redux/saga';
 // import rewardsProfileSaga from '../containers/RewardsHome/redux/saga';
 import rewardsProfileSaga from '../containers/RewardsHome/RewardsProfile/redux/saga';
+import discrepancySaga from '../containers/DiscrepancyDetails/redux/saga';
 
 function* rootSaga() {
   yield all([
@@ -24,7 +25,8 @@ function* rootSaga() {
     KnowledgehubSaga(),
     approvalsSaga(),
     commonSaga(),
-    rewardsProfileSaga()
+    rewardsProfileSaga(),
+    discrepancySaga(),
   ]);
 }
 

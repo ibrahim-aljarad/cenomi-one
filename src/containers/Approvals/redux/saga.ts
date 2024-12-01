@@ -168,7 +168,6 @@ function* getApprovalPendingTasksRequest() {
   try {
     yield put(getApprovalPendingTasks.request({ isLoading: false }));
     const response = yield call(getApprovalPendingTasksApiCall);
-    console.log("getApprovalPendingTasks", response);
 
     if (response.success) {
       const { data } = response;

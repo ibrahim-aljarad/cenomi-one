@@ -22,11 +22,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  approverContainer: {
+    marginTop: RfH(12),
+    marginHorizontal: RfW(24),
+  },
   cellContainerView: {
+    flexDirection: 'row',
+    paddingVertical: RfH(8),
+    alignItems: 'flex-start',
+  },
+  labelContainer: {
+    width: '40%',
+    paddingRight: RfW(10),
+  },
+  valueContainer: {
     flex: 1,
-    flexDirection: "row",
-    paddingTop: RfH(5),
-    paddingBottom: RfH(5),
   },
   imageStyle: {
     borderRadius: BorderRadius.BR0,
@@ -91,7 +101,7 @@ const styles = StyleSheet.create({
   tableContainer: {
     paddingVertical: RfH(20),
     marginHorizontal: RfW(20),
-    backgroundColor: getColorWithOpacity(Colors.midnightExpress, 0.24),
+    backgroundColor: Colors.white,
     borderRadius: BorderRadius.BR15,
     paddingHorizontal: RfW(15),
     marginTop: RfH(16),
@@ -100,12 +110,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   tableHead: {
-    borderBottomColor: "red",
+    borderBottomColor: getColorWithOpacity(Colors.black, 0.2),
     borderBottomWidth: 1,
     marginBottom: RfH(16),
   },
   tableCell: {
-    borderColor: "white",
+    borderColor: getColorWithOpacity(Colors.black, 0.2),
     borderWidth: 1,
     paddingHorizontal: RfW(5),
   },

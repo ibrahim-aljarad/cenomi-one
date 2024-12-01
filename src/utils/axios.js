@@ -3,7 +3,7 @@ import axios from "axios";
 import { trackPromise } from "react-promise-tracker";
 import Config from "./config";
 import { LOCAL_STORAGE_DATA_KEY } from "./constants";
-import { getSaveData, removeData, storeData } from "./helpers";
+import { getCookie, getSaveData, removeData, setCookie, storeData } from "./helpers";
 import RNRestart from "react-native-restart";
 import { clearAllExceptTutorialShowAppLanguage } from "./helper";
 
@@ -56,8 +56,35 @@ appianInstance.interceptors.request.use(
     config.metadata.requestStartTime = new Date().getTime();
     await httpMetric.start();
 
-    config.headers['Appian-API-Key'] = Config.APPIAN_KEY;
+    config.headers["Appian-API-Key"] = Config.APPIAN_KEY;
     config.baseURL = Config.APPIAN_URL;
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+//for cenomi central apis
+const tenantCentralInstance = axios.create({
+  withCredentials: true
+});
+tenantCentralInstance.interceptors.request.use(
+  async (config) => {
+    const httpMetric = perf().newHttpMetric(
+      config.url,
+      config.method.toUpperCase()
+    );
+    config.metadata = { httpMetric };
+    config.metadata.requestStartTime = new Date().getTime();
+    await httpMetric.start();
+
+    const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
+    const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
+
+    config.headers.Cookie= cookieString
+    config.baseURL = Config.TENANT_CENTRAL_URL;
 
     return config;
   },
@@ -236,6 +263,113 @@ appianInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+tenantCentralInstance.interceptors.response.use(
+  async function (response) {
+    // record metrics
+    const { httpMetric } = response.config.metadata;
+    response.config.metadata.requestEndTime = new Date().getTime();
+    httpMetric.setHttpResponseCode(response.status);
+    httpMetric.setResponseContentType(response.headers["content-type"]);
+    await httpMetric.stop();
+
+    return response;
+  },
+
+  async function (error) {
+    // record metrics
+
+    // console.log('errooooor', error, error?.config, error?.success, error?.errors)
+    const { httpMetric } = error.config.metadata;
+    error.config.metadata.requestEndTime = new Date().getTime();
+    httpMetric.setHttpResponseCode(error.response?.status);
+    httpMetric.setResponseContentType(error.response?.headers["content-type"]);
+    await httpMetric.stop();
+
+    const originalRequest = error.config;
+
+    if (error.response?.status === 403) {
+      await storeData(
+        LOCAL_STORAGE_DATA_KEY.UN_AUTORISED_ACCESS,
+        JSON.stringify(true)
+      );
+    }
+
+    console.log({
+      originalRequest,
+      error,
+      headers: originalRequest.headers,
+    });
+
+    if (
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest?.url !== "cenomi-one/login"
+    ) {
+      console.log({ isRefreshing });
+      if (isRefreshing) {
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers["Cookie"] = "access_token= " + token;
+            return axios(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+    try {
+        const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
+        const userInfo = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+        const email = JSON.parse(userInfo || '{}')?.username;
+        const response = await axios.post(
+            Config.API_BASE_URL + "tp/tenant-platform/login",
+            { email },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+        if (response.data?.data?.access_token) {
+          await setCookie(
+            Config.TENANT_CENTRAL_URL,
+            'access_token',
+            response.data.data.access_token
+          );
+
+          const cookies = await getCookie(Config.TENANT_CENTRAL_URL);
+          console.log("cookie", cookies);
+          const cookieString = Object.entries(cookies).map(([key,val]) => `${key}=${val.value}`).join('; ');
+
+          originalRequest.headers["Cookie"] = cookieString
+          processQueue(null, response.data.data.access_token);
+          return axios(originalRequest);
+        } else {
+          throw new Error('No access token in response');
+        }
+      } catch (err) {
+        console.log("Tenant login error:", {
+            message: err.message,
+            status: err.response?.status,
+            data: err.response?.data
+          });
+        processQueue(err, null);
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+
+    }
+    return Promise.reject(error);
+  }
+);
 /*
  * This function return the response from remote server
  * @param {Object} config
@@ -245,7 +379,7 @@ async function fetchResponse(config) {
   console.log('%c %s', bgBlue, '🚀 API Request Config 🚀 ', config);
   return instance(config)
     .then((response) => {
-    
+
       const { data, config } = response;
         // console.log({ data, config });
       if (__DEV__) {
@@ -263,7 +397,6 @@ async function fetchResponse(config) {
     })
     .catch((error) => {
       console.log('%c %s %c %s', bgRed, '💀 API Error 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
-     
       const { data: errorResponse } = error.response || {};
       console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
 
@@ -293,51 +426,176 @@ async function fetchResponse(config) {
 }
 
 async function fetchAppianResponse(config) {
-  console.log('%c %s', bgBlue, '🚀 API Request Config 🚀 ', config);
+  console.log("%c %s", bgBlue, "🚀 API Request Config 🚀 ", config);
   return appianInstance(config)
     .then((response) => {
-    
       const { data, config } = response;
-        // console.log({ data, config });
+      // console.log({ data, config });
       if (__DEV__) {
         const { requestStartTime, requestEndTime } = response.config.metadata;
         const totalTimeInMs = requestEndTime - requestStartTime;
-        console.log('%c %s %c %s %c %s', bgGreen, '✨ Response ✨', bgYellow, `Time: ${totalTimeInMs}`, bgAqua, `${config.method}: ${config.url} `);
+        console.log(
+          "%c %s %c %s %c %s",
+          bgGreen,
+          "✨ Response ✨",
+          bgYellow,
+          `Time: ${totalTimeInMs}`,
+          bgAqua,
+          `${config.method}: ${config.url} `
+        );
       } else {
-        console.log('%c ✨Appian Response Data ✨', bgGreen, data);
+        console.log("%c ✨Appian Response Data ✨", bgGreen, data);
       }
       if (response?.status === 403 || response?.status === 401) {
         // refreshHandler(response?.status, config)
-        return { data, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       return { success: true, data };
     })
     .catch((error) => {
-      console.log('%c %s %c %s', bgRed, '💀 API Errors 💀', bgOrange, `${config.method}: ${config.url} `, error, error.response);
-     
-      const { data: errorResponse } = error.response || {};
-      console.log('error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', errorResponse, error);
+      console.log(
+        "%c %s %c %s",
+        bgRed,
+        "💀 API Errors 💀",
+        bgOrange,
+        `${config.method}: ${config.url} `,
+        error,
+        error.response
+      );
 
-      if (errorResponse?.statusCode === 403 || errorResponse?.statusCode === 401) {
+      const { data: errorResponse } = error.response || {};
+      console.log(
+        "error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        errorResponse,
+        error
+      );
+
+      if (
+        errorResponse?.statusCode === 403 ||
+        errorResponse?.statusCode === 401
+      ) {
         // refreshHandler(errorResponse?.statusCode, config);
-        return { data: errorResponse, success: false, error: {title:'Error',message:'Authorization Error!'} };
+        return {
+          data: errorResponse,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
       }
       if (errorResponse?.statusCode === 400) {
-        return { data: errorResponse, success: false, error: errorResponse.message };
+        return {
+          data: errorResponse,
+          success: false,
+          error: errorResponse.message,
+        };
       }
       if (!errorResponse) {
         return {
           data: {},
           success: false,
-          error: { title: 'Connectivity Error', message: 'Please check your internet connection.' },
+          error: {
+            title: "Connectivity Error",
+            message: "Please check your internet connection.",
+          },
         };
       }
       return {
         success: false,
-        data:errorResponse,
+        data: errorResponse,
         error: {
-          title: 'Unexpected Error',
-          message: 'Server error please try again later',
+          title: "Unexpected Error",
+          message: "Server error please try again later",
+        },
+      };
+    });
+}
+
+async function fetchTenantCentralResponse(config) {
+  console.log("%c %s", bgBlue, "🚀Tenant API Request Config 🚀 ", config);
+  return tenantCentralInstance(config)
+    .then((response) => {
+      console.log(response?.config?.curl);
+
+      const { data, config } = response;
+      // console.log({ data, config });
+      if (__DEV__) {
+        const { requestStartTime, requestEndTime } = response.config.metadata;
+        const totalTimeInMs = requestEndTime - requestStartTime;
+        console.log(
+          "%c %s %c %s %c %s",
+          bgGreen,
+          "✨ Tenant Response ✨",
+          bgYellow,
+          `Time: ${totalTimeInMs}`,
+          bgAqua,
+          `${config.method}: ${config.url} `
+        );
+      } else {
+        console.log("%c ✨ Response Data ✨", bgGreen, data);
+      }
+      if (response?.status === 403 || response?.status === 401) {
+        // refreshHandler(response?.status, config)
+        return {
+          data,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
+      }
+      return { success: true, data };
+    })
+    .catch((error) => {
+      console.log(
+        "%c %s %c %s",
+        bgRed,
+        "💀 Tenant API Error 💀",
+        bgOrange,
+        `${config.method}: ${config.url} `,
+      );
+
+      const { data: errorResponse } = error.response || {};
+      console.log(
+        "error.response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        errorResponse,
+        error
+      );
+
+      if (
+        errorResponse?.statusCode === 403 ||
+        errorResponse?.statusCode === 401
+      ) {
+        // refreshHandler(errorResponse?.statusCode, config);
+        return {
+          data: errorResponse,
+          success: false,
+          error: { title: "Error", message: "Authorization Error!" },
+        };
+      }
+      if (errorResponse?.statusCode === 400) {
+        return {
+          data: errorResponse,
+          success: false,
+          error: errorResponse.message,
+        };
+      }
+      if (!errorResponse) {
+        return {
+          data: {},
+          success: false,
+          error: {
+            title: "Connectivity Error",
+            message: "Please check your internet connection.",
+          },
+        };
+      }
+      return {
+        success: false,
+        data: errorResponse,
+        error: {
+          title: "Unexpected Error",
+          message: "Server error please try again later",
         },
       };
     });
@@ -365,5 +623,13 @@ export const appianApi = async (config, isLoading = true) => {
     return trackPromise(fetchAppianResponse({ ...config }));
   } else {
     return fetchAppianResponse({ ...config });
+  }
+};
+
+export const tenantCentralApi = async (config, isLoading = true) => {
+  if (isLoading) {
+    return trackPromise(fetchTenantCentralResponse({ ...config }));
+  } else {
+    return fetchTenantCentralResponse({ ...config });
   }
 };

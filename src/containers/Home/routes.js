@@ -17,6 +17,7 @@ import DocumentView from "../Documents/DocumentView";
 import Events from "../Events";
 import EventDetails from "../Events/EventDetails";
 import Faq from "../Faq";
+import KnowledgeHubDetailsScreen from "../KnowledgeHUB/KnowledgehubDocumentsList/KnowledgeHubDetails";
 import News from "../News";
 import Notifications from "../Notifications";
 import Organisation from "../Organisation";
@@ -29,6 +30,8 @@ import NotificationSetting from "../Profile/NotificationSettings";
 import SendWishes from "../SendWishes";
 import Surveys from "../Surveys";
 import SyncProfile from "../SyncProfile";
+import DiscrepancyList from "../DiscrepancyList";
+import DiscrepancyDetails from "../DiscrepancyDetails";
 const Stack = createStackNavigator();
 
 const HomeStack = () => (
@@ -185,6 +188,23 @@ const HomeStack = () => (
     <Stack.Screen
       name={NavigationRouteNames.ORGANISATION}
       component={Organisation}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+    <Stack.Screen
+      name={NavigationRouteNames.KNOWLEDGEHUB_DETAILS}
+      component={KnowledgeHubDetailsScreen}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.DISCREPANCY_LIST}
+      component={DiscrepancyList}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.DISCREPANCY_DETAILS}
+      component={DiscrepancyDetails}
       options={{ headerShown: false, animationEnabled: false }}
     />
   </>

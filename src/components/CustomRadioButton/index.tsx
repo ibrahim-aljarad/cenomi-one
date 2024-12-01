@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextStyle, TouchableOpacity } from 'react-native';
 import { Colors, CommonStyles } from '../../theme';
 import { RfH, RfW } from '../../utils/helper';
 import CustomText from '../CustomText';
@@ -15,6 +15,7 @@ type Props = {
   labelSize: number;
   containerStyle: object;
   onSelect: Function;
+  labelStyle?: TextStyle;
 };
 
 const stateSelector = createStructuredSelector({
@@ -22,7 +23,7 @@ const stateSelector = createStructuredSelector({
 });
 
 const CustomRadioButton = (props: Props) => {
-  const { icon, labelText, containerStyle = {}, onSelect, labelSize = 14 } = props;
+  const { icon, labelText, containerStyle = {}, onSelect, labelSize = 14, labelStyle = {} } = props;
   const { isDarkMode } = useSelector(stateSelector);
   const onPress = () => {
     onSelect && onSelect();
@@ -46,7 +47,8 @@ const CustomRadioButton = (props: Props) => {
         styling={{
           ...CommonStyles.regularFont400Style,
           lineHeight: RfH(22),
-          color: Colors.grayTwo
+          color: Colors.grayTwo,
+          ...labelStyle
         }}>
         {labelText}
       </CustomText>

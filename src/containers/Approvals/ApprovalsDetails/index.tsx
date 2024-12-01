@@ -4,7 +4,6 @@ import { SafeAreaView, TouchableOpacity, View } from "react-native";
 import {
   CustomImage,
   CustomRenderHtml,
-  CustomText,
   HeaderSVG,
   Loader,
 } from "../../../components";
@@ -40,8 +39,8 @@ import {
 import ApprovalsActionButtons from "./ApprovalsActionButtons";
 import AttachmentModal from "./AttachmentModal";
 import WrapperContainer from "../../../components/WrapperContainer";
-import { getColorWithOpacity } from "../../../utils/helper";
 import WorkflowDetails from "./WorkflowDetails";
+import { ThemeProvider } from "../../../theme/context";
 
 const stateSelector = createStructuredSelector({
   approvalTasksDetailsData: getApprovalTasksDetailsSelector,
@@ -149,7 +148,7 @@ const ApprovalsDetails = (props: any) => {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay={true}>
       <SafeAreaView
         style={{
           flex: 1,
@@ -159,10 +158,8 @@ const ApprovalsDetails = (props: any) => {
         }}
       >
         <View style={styles.mainContainer}>
+          <ThemeProvider useNewStyles={true}>
           <HeaderSVG
-            // showing attachment even when action required is false
-            // for yardi AttachmentList?.length
-            // oracle hrm - approvalTasksDetailsData?.attachments?.length
             isRightButtonVisible={
               !isEmpty(approvalTasksDetailsData) &&
               approvalTasksDetailsData?.attachments?.length > 0
@@ -175,8 +172,8 @@ const ApprovalsDetails = (props: any) => {
               >
                 <CustomImage
                   image={Images.attachment}
-                  imageWidth={WIDTH.W16}
-                  imageHeight={HEIGHT.H16}
+                  imageWidth={WIDTH.W24}
+                  imageHeight={HEIGHT.H24}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
               </TouchableOpacity>
@@ -195,6 +192,7 @@ const ApprovalsDetails = (props: any) => {
             onBackPressHandler={() => navigation.goBack()}
             isRight2BtnVisible={false}
           />
+          </ThemeProvider>
 
           <ScrollView
             style={{
@@ -227,8 +225,9 @@ const ApprovalsDetails = (props: any) => {
                   {
                     backgroundColor: isDarkMode
                       ? Colors.darkModeBackground
-                      : getColorWithOpacity(Colors.white, 0.2),
+                      : Colors.white,
                     borderTopColor: Colors.grayBorder,
+                    zIndex: 1,
                   },
                 ]}
               >

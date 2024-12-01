@@ -9,6 +9,7 @@ import { createStructuredSelector } from 'reselect';
 import { isDarkModeSelector } from '../../containers/redux/selectors';
 import { useSelector } from 'react-redux';
 import { localize } from '../../locale/utils';
+import { useTheme } from '../../theme/context';
 
 const stateSructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector
@@ -32,6 +33,28 @@ const CustomEditComment = (props: any) => {
   } = props;
 
   const { isDarkMode } = useSelector(stateSructure);
+  const { useNewStyles } = useTheme();
+
+  const getNewStyles = () => {
+    if (useNewStyles) {
+        return {
+          labelColor: isDarkMode ? Colors.darkModeSubText : Colors.black,
+          counterColor: isDarkMode ? Colors.darkModeSubText : Colors.blackCoral,
+          inputBgColor: backgroundColor || getColorWithOpacity(Colors.grey, 0.37),
+          placeholderColor: Colors.blackCoral,
+          textColor: isDarkMode ? Colors.white : Colors.black
+        };
+      }
+      return {
+        labelColor: Colors.white,
+        counterColor: isDarkMode ? Colors.darkModeSubText : Colors.grayLight,
+        inputBgColor: backgroundColor || getColorWithOpacity(Colors.blueBayoux, 0.37),
+        placeholderColor: Colors.grayLight,
+        textColor: isDarkMode ? Colors.white : Colors.white
+      };
+  }
+
+  const newStyles = getNewStyles();
 
   const [commentValue, setCommentValue] = useState(value || '');
   // const [isDarkMode, setisDarkMode] = useState(false);
@@ -73,7 +96,7 @@ const CustomEditComment = (props: any) => {
               }
               styling={{
                 marginBottom: RfH(10),
-                color: Colors.white,
+                color: newStyles.labelColor,
                 ...CommonStyles.regularFont400Style
               }}>
               {label}
@@ -84,7 +107,7 @@ const CustomEditComment = (props: any) => {
             ) : (
               <CustomText
                 fontSize={12}
-                color={isDarkMode ? Colors.darkModeSubText : Colors.grayLight}
+                color={newStyles.counterColor}
                 styling={{
                   marginBottom: RfH(10),
                   ...CommonStyles.regularFontStyle
@@ -113,12 +136,12 @@ const CustomEditComment = (props: any) => {
           borderRadius: BorderRadius.BR10,
           height: RfH(87),
           paddingVertical: Platform.OS === 'ios' ? RfH(8) : RfH(0),
-          backgroundColor: backgroundColor || getColorWithOpacity(Colors.blueBayoux, 0.37),
+          backgroundColor: newStyles.inputBgColor,
           borderColor: isDarkMode ? Colors.darkModeBorder : Colors.grayLight
         }}>
         <TextInput
           placeholder={placeholder}
-          placeholderTextColor={Colors.grayLight}
+          placeholderTextColor={newStyles.placeholderColor}
           value={commentValue}
           multiline={true}
           style={[
@@ -126,7 +149,7 @@ const CustomEditComment = (props: any) => {
             {
               flex: 1,
               textAlignVertical: 'top',
-              color: isDarkMode ? Colors.white : Colors.white,
+              color: newStyles.textColor,
               textAlign: I18nManager.isRTL ? 'right' : 'left'
             }
           ]}

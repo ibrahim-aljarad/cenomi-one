@@ -53,6 +53,10 @@ const getGreetingsDataSelector = createSelector(selectGlobalSubStore, (globalSta
   return globalState.greetingsListData;
 });
 
+const getTenantFileUploadedDataSelector = createSelector(selectGlobalSubStore, (globalState) => {
+  return globalState.tenantfileUploadedData;
+});
+
 export {
   getFileUploadedDataSelector,
   getFilePreviewedDataSelector,
@@ -65,5 +69,6 @@ export {
   isChatWindowVisibleSelector,
   getOrganizationConfigSelector,
   getNewsListSelector,
-  getGreetingsDataSelector
+  getGreetingsDataSelector,
+  getTenantFileUploadedDataSelector
 };

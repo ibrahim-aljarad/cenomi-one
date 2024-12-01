@@ -62,23 +62,20 @@ function App() {
   // start ssl pinning
   useEffect(() => {
     const setupSslPinning = async () => {
-      try {
-        await initializeSslPinning({
-          "one.cenomi.com": {
-            includeSubdomains: true,
-            publicKeyHashes: [
-              "lxS6hLT60CimyQPqN01lM8zkts8pjOBrdV+4km7WnyY=",
-              "8Rw90Ej3Ttt8RRkrg+WYDS9n7IS03bk5bjP/UXPtaY8=",
-              "Ko8tivDrEjiY90yGasP6ZpBU4jwXvHqVvQI0GS3GNdA=",
-              "VjLZe/p3W/PJnd6lL8JVNBCGQBZynFLdZSTIqcO0SJ8=",
-            ],
-          },
-        });
-        console.log("SSL pinning initialized successfully");
-      } catch (error) {
-        console.error("Failed to initialize SSL pinning", error);
-      }
-    };
+        try {
+          await initializeSslPinning({
+            "one.cenomi.com": {
+              includeSubdomains: true,
+              publicKeyHashes: [
+                "O2+dBxfqr2n+USFOBgJp5lY8EYeHVsnGu0O+76ZqZEQ=", // New pin hash
+              ],
+            },
+          });
+          console.log("SSL pinning initialized successfully");
+        } catch (error) {
+          console.error("Failed to initialize SSL pinning", error);
+        }
+      };
 
     setupSslPinning();
 

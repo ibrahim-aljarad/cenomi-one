@@ -9,7 +9,8 @@ const REDUCER_KEY = {
   KNOWLEDGEHUB_REDUCER: 'knowledge_hub_reducer',
   APPROVALS_REDUCER: 'approvals_reducer',
   COMMON_REDUCER: 'common_reducer',
-  REWARDS_PROFILE_REDUCER: 'rewards_profile_reducer'
+  REWARDS_PROFILE_REDUCER: 'rewards_profile_reducer',
+  DISCREPANCY_REDUCER: 'discrepancy__reducer',
 };
 
 export default REDUCER_KEY;

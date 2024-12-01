@@ -160,7 +160,7 @@ function DigitalCard({}): JSX.Element {
               marginTop: RfH(1),
               ...CommonStyles.regularFont400Style
             }}>
-            {`${departmentName} ${businessUnitName}`}
+            {`${departmentName} Cenomi Centers`}
           </CustomText>
         </View>
       </View>

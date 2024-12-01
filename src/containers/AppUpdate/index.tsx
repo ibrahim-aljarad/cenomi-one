@@ -19,6 +19,11 @@ import styles from './styles';
 import { isEmpty } from 'lodash';
 import { getPublicStaticData } from '../redux/actions';
 
+const APP_STORE_LINKS = {
+    android: 'https://play.google.com/store/apps/details?id=com.cenomione.oca',
+    ios: 'https://apps.apple.com/us/app/cenomi-one/id6470200926'
+  };
+
 const stateSelector = createStructuredSelector({
   isAppForceUpdate: getIsForceUpdateSelector,
   isAppUnderMaintenance: getIsUnderMaintenanceSelector, // app version info from api
@@ -64,7 +69,7 @@ function AppUpdate() {
 
   const goForUpdate = () =>
     openLinkInBrowser(
-      Platform.OS === 'ios' ? publicStaticData?.appLinks?.ios : publicStaticData?.appLinks?.android
+      Platform.OS === 'ios' ? APP_STORE_LINKS.ios : APP_STORE_LINKS.android
     );
 
   const renderForceUpdate = (headerText, subText, btnText, btnText2) => (
