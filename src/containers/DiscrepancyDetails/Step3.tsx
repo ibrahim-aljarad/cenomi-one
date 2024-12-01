@@ -28,11 +28,14 @@ import { getUnitDiscrepancySelector } from "./redux/selectors";
 import { saveUnitDicrepancy } from "./redux/actions";
 
 const yesOrNoPairs = [
-  { key: "storeClosed", label: "Store Closed" },
-  { key: "wrongLocation", label: "Wrong Location" },
-  { key: "brandChanged", label: "Brand Changed" },
-  { key: "openWithoutContract", label: "Open without Contract" },
-  { key: "others", label: "Others", hasTextField: true },
+  { key: "storeClosed", label: localize("discrepancy.storeClosed") },
+  { key: "wrongLocation", label: localize("discrepancy.wrongLocation") },
+  { key: "brandChanged", label: localize("discrepancy.brandChanged") },
+  {
+    key: "openWithoutContract",
+    label: localize("discrepancy.openWithoutContract"),
+  },
+  { key: "others", label: localize("discrepancy.others"), hasTextField: true },
 ];
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -72,28 +75,27 @@ function Step3({ selectValues, setSelectValues, setStep }) {
         setSelectValues((current) => ({
           ...current,
           [key]: value,
-          othersText: ""
+          othersText: "",
         }));
       } else {
         setSelectValues((current) => ({
           ...current,
           [key]: value,
-          othersText: previousOthersText.current
+          othersText: previousOthersText.current,
         }));
       }
     } else if (key === "othersText") {
       setSelectValues((current) => ({
         ...current,
-        [key]: value
+        [key]: value,
       }));
     } else {
       setSelectValues((current) => ({
         ...current,
-        [key]: value
+        [key]: value,
       }));
     }
   };
-
 
   useEffect(() => {
     if (fileUploadStarted && tenantfileUploadedData?.document_id) {
@@ -119,11 +121,11 @@ function Step3({ selectValues, setSelectValues, setStep }) {
     }
 
     if (selectValues.others && !selectValues.othersText?.trim()) {
-        return alertBox(
-          localize("discrepancy.selectOthers"),
-          localize("discrepancy.selectOthersDesc")
-        );
-      }
+      return alertBox(
+        localize("discrepancy.selectOthers"),
+        localize("discrepancy.selectOthersDesc")
+      );
+    }
 
     const {
       comment,
@@ -176,7 +178,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
             ...CommonStyles.regularFont400Style,
           }}
         >
-          Review Status:
+          {localize("discrepancy.reviewStatus")}:
         </CustomText>
         <CustomRadioButton
           icon={
@@ -184,7 +186,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
               ? Images.radioButtonActive
               : Images.radioButtonInactive
           }
-          labelText="Match"
+          labelText={localize("discrepancy.match")}
           labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingLeft: RfH(10) }}
@@ -196,7 +198,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
               ? Images.radioButtonActive
               : Images.radioButtonInactive
           }
-          labelText="Mismatch"
+          labelText={localize("discrepancy.mismatch")}
           labelStyle={{ color: "white" }}
           labelSize={14}
           containerStyle={{ width: "50%", paddingTop: RfH(0) }}
@@ -204,57 +206,57 @@ function Step3({ selectValues, setSelectValues, setStep }) {
         />
       </View>
       <View>
-      {reviewStatus === "mismatch" ? (
-        yesOrNoPairs.map(({ label, key, hasTextField }) => (
-          <View key={key}>
-            <View
-              style={{
-                marginTop: RfH(14),
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <CustomText
-                fontSize={14}
-                color={Colors.white}
-                styling={{
-                  marginStart: RfW(5),
-                  lineHeight: RfH(20),
-                  ...CommonStyles.boldFontStyle,
+        {reviewStatus === "mismatch" ? (
+          yesOrNoPairs.map(({ label, key, hasTextField }) => (
+            <View key={key}>
+              <View
+                style={{
+                  marginTop: RfH(14),
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                {label}:
-              </CustomText>
-              <CustomSwitch
-                disabled={false}
-                onValueChange={(val) => dataChange(key, val)}
-                value={selectValues[key]}
-              />
-            </View>
-            {hasTextField && selectValues[key] && (
-              <View style={{ marginTop: RfH(10), marginHorizontal: RfW(5) }}>
-                <CustomTextInput
-                  label={localize("form.others")}
-                  isMandatory
-                  onChangeHandler={(text) => dataChange("othersText", text)}
-                  value={selectValues.othersText}
-                  noOfLines={3}
-                  multiline
-                  showClearButton={false}
-                  inputwrapperStyle={{
-                    borderWidth: 1,
-                    borderColor: "white",
-                    paddingHorizontal: 5,
+                <CustomText
+                  fontSize={14}
+                  color={Colors.white}
+                  styling={{
+                    marginStart: RfW(5),
+                    lineHeight: RfH(20),
+                    ...CommonStyles.boldFontStyle,
                   }}
+                >
+                  {label}:
+                </CustomText>
+                <CustomSwitch
+                  disabled={false}
+                  onValueChange={(val) => dataChange(key, val)}
+                  value={selectValues[key]}
                 />
               </View>
-            )}
-          </View>
-        ))
-      ) : (
-        <View style={{ height: 20 }} />
-      )}
+              {hasTextField && selectValues[key] && (
+                <View style={{ marginTop: RfH(10), marginHorizontal: RfW(5) }}>
+                  <CustomTextInput
+                    label={localize("form.others")}
+                    isMandatory
+                    onChangeHandler={(text) => dataChange("othersText", text)}
+                    value={selectValues.othersText}
+                    noOfLines={3}
+                    multiline
+                    showClearButton={false}
+                    inputwrapperStyle={{
+                      borderWidth: 1,
+                      borderColor: "white",
+                      paddingHorizontal: 5,
+                    }}
+                  />
+                </View>
+              )}
+            </View>
+          ))
+        ) : (
+          <View style={{ height: 20 }} />
+        )}
         <CustomTextInput
           label={localize("form.comment")}
           isMandatory={false}
@@ -272,7 +274,10 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {selectValues?.documentId?.map((id) => (
-          <View style={{ alignItems: "center", paddingVertical: RfH(20) }} key={`img${id}`}>
+          <View
+            style={{ alignItems: "center", paddingVertical: RfH(20) }}
+            key={`img${id}`}
+          >
             <TouchableOpacity onPress={() => setImageModal(id)}>
               <TenantImageViewer
                 docId={id}
@@ -361,7 +366,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       </View>
       <View>
         <CustomButton
-          buttonText="Save"
+          buttonText={localize("common.save")}
           btnContainerStyle={styles.buttonStyle}
           handleOnSubmit={handleSaveDiscrepancy}
         />

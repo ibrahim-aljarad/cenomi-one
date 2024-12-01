@@ -47,3 +47,9 @@ export const useSelectedLanguage = () => {
 
   return { language: language as Language, setLanguage };
 };
+
+
+export const isArabic = () => {
+    const language = getLanguage();
+    return language === LANGUAGE_KEY;
+}

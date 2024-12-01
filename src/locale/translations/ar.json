@@ -36,7 +36,8 @@
     "en": "الانجليزية",
     "ar": "العربية",
     "currentLanguage": "اللغة الحالية",
-
+    "serviceRequest": "طلب الخدمة",
+    "save": "يحفظ",
     "all": "الكل",
     "hello": "مرحبا",
     "hi": "Hi",
@@ -545,7 +546,42 @@
     "title": "عنوان",
     "selectOthers": "مطلوب حقل آخر",
     "selectOthersDesc": "يرجى تحديد التفاصيل في حقل أخرى",
+    "selectFloor": "حدد الطابق",
+    "selectFloorDesc": "الرجاء تحديد الطابق",
+    "selectUnit": "حدد الوحدة",
+    "selectUnitDesc": "الرجاء تحديد وحدة",
+    "searchUnit": "وحدة البحث...",
     "invalidDataFormat": "تنسيق رمز الاستجابة السريعة غير صالح. يرجى المسح مرة أخرى.",
-    "invalidUnit": "وحدة غير صالحة. يرجى مسح الوحدة التي تنتمي إلى هذا المركز التجاري"
+    "invalidUnit": "وحدة غير صالحة. يرجى مسح الوحدة التي تنتمي إلى هذا المركز التجاري",
+    "level": "شاقول",
+    "unit": "وحدة",
+    "unitStatus": "حالة الوحدة",
+    "contract": "عقد",
+    "brand": "علامة تجارية",
+    "storeClosed": "المتجر مغلق",
+    "wrongLocation": "موقع خاطئ",
+    "brandChanged": "تم تغيير العلامة التجارية",
+    "openWithoutContract": "مفتوح بدون عقد",
+    "others": "آحرون",
+    "reviewStatus": "حالة المراجعة",
+    "match": "مباراة",
+    "mismatch": "مباراة",
+    "status": {
+        "in_process": "قيد الانتظار",
+        "in_progress": "قيد الانتظار",
+        "new": "جديد",
+        "approved": "تمت الموافقة",
+        "rejected": "مرفوض",
+        "yet_to_start": "لم يبدأ بعد",
+        "action_required": "يتطلب إجراء",
+        "completed": "مكتمل",
+        "finished": "منتهي"
+      },
+      "roles": {
+        "leasing_admin": "مدير التأجير",
+        "mall_manager": "مدير المول",
+        "operations_manager": "مدير العمليات",
+        "operations_support": "دعم العمليات"
+      }
   }
 }

@@ -3,7 +3,7 @@ import { TouchableOpacity, View } from "react-native";
 import { createStructuredSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "./styles";
-import { isRTL, localize } from "../../locale/utils";
+import { isArabic, isRTL, localize } from "../../locale/utils";
 import { getUnitDicrepancy, getUnitList } from "./redux/actions";
 import { getUnitListSelector } from "./redux/selectors";
 import CustomDropDown from "../../components/CustomDropdown";
@@ -54,7 +54,6 @@ function Step1({
 }: Step1Props) {
   const dispatch = useDispatch();
   const { unitList, isDarkMode } = useSelector(stateStructure);
-
   const [allUnits, setAllUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,13 +62,23 @@ function Step1({
   const itemsPerPage = 20;
   const [searchTerm, setSearchTerm] = useState("");
   const [isQRScan, setIsQRScan] = useState(false);
-  const [qrScanData, setQrScanData] = useState<{ floorCode: string; unitCode: string } | null>(null);
+  const [qrScanData, setQrScanData] = useState<{
+    floorCode: string;
+    unitCode: string;
+  } | null>(null);
 
-  const parseQRCode = (qrValue: string): { floorCode: string; unitCode: string } | null => {
+  const marketingName =
+    isArabic() && property?.marketing_name_arabic
+      ? property.marketing_name_arabic
+      : property?.marketing_name;
+
+  const parseQRCode = (
+    qrValue: string
+  ): { floorCode: string; unitCode: string } | null => {
     try {
-      const parts = qrValue.includes('—')
-        ? qrValue.split('—')
-        : qrValue.split('-');
+      const parts = qrValue.includes("—")
+        ? qrValue.split("—")
+        : qrValue.split("-");
 
       if (parts.length < 3) return null;
 
@@ -80,7 +89,7 @@ function Step1({
 
       return {
         floorCode,
-        unitCode
+        unitCode,
       };
     } catch (error) {
       console.error("Error parsing QR code:", error);
@@ -96,30 +105,32 @@ function Step1({
         );
 
         if (!matchingUnit) {
-          throw new Error('Unit not found');
+          throw new Error("Unit not found");
         }
 
-        if (property?.marketing_name !== matchingUnit?.properties?.marketing_name) {
-          throw new Error('Property mismatch');
+        if (
+          property?.marketing_name !== matchingUnit?.properties?.marketing_name
+        ) {
+          throw new Error("Property mismatch");
         }
 
         const mappedFloor = FLOOR_CODE_MAPPING[qrScanData.floorCode];
 
         const level = {
           label: mappedFloor.label,
-          value: mappedFloor.value
+          value: mappedFloor.value,
         };
 
         const unit = {
           label: `${matchingUnit.unit_code} - ${matchingUnit.unit_type} : ${matchingUnit.status}`,
           value: matchingUnit.unit_id,
-          data: matchingUnit
+          data: matchingUnit,
         };
 
         setSelectValues((values) => ({
           ...values,
           level,
-          unit
+          unit,
         }));
 
         setIsQRScan(true);
@@ -131,24 +142,19 @@ function Step1({
         );
 
         setQrScanData(null);
-
       } catch (error) {
-        let errorMessage = 'common.someThingWentWrong';
+        let errorMessage = "common.someThingWentWrong";
 
-        if (error.message === 'Unit not found') {
-          errorMessage = 'discrepancy.invalidUnit';
-        } else if (error.message === 'Property mismatch') {
-          errorMessage = 'discrepancy.invalidUnit';
+        if (error.message === "Unit not found") {
+          errorMessage = "discrepancy.invalidUnit";
+        } else if (error.message === "Property mismatch") {
+          errorMessage = "discrepancy.invalidUnit";
         }
 
-        alertBox(
-          localize("common.error"),
-          localize(errorMessage),
-          {
-            positiveText: localize("common.ok"),
-            cancelable: true,
-          }
-        );
+        alertBox(localize("common.error"), localize(errorMessage), {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+        });
         console.error("Error processing unit data:", error);
         setQrScanData(null);
       }
@@ -160,14 +166,14 @@ function Step1({
       const parsedQR = parseQRCode(value);
 
       if (!parsedQR) {
-        throw new Error('Invalid QR format');
+        throw new Error("Invalid QR format");
       }
 
       const { floorCode } = parsedQR;
       const mappedFloor = FLOOR_CODE_MAPPING[floorCode];
 
       if (!mappedFloor) {
-        throw new Error('Unknown floor code');
+        throw new Error("Unknown floor code");
       }
 
       setQrScanData(parsedQR);
@@ -180,24 +186,19 @@ function Step1({
           limit: 1000, // Large number to get all units
         })
       );
-
     } catch (error) {
-      let errorMessage = 'common.someThingWentWrong';
+      let errorMessage = "common.someThingWentWrong";
 
-      if (error.message === 'Invalid QR format') {
-        errorMessage = 'discrepancy.invalidDataFormat';
-      } else if (error.message === 'Unknown floor code') {
-        errorMessage = 'discrepancy.invalidUnit';
+      if (error.message === "Invalid QR format") {
+        errorMessage = "discrepancy.invalidDataFormat";
+      } else if (error.message === "Unknown floor code") {
+        errorMessage = "discrepancy.invalidUnit";
       }
 
-      alertBox(
-        localize("common.error"),
-        localize(errorMessage),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
+      alertBox(localize("common.error"), localize(errorMessage), {
+        positiveText: localize("common.ok"),
+        cancelable: true,
+      });
       console.error("Error processing QR data:", error);
     }
   };
@@ -421,8 +422,8 @@ function Step1({
           />
         )}
         <CustomTextInput
-          label={"Mall"}
-          value={property?.marketing_name}
+          label={localize("discrepancy.mall")}
+          value={marketingName}
           editable={false}
           showClearButton={false}
           isMandatory={false}
@@ -449,7 +450,9 @@ function Step1({
           onEndReached={handleDropdownScroll}
           loading={isLoading}
           searchable={!!selectValues?.level && !hasNoUnits}
-          searchPlaceholder={selectValues?.level ? "Search Unit..." : ""}
+          searchPlaceholder={
+            selectValues?.level ? localize("discrepancy.searchUnit") : ""
+          }
           onSearchChange={handleSearchChange}
           searchValue={selectValues?.level ? searchTerm : ""}
           disabled={isLoading || hasNoUnits || !selectValues?.level}
