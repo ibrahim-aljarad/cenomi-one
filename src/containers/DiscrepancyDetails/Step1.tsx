@@ -20,6 +20,7 @@ import { CameraScanner } from "../../components/CameraScanner";
 import useQRScanner from "../../hooks/useQRScanner";
 import { debounce } from "lodash";
 import { alertBox } from "../../utils/helpers";
+import { FLOOR_CODE_MAPPING } from "./types";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -62,57 +63,142 @@ function Step1({
   const itemsPerPage = 20;
   const [searchTerm, setSearchTerm] = useState("");
   const [isQRScan, setIsQRScan] = useState(false);
+  const [qrScanData, setQrScanData] = useState<{ floorCode: string; unitCode: string } | null>(null);
 
-  const handleScan = (value: string) => {
+  const parseQRCode = (qrValue: string): { floorCode: string; unitCode: string } | null => {
     try {
-      const { floor, unit } = JSON.parse(value);
-     if (property?.marketing_name !== unit?.data?.properties?.marketing_name){
+      const parts = qrValue.includes('—')
+        ? qrValue.split('—')
+        : qrValue.split('-');
+
+      if (parts.length < 3) return null;
+
+      const floorCode = parts[1];
+      const unitCode = parts[2];
+
+      if (!floorCode || !unitCode) return null;
+
+      return {
+        floorCode,
+        unitCode
+      };
+    } catch (error) {
+      console.error("Error parsing QR code:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (qrScanData && unitList?.list && !isLoading) {
+      try {
+        const matchingUnit = unitList.list.find(
+          (unit: any) => unit.unit_code === qrScanData.unitCode
+        );
+
+        if (!matchingUnit) {
+          throw new Error('Unit not found');
+        }
+
+        if (property?.marketing_name !== matchingUnit?.properties?.marketing_name) {
+          throw new Error('Property mismatch');
+        }
+
+        const mappedFloor = FLOOR_CODE_MAPPING[qrScanData.floorCode];
+
+        const level = {
+          label: mappedFloor.label,
+          value: mappedFloor.value
+        };
+
+        const unit = {
+          label: `${matchingUnit.unit_code} - ${matchingUnit.unit_type} : ${matchingUnit.status}`,
+          value: matchingUnit.unit_id,
+          data: matchingUnit
+        };
+
+        setSelectValues((values) => ({
+          ...values,
+          level,
+          unit
+        }));
+
+        setIsQRScan(true);
+        dispatch(
+          getUnitDicrepancy.trigger({
+            unit_id: unit.value,
+            service_request_id: srId,
+          })
+        );
+
+        setQrScanData(null);
+
+      } catch (error) {
+        let errorMessage = 'common.someThingWentWrong';
+
+        if (error.message === 'Unit not found') {
+          errorMessage = 'discrepancy.invalidUnit';
+        } else if (error.message === 'Property mismatch') {
+          errorMessage = 'discrepancy.invalidUnit';
+        }
+
         alertBox(
           localize("common.error"),
-          localize("discrepancy.invalidUnit"),
+          localize(errorMessage),
           {
             positiveText: localize("common.ok"),
             cancelable: true,
           }
         );
-     } else {
-        setSelectValues((values) => {
-            const updatedValues = {
-              ...values,
-              level: floor,
-              unit: unit,
-            };
-            return updatedValues;
-          });
-          setIsQRScan(true);
-          dispatch(
-            getUnitDicrepancy.trigger({
-              unit_id: unit.value,
-              service_request_id: srId,
-            })
-          );
-     }
+        console.error("Error processing unit data:", error);
+        setQrScanData(null);
+      }
+    }
+  }, [unitList, qrScanData, isLoading]);
+
+  const handleScan = (value: string) => {
+    try {
+      const parsedQR = parseQRCode(value);
+
+      if (!parsedQR) {
+        throw new Error('Invalid QR format');
+      }
+
+      const { floorCode } = parsedQR;
+      const mappedFloor = FLOOR_CODE_MAPPING[floorCode];
+
+      if (!mappedFloor) {
+        throw new Error('Unknown floor code');
+      }
+
+      setQrScanData(parsedQR);
+      setIsLoading(true);
+      dispatch(
+        getUnitList.trigger({
+          "property-id": property?.property_id,
+          floor_code: mappedFloor.value,
+          page: 1,
+          limit: 1000, // Large number to get all units
+        })
+      );
+
     } catch (error) {
-        if (error instanceof SyntaxError) {
-            alertBox(
-              localize("common.error"),
-              localize("discrepancy.invalidDataFormat"),
-              {
-                positiveText: localize("common.ok"),
-                cancelable: true,
-              }
-            );
-          } else {
-            alertBox(
-              localize("common.error"),
-              localize("common.someThingWentWrong"),
-              {
-                positiveText: localize("common.ok"),
-                cancelable: true,
-              }
-            );
-          }
-          console.error("Error parsing scanned data:", error);
+      let errorMessage = 'common.someThingWentWrong';
+
+      if (error.message === 'Invalid QR format') {
+        errorMessage = 'discrepancy.invalidDataFormat';
+      } else if (error.message === 'Unknown floor code') {
+        errorMessage = 'discrepancy.invalidUnit';
+      }
+
+      alertBox(
+        localize("common.error"),
+        localize(errorMessage),
+        {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+        }
+      );
+      console.error("Error processing QR data:", error);
     }
   };
 
