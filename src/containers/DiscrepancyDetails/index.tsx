@@ -34,6 +34,7 @@ import {
 import { RfH, RfW } from "../../utils/helper";
 import { localize } from "../../locale/utils";
 import CustomModal from "../../components/CustomModal";
+import { ThemeProvider } from "../../theme/context";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -157,7 +158,7 @@ const DiscrepancyDetails = (props: any) => {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay>
       <SafeAreaView
         style={{
           ...styles.mainContainer,
@@ -174,17 +175,19 @@ const DiscrepancyDetails = (props: any) => {
             // paddingTop: RfH(10),
           }}
         >
-          <HeaderSVG
-            isRightButtonVisible={true}
-            isBackButtonVisible={true}
-            titleText={`${localize("common.serviceRequest")}: ${srId}`}
-            titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={() => backHandler()}
-            isRight2BtnVisible={true}
-            onRight2BtnClick={() => {}}
-            containerStyle={{ zIndex: 99999 }}
-          />
+          <ThemeProvider useNewStyles={true}>
+            <HeaderSVG
+              isRightButtonVisible={true}
+              isBackButtonVisible={true}
+              titleText={`${localize("common.serviceRequest")}: ${srId}`}
+              titleFont={20}
+              onRightButtonClickHandler={() => {}}
+              onBackPressHandler={() => backHandler()}
+              isRight2BtnVisible={true}
+              onRight2BtnClick={() => {}}
+              containerStyle={{ zIndex: 99999 }}
+            />
+          </ThemeProvider>
           <View style={styles.stepperNavigation}>
             {stepsIterator.map(({ step: stepNumber, disabled }) => (
               <TouchableOpacity
@@ -274,14 +277,18 @@ const DiscrepancyDetails = (props: any) => {
             )}
 
             {statusModal && (
-              <CustomModal
-                title={localize(
-                  isFinalSubmit ? "discrepancy.submitted" : "discrepancy.saved"
-                )}
-                modalVisible={true}
-                onRequestClose={handleClose}
-                onRequestActionButton={handleClose}
-              />
+              <ThemeProvider useNewStyles={true}>
+                <CustomModal
+                  title={localize(
+                    isFinalSubmit
+                      ? "discrepancy.submitted"
+                      : "discrepancy.saved"
+                  )}
+                  modalVisible={true}
+                  onRequestClose={handleClose}
+                  onRequestActionButton={handleClose}
+                />
+              </ThemeProvider>
             )}
           </View>
           {step === 1 && (

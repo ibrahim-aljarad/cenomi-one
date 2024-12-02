@@ -31,12 +31,12 @@ export const APPROVER_ORDER = [
 
 export const STATUS_COLORS = {
   IN_PROCESS: {
-    bg: "#FFC107",
-    border: "#FFC107",
+    bg: "#FFF3C4",
+    border: "#FFB300",
   },
   IN_PROGRESS: {
-    bg: "#FFC107",
-    border: "#FFC107",
+    bg: "#FFF3C4",
+    border: "#FFB300",
   },
   NEW: {
     bg: "#2196F3",
@@ -70,8 +70,8 @@ export const APPROVER_STATUS_COLORS = {
     border: "#757575",
   },
   IN_PROGRESS: {
-    bg: "#FFF8E1",
-    border: "#FFC107",
+    bg: "#FFF3C4",
+    border: "#FFB300",
   },
   COMPLETED: {
     bg: "#E8F5E9",

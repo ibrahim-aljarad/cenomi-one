@@ -26,6 +26,7 @@ import TenantImageViewer from "../../components/TenantImageViewer";
 import { alertBox } from "../../utils/helpers";
 import { getUnitDiscrepancySelector } from "./redux/selectors";
 import { saveUnitDicrepancy } from "./redux/actions";
+import { ThemeProvider } from "../../theme/context";
 
 const yesOrNoPairs = [
   { key: "storeClosed", label: localize("discrepancy.storeClosed") },
@@ -372,38 +373,40 @@ function Step3({ selectValues, setSelectValues, setStep }) {
         />
       </View>
       {imageModal ? (
-        <CustomModal
-          modalVisible={true}
-          onRequestClose={() => setImageModal(null)}
-        >
-          <View style={{ alignItems: "center", paddingVertical: RfH(20) }}>
-            <TenantImageViewer
-              docId={imageModal}
-              imageWidth={300}
-              imageHeight={300}
-            />
+        <ThemeProvider useNewStyles={true}>
+          <CustomModal
+            modalVisible={true}
+            onRequestClose={() => setImageModal(null)}
+          >
+            <View style={{ alignItems: "center", paddingVertical: RfH(20) }}>
+              <TenantImageViewer
+                docId={imageModal}
+                imageWidth={300}
+                imageHeight={300}
+              />
 
-            <View
-              style={{
-                marginTop: RfH(22),
-                width: "100%",
-                flexDirection: "row",
-                justifyContent: "space-around",
-              }}
-            >
-              <AppPrimaryButton
-                buttonText={localize("common.cancel")}
-                onPress={() => setImageModal(null)}
-                containerStyle={{ width: RfW(150) }}
-              />
-              <AppPrimaryButton
-                buttonText={localize("common.delete")}
-                onPress={() => handleRemoveImage(imageModal)}
-                containerStyle={{ width: RfW(150) }}
-              />
+              <View
+                style={{
+                  marginTop: RfH(22),
+                  width: "100%",
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                }}
+              >
+                <AppPrimaryButton
+                  buttonText={localize("common.cancel")}
+                  onPress={() => setImageModal(null)}
+                  containerStyle={{ width: RfW(150) }}
+                />
+                <AppPrimaryButton
+                  buttonText={localize("common.delete")}
+                  onPress={() => handleRemoveImage(imageModal)}
+                  containerStyle={{ width: RfW(150) }}
+                />
+              </View>
             </View>
-          </View>
-        </CustomModal>
+          </CustomModal>
+        </ThemeProvider>
       ) : null}
     </View>
   );
