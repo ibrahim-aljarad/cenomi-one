@@ -1,5 +1,60 @@
 import { localize } from "../../locale/utils";
-import { MeterValidationErrors, ValidationResult } from "./type";
+import { MeterData, MeterValidationErrors, ValidationResult } from "./type";
+import { AzureKeyCredential, DocumentAnalysisClient } from "@azure/ai-form-recognizer";
+
+const endpoint = "https://meterreading-customdocintel.cognitiveservices.azure.com/";
+const apiKey = "CKdPRTlK3gyGcrooBpi8BKr37qtAkRi1DWZM3lFebIg8yaAFIiObJQQJ99AKAC5RqLJXJ3w3AAALACOGJm0w";
+
+const client = new DocumentAnalysisClient(
+    endpoint,
+    new AzureKeyCredential(apiKey)
+  );
+
+export const detectMeterReading = async (imagePath: string): Promise<MeterData> => {
+    try {
+      const response = await fetch(imagePath);
+      console.log("response", response);
+      const imageBuffer = await response.blob();
+      console.log("imageBuffer", imageBuffer);
+      const modelId = "meterreadingv3";
+
+      const poller = await client.beginAnalyzeDocument(
+        modelId,
+        imageBuffer
+      );
+
+      const result = await poller.pollUntilDone();
+      const document = result?.documents?.[0];
+      if (!document) {
+          console.log("No document found");
+          return {
+              meterReading: "",
+              meterNumber: ""
+          };
+      }
+      console.log("document", document);
+      const readings = {
+          meterReading: document?.fields?.MeterReading?.content?.replace(/\s+/g, ''),
+          meterNumber: document?.fields?.MeterNumber?.content?.replace(/\s+/g, '')
+      };
+
+      if (!readings.meterNumber || !readings.meterReading) {
+        console.log("No meter number or meter reading found");
+        return {
+            meterReading: "",
+            meterNumber: ""
+        };
+      }
+
+      return {
+        meterNumber: readings?.meterNumber || "",
+        meterReading: readings?.meterReading || ""
+      };
+    } catch (error) {
+      console.error("Error in detectMeterReading:", error);
+      throw error;
+    }
+  };
 
 export const getErrorMessages = () => ({
   meterNumber: localize("meterReadings.validation.invalidMeterNumber"),

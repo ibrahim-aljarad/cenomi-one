@@ -36,6 +36,7 @@ import { RfH, RfW } from "../../utils/helper";
 import { isRTL, localize } from "../../locale/utils";
 import UploadDocument from "../../components/UploadDocument";
 import {
+    detectMeterReading,
   mockDetectMeterReading,
   sanitizeNumericInput,
   validateMeterForm,
@@ -103,7 +104,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
           console.error("Error getting image size:", error);
         }
       );
-      const detectedData = await mockDetectMeterReading();
+      const detectedData = await detectMeterReading(imageData.path);
       setMeterData(detectedData);
       setIsEditing(true);
     } catch (error) {

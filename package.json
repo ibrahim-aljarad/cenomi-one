@@ -26,6 +26,7 @@
     "x86-node-modules-pod-install": "arch -x86_64 yarn install && cd ios && arch -x86_64 pod install"
   },
   "dependencies": {
+    "@azure/ai-form-recognizer": "^5.0.0",
     "@invertase/react-native-apple-authentication": "^2.2.2",
     "@react-native-async-storage/async-storage": "^1.19.0",
     "@react-native-community/blur": "^4.4.0",
