@@ -35,8 +35,8 @@ const CustomModal = (props: any) => {
   const getNewStyles = () => {
     if (useNewStyles) {
       return {
-        modalForegroundColor: getColorWithOpacity('#1C304F', 0.9), // new color added for new styles
-        modalLayoutColor: getColorWithOpacity(Colors.midnightExpress, 0.4),
+        modalForegroundColor: getColorWithOpacity('#1C304F', 0.9),
+        modalLayoutColor: getColorWithOpacity(Colors.midnightExpress, 0.9),
       };
     }
     return {

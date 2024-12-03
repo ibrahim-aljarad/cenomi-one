@@ -36,7 +36,8 @@
     "en": "English",
     "ar": "Arabic",
     "currentLanguage": "Current language",
-
+    "serviceRequest": "Service Request",
+    "save": "Save",
     "all": "ALL",
     "lorem": "Lorem Ipsum",
     "hello": "Hello",
@@ -545,7 +546,42 @@
     "title": "Title",
     "selectOthers": "Others Field Required",
     "selectOthersDesc": "Please specify details in Others field",
+    "selectFloor": "Select Floor",
+    "selectFloorDesc": "Please select a floor",
+    "selectUnit": "Select Unit",
+    "selectUnitDesc": "Please select a unit",
+    "searchUnit": "Search Unit...",
     "invalidDataFormat": "Invalid QR code format. Please scan again.",
-    "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall"
+    "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall",
+    "level": "Level",
+    "unit": "Unit",
+    "unitStatus": "Unit Status",
+    "contract": "Contract",
+    "brand": "Brand",
+    "storeClosed": "Store Closed",
+    "wrongLocation": "Wrong Location",
+    "brandChanged": "Brand Changed",
+    "openWithoutContract": "Open without Contract",
+    "others": "Others",
+    "reviewStatus": "Review Status",
+    "match": "Match",
+    "mismatch": "Mismatch",
+    "status": {
+        "in_process": "Pending",
+        "in_progress": "Pending",
+        "new": "New",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "yet_to_start": "Yet to start",
+        "action_required": "Action required",
+        "completed": "Completed",
+        "finished": "Finished"
+      },
+      "roles": {
+        "leasing_admin": "Leasing Admin",
+        "mall_manager": "Mall Manager",
+        "operations_manager": "Operations Manager",
+        "operations_support": "Operations Support"
+      }
   }
 }
