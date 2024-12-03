@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
     marginHorizontal: RfW(24),
   },
   cellContainerView: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: RfH(8),
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   labelContainer: {
-    width: '40%',
+    width: "40%",
     paddingRight: RfW(10),
   },
   valueContainer: {
@@ -123,6 +123,37 @@ const styles = StyleSheet.create({
     paddingBottom: RfH(10),
     borderBottomWidth: 4,
     borderBottomColor: getColorWithOpacity(Colors.white, 0.24),
+  },
+  attachmentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: RfH(12),
+    paddingHorizontal: RfW(16),
+    width: "100%",
+  },
+  attachmentContent: {
+    flex: 1,
+    paddingRight: RfW(16),
+  },
+  attachmentCTA: {
+    width: RfW(50),
+    alignItems: "flex-end",
+  },
+  attachmentsContainer: {
+    paddingVertical: RfH(8),
+    width: "100%",
+  },
+  commentBox: {
+    backgroundColor: "#F0F0F0",
+    borderRadius: 8,
+    padding: RfW(12),
+    minHeight: 60,
+    marginVertical: RfH(12),
+  },
+  commentText: {
+    fontSize: 14,
+    color: "#424242",
+    lineHeight: 20,
   },
 });
 export default styles;

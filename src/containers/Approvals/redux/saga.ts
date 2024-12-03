@@ -41,7 +41,7 @@ const PROCUREMENT_PENDING_TASK_URL = "process/procurement/pending-tasks";
 const PROCUREMENT_TASK_DETAILS_URL = "process/procurement/tasks-details/";
 const PROCUREMENT_TAKE_ACTION_URL = "process/procurement/take-action/";
 
-const WORKFLOW_PENDING_TASK_URL = "pendingTasks?loggedInUser=";
+const WORKFLOW_PENDING_TASK_URL = "pendingTasks?loggedInUser=veena.sodha.ext@cenomi.com&ss=";
 const WORKFLOW_TASK_DETAIL_URL = "requestData";
 const WORKFLOW_TAKE_ACTION_URL = "updateRequestStatus";
 
@@ -349,6 +349,7 @@ function* getWorkflowTaskDetailRequest(action: { payload: { taskId: any } }) {
 
     if (response.success) {
       const { data } = response;
+      console.log(data);
       yield put(getWorkflowTasksDetails.success({ data }));
     } else {
       yield put(setGlobalError.success());

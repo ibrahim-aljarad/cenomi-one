@@ -42,7 +42,7 @@ function SearchComponent(props) {
         {
           backgroundColor: isDarkMode
             ? Colors.darkModeDisabledColor
-            : getColorWithOpacity(Colors.midnightExpress, 0.24)
+            : getColorWithOpacity(Colors.midnightExpress, 0.7)
         },
         styling
       ]}>
