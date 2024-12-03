@@ -4,8 +4,6 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-
-import { isEmpty } from "lodash";
 import {
   BackHandler,
   SafeAreaView,
@@ -15,14 +13,11 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import { isLoadingSelector } from "../../appContainer/redux/selectors";
 import { CustomButton, CustomText, HeaderSVG } from "../../components";
 import { Colors, CommonStyles, Images } from "../../theme";
 import { CC_TEMPLATE_TEXT } from "../../utils/constants";
-import { getCorporateCommunicationDetailsSelector } from "../Home/redux/selectors";
 import styles from "./styles";
 import { alertBox, isValidHtml } from "../../utils/helpers";
-import { getMyProfileDetailsSelector } from "../LoginHome/redux/selectors";
 import { isDarkModeSelector } from "../redux/selectors";
 import WrapperContainer from "../../components/WrapperContainer";
 import Step1 from "./Step1";
@@ -31,18 +26,21 @@ import {
   getDiscrepancyDetailDataSelector,
   saveUnitDiscrepancySelector,
 } from "./redux/selectors";
-import { clearDiscrepancy, getDiscrepancyDetail, saveUnitDicrepancy } from "./redux/actions";
+import {
+  clearDiscrepancy,
+  getDiscrepancyDetail,
+  saveUnitDicrepancy,
+} from "./redux/actions";
 import { RfH, RfW } from "../../utils/helper";
 import { localize } from "../../locale/utils";
 import CustomModal from "../../components/CustomModal";
+import { ThemeProvider } from "../../theme/context";
 
 const stateStructure = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   discrepancyDetailData: getDiscrepancyDetailDataSelector,
   saveUnitDiscrepancyData: saveUnitDiscrepancySelector,
 });
-
-
 
 const DiscrepancyDetails = (props: any) => {
   const { id, property, srId } = props.route.params;
@@ -63,12 +61,12 @@ const DiscrepancyDetails = (props: any) => {
     othersText: "",
     comment: "",
     documentId: [],
-    reviewStatus: '',
+    reviewStatus: "",
   });
 
   const { isDarkMode, discrepancyDetailData, saveUnitDiscrepancyData } =
     useSelector(stateStructure);
-    const [isFinalSubmit, setIsFinalSubmit] = useState(false);
+  const [isFinalSubmit, setIsFinalSubmit] = useState(false);
   const [info, setInfo] = useState({
     source: "",
     height: 0,
@@ -100,14 +98,21 @@ const DiscrepancyDetails = (props: any) => {
 
   const step1Continue = () => {
     if (!selectValues?.level)
-      return alertBox("Select Floor", "Select A floor and Unit");
-    if (!selectValues?.unit) return alertBox("Select Unit", "Select A Unit");
+      return alertBox(
+        localize("discrepancy.selectFloor"),
+        localize("discrepancy.selectFloorDesc")
+      );
+    if (!selectValues?.unit)
+      return alertBox(
+        localize("discrepancy.selectUnit"),
+        localize("discrepancy.selectUnitDesc")
+      );
     setStep(2);
   };
 
   const handleClose = () => {
     setStatusModal(false);
-    if(isFinalSubmit){
+    if (isFinalSubmit) {
       backHandler();
     }
   };
@@ -129,7 +134,7 @@ const DiscrepancyDetails = (props: any) => {
         othersText: "",
         comment: "",
         documentId: [],
-        reviewStatus: '',
+        reviewStatus: "",
       });
     }
   }, [saveUnitDiscrepancyData]);
@@ -147,13 +152,13 @@ const DiscrepancyDetails = (props: any) => {
     setIsFinalSubmit(true);
     const params = {
       service_request_id: parseInt(srId),
-      status: "SUBMITTED"
-    }
-    dispatch(saveUnitDicrepancy.trigger(params))
-  }
+      status: "SUBMITTED",
+    };
+    dispatch(saveUnitDicrepancy.trigger(params));
+  };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay>
       <SafeAreaView
         style={{
           ...styles.mainContainer,
@@ -170,17 +175,19 @@ const DiscrepancyDetails = (props: any) => {
             // paddingTop: RfH(10),
           }}
         >
-          <HeaderSVG
-            isRightButtonVisible={true}
-            isBackButtonVisible={true}
-            titleText={`Service Request: ${srId}`}
-            titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={() => backHandler()}
-            isRight2BtnVisible={true}
-            onRight2BtnClick={() => {}}
-            containerStyle={{ zIndex: 99999 }}
-          />
+          <ThemeProvider useNewStyles={true}>
+            <HeaderSVG
+              isRightButtonVisible={true}
+              isBackButtonVisible={true}
+              titleText={`${localize("common.serviceRequest")}: ${srId}`}
+              titleFont={20}
+              onRightButtonClickHandler={() => {}}
+              onBackPressHandler={() => backHandler()}
+              isRight2BtnVisible={true}
+              onRight2BtnClick={() => {}}
+              containerStyle={{ zIndex: 99999 }}
+            />
+          </ThemeProvider>
           <View style={styles.stepperNavigation}>
             {stepsIterator.map(({ step: stepNumber, disabled }) => (
               <TouchableOpacity
@@ -270,23 +277,28 @@ const DiscrepancyDetails = (props: any) => {
             )}
 
             {statusModal && (
-              <CustomModal
-                title={localize(isFinalSubmit ? "discrepancy.submitted": "discrepancy.saved")}
-                modalVisible={true}
-                onRequestClose={handleClose}
-                onRequestActionButton={handleClose}
-              />
+              <ThemeProvider useNewStyles={true}>
+                <CustomModal
+                  title={localize(
+                    isFinalSubmit
+                      ? "discrepancy.submitted"
+                      : "discrepancy.saved"
+                  )}
+                  modalVisible={true}
+                  onRequestClose={handleClose}
+                  onRequestActionButton={handleClose}
+                />
+              </ThemeProvider>
             )}
           </View>
-          {
-            step === 1 &&
-          <CustomButton
-            buttonText={localize('discrepancy.submitAll')}
-            showSeperator={false}
-            btnContainerStyle={styles.submitButtonStyle}
-            handleOnSubmit={handleSubmit}
-          />
-          }
+          {step === 1 && (
+            <CustomButton
+              buttonText={localize("discrepancy.submitAll")}
+              showSeperator={false}
+              btnContainerStyle={styles.submitButtonStyle}
+              handleOnSubmit={handleSubmit}
+            />
+          )}
         </ScrollView>
         {/* <Loader isLoading={isLoading || partialLoading} /> */}
       </SafeAreaView>
