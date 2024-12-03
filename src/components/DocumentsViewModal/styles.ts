@@ -43,6 +43,20 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: Colors.white
     // justifyContent: 'center'
+  },
+  emailHeader: {
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    paddingBottom: 10,
+  },
+  emailLabel: {
+    fontSize: 14,
+    marginBottom: 5,
+    fontWeight: '500',
+  },
+  emailBody: {
+    paddingTop: 10,
   }
 });
 
