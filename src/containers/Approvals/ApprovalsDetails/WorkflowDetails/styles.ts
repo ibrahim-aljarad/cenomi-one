@@ -125,13 +125,11 @@ const styles = StyleSheet.create({
     borderBottomColor: getColorWithOpacity(Colors.white, 0.24),
   },
   attachmentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: RfH(12),
     paddingHorizontal: RfW(16),
-    borderBottomWidth: 1,
-    borderBottomColor: getColorWithOpacity(Colors.black, 0.1),
-    width: '100%',
+    width: "100%",
   },
   attachmentContent: {
     flex: 1,
@@ -139,22 +137,22 @@ const styles = StyleSheet.create({
   },
   attachmentCTA: {
     width: RfW(50),
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   attachmentsContainer: {
     paddingVertical: RfH(8),
-    width: '100%',
+    width: "100%",
   },
   commentBox: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: "#F0F0F0",
     borderRadius: 8,
     padding: RfW(12),
     minHeight: 60,
-   marginVertical: RfH(12),
+    marginVertical: RfH(12),
   },
   commentText: {
     fontSize: 14,
-    color: '#424242',
+    color: "#424242",
     lineHeight: 20,
   },
 });

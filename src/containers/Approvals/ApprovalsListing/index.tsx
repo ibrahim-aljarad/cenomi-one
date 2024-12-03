@@ -32,6 +32,7 @@ import {
 import WrapperContainer from "../../../components/WrapperContainer";
 import { RfW } from "../../../utils/helper";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
+import { ThemeProvider } from "../../../theme/context";
 
 const stateSelector = createStructuredSelector({
   approvalPendingTasksData: getApprovalPendingTasksSelector,
@@ -256,7 +257,7 @@ const ApprovalsListing = (props: any) => {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay>
       <SafeAreaView
         style={[
           styles.mainContainer,
@@ -267,16 +268,19 @@ const ApprovalsListing = (props: any) => {
           },
         ]}
       >
-        <HeaderSVG
-          isRightButtonVisible={false}
-          isBackButtonVisible={true}
-          titleText={module.name}
-          titleFont={20}
-          onRightButtonClickHandler={() => {}}
-          onBackPressHandler={() => navigation.goBack()}
-          isRight2BtnVisible={false}
-          isBorderRadius={false}
-        />
+        <ThemeProvider useNewStyles={true}>
+          <HeaderSVG
+            isRightButtonVisible={false}
+            isBackButtonVisible={true}
+            titleText={module.name}
+            titleFont={20}
+            onRightButtonClickHandler={() => {}}
+            onBackPressHandler={() => navigation.goBack()}
+            isRight2BtnVisible={false}
+            isBorderRadius={false}
+          />
+        </ThemeProvider>
+
         <View
           style={{
             backgroundColor: isDarkMode

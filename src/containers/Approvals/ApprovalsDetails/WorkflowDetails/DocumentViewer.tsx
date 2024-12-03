@@ -4,15 +4,35 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  Text,
 } from "react-native";
 import RNFS from "react-native-fs";
-import { CustomImage, CustomText } from "../../../../components";
+import { CustomText } from "../../../../components";
 import DocumentsViewModal from "../../../../components/DocumentsViewModal";
-import { Colors, CommonStyles, Images } from "../../../../theme";
-import { BorderRadius } from "../../../../theme/sizes";
+import { Colors, CommonStyles } from "../../../../theme";
 import Config from "../../../../utils/config";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
+import crashlytics from "@react-native-firebase/crashlytics";
+
+interface ErrorTracking {
+  recordError: (error: Error, context: Record<string, string>) => void;
+  setCustomKey: (key: string, value: string | number | boolean) => void;
+  log: (message: string) => void;
+}
+
+const errorTracker: ErrorTracking = {
+  recordError: (error: Error, context: Record<string, string>) => {
+    Object.entries(context).forEach(([key, value]) => {
+      crashlytics().setAttribute(key, String(value));
+    });
+    crashlytics().recordError(error);
+  },
+  setCustomKey: (key: string, value: string | number | boolean) => {
+    crashlytics().setAttribute(key, String(value));
+  },
+  log: (message: string) => {
+    crashlytics().log(message);
+  },
+};
 
 interface SelectedDocument {
   isVisible: boolean;
@@ -23,9 +43,13 @@ interface SelectedDocument {
 
 interface DocumentViewerProps {
   documentId: string;
+  isDarkMode?: boolean;
 }
 
-const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
+const DocumentViewer: React.FC<DocumentViewerProps> = ({
+  documentId,
+  isDarkMode,
+}) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
@@ -38,12 +62,11 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
   });
 
   const fetchAndSaveDocument = async () => {
+    const url = `${Config.APPIAN_URL}/cafsDownloadDocument?documentId=${documentId}`;
     try {
       setLoading(true);
       setError(null);
-
-      const url = `${Config.APPIAN_URL}/cafsDownloadDocument?documentId=${documentId}`;
-
+      errorTracker.log(`Starting document fetch for ID: ${documentId}`);
       // using native fetch API as Appian api instance with axios is giving some issue when handling blob response
       const response = await fetch(url, {
         method: "GET",
@@ -58,6 +81,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
 
       const contentType = response.headers.get("content-type") || "";
       setFileType(contentType);
+      errorTracker.setCustomKey("contentType", contentType);
 
       const responseData = await response.blob();
       const extension = contentType.includes("pdf")
@@ -69,6 +93,14 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
       const filePath = `${RNFS.DocumentDirectoryPath}/${filename}`;
 
       const fileReader = new FileReader();
+      fileReader.onerror = (event) => {
+        const readerError = new Error("FileReader error");
+        errorTracker.recordError(readerError, {
+          eventType: "fileReader",
+          filename: filename,
+        });
+      };
+
       fileReader.onload = async () => {
         const result = fileReader.result;
         if (typeof result === "string") {
@@ -77,8 +109,13 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
           try {
             await RNFS.writeFile(filePath, base64data, "base64");
             setFileUri(`file://${filePath}`);
+            errorTracker.log(`File successfully saved: ${filename}`);
           } catch (writeError) {
             console.error("Error writing file:", writeError);
+            errorTracker.recordError(writeError as Error, {
+              action: "writeFile",
+              filePath: filePath,
+            });
             setError("Error saving file");
           } finally {
             setLoading(false);
@@ -89,10 +126,19 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
       fileReader.readAsDataURL(responseData);
     } catch (error) {
       console.error("Error fetching document:", error);
+      errorTracker.recordError(error as Error, {
+        action: "fetchDocument",
+        url: url,
+      });
       setError("Error downloading document");
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    errorTracker.setCustomKey("documentId", documentId);
+    errorTracker.setCustomKey("isDarkMode", !!isDarkMode);
+  }, [documentId, isDarkMode]);
 
   useEffect(() => {
     let mounted = true;
@@ -112,9 +158,14 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
             }
           })
           .then(() => {
+            errorTracker.log(`Cleanup completed for: ${path}`);
             console.log("Cleanup completed successfully");
           })
           .catch((error) => {
+            errorTracker.recordError(error as Error, {
+              action: "cleanup",
+              filePath: path,
+            });
             console.error("Cleanup failed:", error);
           });
       }
@@ -133,12 +184,20 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
           documentFiles.map((file) =>
             RNFS.unlink(file.path)
               .then(() => console.log(`Cleaned up old file: ${file.name}`))
-              .catch((err) =>
-                console.warn(`Failed to clean up ${file.name}:`, err)
-              )
+              .catch((err) => {
+                errorTracker.recordError(err as Error, {
+                  action: "initialCleanup",
+                  fileName: file.name,
+                });
+                console.warn(`Failed to clean up ${file.name}:`, err);
+              })
           )
         );
       } catch (error) {
+        errorTracker.recordError(error as Error, {
+          action: "initialCleanup",
+          error: "Failed to cleanup initial files",
+        });
         console.error("Error during initial cleanup:", error);
       }
     };
@@ -168,56 +227,110 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View
+        style={[
+          styles.requestCellView,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.topHeader,
+            { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+          ]}
+        >
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.black : Colors.black}
+            styling={{
+              ...CommonStyles.mediumFontStyle,
+              width: "95%",
+            }}
+          >
+            LOD Document
+          </CustomText>
+        </View>
+        <CustomText
+          fontSize={14}
+          color={Colors.red}
+          styling={{
+            ...CommonStyles.regularFont400Style,
+            padding: RfH(12),
+          }}
+        >
+          {error}
+        </CustomText>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
+    <View
+      style={[
+        styles.requestCellView,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.topHeader,
+          { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+        ]}
+      >
         <CustomText
           fontSize={16}
-          color={Colors.black}
+          color={isDarkMode ? Colors.black : Colors.black}
           styling={{
             ...CommonStyles.mediumFontStyle,
             width: "95%",
           }}
         >
-          LOD
+          LOD Document
         </CustomText>
       </View>
 
       <TouchableOpacity
-        style={styles.previewCard}
+        style={[
+          styles.attachmentRow,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          },
+        ]}
         onPress={handleDocumentOpen}
         disabled={loading}
       >
-        {loading ? (
-          <ActivityIndicator size="small" color={Colors.primary} />
-        ) : (
-          <>
-            <CustomImage
-              image={Images.documentAcknowledge}
-              imageWidth={40}
-              imageHeight={40}
-              imageResizeMode={"contain"}
-              styling={{ marginBottom: RfH(8) }}
-            />
+        <View style={styles.attachmentContent}>
+          <CustomText
+            fontSize={14}
+            color={isDarkMode ? Colors.black : Colors.black}
+            styling={{
+              ...CommonStyles.regularFont400Style,
+            }}
+            numberOfLines={1}
+          >
+            {loading ? "Loading document..." : `Document ${documentId}`}
+          </CustomText>
+        </View>
+
+        <View style={styles.attachmentCTA}>
+          {loading ? (
+            <ActivityIndicator size="small" color={Colors.primary} />
+          ) : (
             <CustomText
-              fontSize={12}
-              color={Colors.black}
+              fontSize={14}
+              color={Colors.blue}
               styling={{
                 ...CommonStyles.regularFont400Style,
-                textAlign: "center",
               }}
-              numberOfLines={2}
             >
-              {`Document ${documentId}`}
+              Open
             </CustomText>
-          </>
-        )}
+          )}
+        </View>
       </TouchableOpacity>
 
       <DocumentsViewModal
@@ -230,41 +343,33 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ documentId }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: BorderRadius.BR15,
-    backgroundColor: Colors.white,
+  requestCellView: {
+    borderRadius: 15,
     marginHorizontal: RfW(24),
-    paddingHorizontal: RfW(15),
     marginTop: RfH(16),
+    paddingHorizontal: RfW(15),
   },
-  headerContainer: {
-    flex: 1,
-    paddingTop: RfH(12),
-    paddingBottom: RfH(12),
+  topHeader: {
+    paddingVertical: RfH(12),
     borderBottomWidth: 1,
-    alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    borderColor: getColorWithOpacity(Colors.black, 0.2),
-  },
-  previewCard: {
-    padding: RfW(12),
-    borderRadius: BorderRadius.BR10,
-    borderWidth: 1,
-    borderColor: getColorWithOpacity(Colors.black, 0.2),
-    alignItems: "center",
-    width: RfW(100),
-    marginRight: RfW(12),
-    marginVertical: RfH(12),
-  },
-  errorContainer: {
-    padding: RfH(15),
     alignItems: "center",
   },
-  errorText: {
-    color: Colors.red,
-    fontSize: 14,
-    ...CommonStyles.regularFont400Style,
+  attachmentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: RfH(12),
+    paddingHorizontal: RfW(16),
+    width: "100%",
+  },
+  attachmentContent: {
+    flex: 1,
+    paddingRight: RfW(16),
+  },
+  attachmentCTA: {
+    width: RfW(50),
+    alignItems: "flex-end",
   },
 });
 

@@ -98,12 +98,15 @@ function WorkflowDetails({
     return taskItem?.name;
   };
 
-  const renderAttachmentItem = ({ item }) => (
+  const renderAttachmentItem = ({ item, index }) => (
     <TouchableOpacity
       style={[
         styles.attachmentRow,
         {
           backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          borderBottomWidth:
+            index < documentData?.attachements?.length - 1 ? 1 : 0,
+          borderColor: getColorWithOpacity(Colors.black, 0.2),
         },
       ]}
       onPress={() => handleDocumentOpen(item)}
@@ -217,14 +220,14 @@ function WorkflowDetails({
     },
     // for Imemo message
     ...(memoMessage?.trim()
-    ? [
-        {
-          title: "Memo",
-          details: {},
-          component: "memo",
-        },
-      ]
-    : []),
+      ? [
+          {
+            title: "Memo",
+            details: {},
+            component: "memo",
+          },
+        ]
+      : []),
     //for Termination Committee Approval
     ...(requestData?.terminationGridData
       ? [
@@ -316,36 +319,35 @@ function WorkflowDetails({
         ]
       : []),
 
-      ...(documentData?.lodDocument?.length
-        ? [
-            {
-              title: "LOD Document",
-              component: "lod",
-            },
-          ]
-        : []),
-      ...(documentData?.attachements?.length
-        ? [
-            {
-              title: "Attachments",
-              component: "attachments",
-            },
-          ]
-        : []),
-      ...(requestData?.userNotes
-        ? [
-            {
-              title: "Comments",
-              details: { userNotes: requestData.userNotes },
-              component: "comments",
-            },
-          ]
-        : []),
+    ...(documentData?.lodDocument?.length
+      ? [
+          {
+            title: "LOD Document",
+            component: "lod",
+          },
+        ]
+      : []),
+    ...(documentData?.attachements?.length
+      ? [
+          {
+            title: "Attachments",
+            component: "attachments",
+          },
+        ]
+      : []),
+    ...(requestData?.userNotes
+      ? [
+          {
+            title: "Comments",
+            details: { userNotes: requestData.userNotes },
+            component: "comments",
+          },
+        ]
+      : []),
   ];
 
-
   const generalCards = dealCardsData.filter(
-    card => !['attachments', 'comments', 'card'].includes(card?.component)
+    (card) => !["attachments", "comments", "card"].includes(card?.component)
   );
 
   const approverCards = sortBy(taskData?.data || [], ({ order }) => order).map(
@@ -356,8 +358,6 @@ function WorkflowDetails({
       component: "card",
     })
   );
-
-
 
   const horizontalDataConversion = ({ details, dataField }) =>
     details
@@ -512,51 +512,52 @@ function WorkflowDetails({
         </View>
       );
 
-      if (title === "Memo" && (!memoMessage || !memoMessage.trim())) {
-        return null;
-      }
+    if (title === "Memo" && (!memoMessage || !memoMessage.trim())) {
+      return null;
+    }
 
-      // Regular memo rendering with content
+    // Regular memo rendering with content
     if (title === "Memo" && memoMessage?.trim()) {
-        return (
+      return (
+        <View
+          style={[
+            styles.requestCellView,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeButton
+                : Colors.white,
+            },
+          ]}
+        >
           <View
             style={[
-              styles.requestCellView,
-              {
-                backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-              },
+              styles.topHeader,
+              { borderColor: getColorWithOpacity(Colors.black, 0.2) },
             ]}
           >
-            <View
-              style={[
-                styles.topHeader,
-                { borderColor: getColorWithOpacity(Colors.black, 0.2) },
-              ]}
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.black : Colors.black}
+              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
             >
-              <CustomText
-                fontSize={16}
-                color={isDarkMode ? Colors.black : Colors.black}
-                styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
-              >
-                {localize("Memo")}
-              </CustomText>
-            </View>
-            <CustomRenderHtml
-              source={memoMessage}
-              tagsStyles={{
-                body: {
-                  whiteSpace: "normal",
-                  color: isDarkMode ? Colors.black : Colors.black,
-                  fontSize: 14,
-                  lineHeight: 22,
-                  ...CommonStyles.regularFont400Style,
-                },
-              }}
-            />
+              {localize("Memo")}
+            </CustomText>
           </View>
-        );
-      }
-
+          <CustomRenderHtml
+            source={memoMessage}
+            tagsStyles={{
+              body: {
+                whiteSpace: "normal",
+                color: isDarkMode ? Colors.black : Colors.black,
+                fontSize: 14,
+                lineHeight: 22,
+                ...CommonStyles.regularFont400Style,
+              },
+            }}
+          />
+        </View>
+      );
+    }
   };
 
   if (!data) return <></>;
@@ -662,7 +663,8 @@ function WorkflowDetails({
 
       {renderAttachmentsSection()}
 
-      {requestData?.userNotes && renderCommentsSection({ userNotes: requestData.userNotes })}
+      {requestData?.userNotes &&
+        renderCommentsSection({ userNotes: requestData.userNotes })}
 
       {approverCards.map((card, index) =>
         renderComponent({
