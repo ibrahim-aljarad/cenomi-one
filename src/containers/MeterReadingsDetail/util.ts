@@ -1,60 +1,75 @@
 import { localize } from "../../locale/utils";
+import crashlytics from '@react-native-firebase/crashlytics';
 import { MeterData, MeterValidationErrors, ValidationResult } from "./type";
-import { AzureKeyCredential, DocumentAnalysisClient } from "@azure/ai-form-recognizer";
+import Config from "../../utils/config";
+import {
+  AzureKeyCredential,
+  DocumentAnalysisClient,
+} from "@azure/ai-form-recognizer";
 
-const endpoint = "https://meterreading-customdocintel.cognitiveservices.azure.com/";
-const apiKey = "CKdPRTlK3gyGcrooBpi8BKr37qtAkRi1DWZM3lFebIg8yaAFIiObJQQJ99AKAC5RqLJXJ3w3AAALACOGJm0w";
+class MeterReadingError extends Error {
+    constructor(message: string, public details?: any) {
+      super(message);
+      this.name = 'MeterReadingError';
+    }
+  }
 
 const client = new DocumentAnalysisClient(
-    endpoint,
-    new AzureKeyCredential(apiKey)
-  );
+  Config.AZURE_ENDPOINT as string,
+  new AzureKeyCredential(Config.AZURE_API_KEY as string)
+);
 
-export const detectMeterReading = async (imagePath: string): Promise<MeterData> => {
-    try {
-      const response = await fetch(imagePath);
-      console.log("response", response);
-      const imageBuffer = await response.blob();
-      console.log("imageBuffer", imageBuffer);
-      const modelId = "meterreadingv3";
-
-      const poller = await client.beginAnalyzeDocument(
+export const detectMeterReading = async (
+  imagePath: string
+): Promise<MeterData> => {
+  try {
+    const response = await fetch(imagePath);
+    const imageBuffer = await response.blob();
+    const modelId = Config.AZURE_MODEL_ID as string
+    const poller = await client.beginAnalyzeDocument(
         modelId,
         imageBuffer
       );
-
-      const result = await poller.pollUntilDone();
-      const document = result?.documents?.[0];
-      if (!document) {
-          console.log("No document found");
-          return {
-              meterReading: "",
-              meterNumber: ""
-          };
-      }
-      console.log("document", document);
-      const readings = {
-          meterReading: document?.fields?.MeterReading?.content?.replace(/\s+/g, ''),
-          meterNumber: document?.fields?.MeterNumber?.content?.replace(/\s+/g, '')
-      };
-
-      if (!readings.meterNumber || !readings.meterReading) {
-        console.log("No meter number or meter reading found");
-        return {
-            meterReading: "",
-            meterNumber: ""
-        };
-      }
-
-      return {
-        meterNumber: readings?.meterNumber || "",
-        meterReading: readings?.meterReading || ""
-      };
-    } catch (error) {
-      console.error("Error in detectMeterReading:", error);
-      throw error;
+    const result = await poller.pollUntilDone();
+    const document = result?.documents?.[0];
+    if (!document) {
+      crashlytics().log('No document detected in meter reading');
+      crashlytics().recordError(new MeterReadingError('No document detected'));
+      throw new MeterReadingError('No document detected in the image');
     }
-  };
+    const readings = {
+      meterReading: document?.fields?.MeterReading?.content?.replace(
+        /\s+/g,
+        ""
+      ),
+      meterNumber: document?.fields?.MeterNumber?.content?.replace(/\s+/g, ""),
+    };
+
+    if (!readings.meterNumber || !readings.meterReading) {
+        crashlytics().log('Incomplete meter data detected');
+        crashlytics().recordError(new MeterReadingError('No meter data found'));
+        throw new MeterReadingError('No meter number or reading found in the image');
+    }
+
+    return {
+      meterNumber: readings?.meterNumber,
+      meterReading: readings?.meterReading,
+    };
+  } catch (error: any) {
+    crashlytics().log('Error in detectMeterReading');
+    crashlytics().setAttributes({
+      imagePath,
+      errorDetails: JSON.stringify(error.response?.data || {}),
+      errorMessage: error.message
+    });
+    crashlytics().recordError(error);
+    throw error instanceof MeterReadingError ? error :
+      new MeterReadingError('Failed to process meter reading', {
+        originalError: error.message,
+        responseData: error.response?.data
+      });
+  }
+};
 
 export const getErrorMessages = () => ({
   meterNumber: localize("meterReadings.validation.invalidMeterNumber"),
@@ -69,19 +84,6 @@ export const validateMeterNumber = (number: string): boolean => {
 export const validateMeterReading = (reading: string): boolean => {
   const cleanedReading = sanitizeNumericInput(reading);
   return cleanedReading.length > 0;
-};
-
-export const generateMockMeterData = (): {
-  meterNumber: string;
-  meterReading: string;
-} => {
-  const meterNumber = Math.floor(Math.random() * 9999999999999).toString();
-  const meterReading = Math.floor(Math.random() * 999999999).toString();
-
-  return {
-    meterNumber,
-    meterReading,
-  };
 };
 
 export const validateMeterForm = (
@@ -116,15 +118,4 @@ export const validateMeterForm = (
 
 export const sanitizeNumericInput = (value: string): string => {
   return value.replace(/[^\d]/g, "");
-};
-
-export const mockDetectMeterReading = (): Promise<{
-  meterNumber: string;
-  meterReading: string;
-}> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(generateMockMeterData());
-    }, 1500);
-  });
 };

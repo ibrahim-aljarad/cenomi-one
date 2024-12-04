@@ -36,8 +36,7 @@ import { RfH, RfW } from "../../utils/helper";
 import { isRTL, localize } from "../../locale/utils";
 import UploadDocument from "../../components/UploadDocument";
 import {
-    detectMeterReading,
-  mockDetectMeterReading,
+  detectMeterReading,
   sanitizeNumericInput,
   validateMeterForm,
 } from "./util";
@@ -269,7 +268,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
 
           {meterData.meterNumber && (
             <View>
-              <View style={{ marginBottom: RfH(16) }}>
+              <View>
                 <CustomTextInput
                   label={localize("meterReadings.meterNumber")}
                   isMandatory={false}
@@ -346,9 +345,8 @@ export default function Index({ route }: MeterReadingDetailsProps) {
             isUploadFileOnServer={false}
             cropping
             isTenantServerUpload={false}
-            isFilePickerVisible={false}
-            openCameraDefault
-            imageCompressionQuality={0.6}
+            isFilePickerVisible={true}
+            imageCompressionQuality={1}
           />
 
           {isSuccessModal && (
