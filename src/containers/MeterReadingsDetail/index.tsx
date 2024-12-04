@@ -41,8 +41,8 @@ import {
   validateMeterForm,
 } from "./util";
 import { alertBox } from "../../utils/helpers";
-import CustomModal from "../../components/CustomModal";
 import { ThemeProvider } from "../../theme/context";
+import Toast from 'react-native-simple-toast';
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -69,7 +69,6 @@ export default function Index({ route }: MeterReadingDetailsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [meterData, setMeterData] = useState<MeterData>(initialMeterData);
   const [errors, setErrors] = useState<MeterValidationErrors>(initialErrors);
-  const [isSuccessModal, setIsSuccessModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState(1);
 
@@ -153,7 +152,8 @@ export default function Index({ route }: MeterReadingDetailsProps) {
     if (isValid) {
       console.log("Saving meter data:", meterData);
       setIsEditing(false);
-      setIsSuccessModal(true);
+      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
+      resetForm();
     } else {
       setErrors(validationErrors);
       alertBox(
@@ -205,8 +205,8 @@ export default function Index({ route }: MeterReadingDetailsProps) {
           >
             <View style={styles.directionRowCenter}>
               <CustomImage
-                image={Images.uploadVoilet}
-                imageWidth={22}
+                image={Images.camera1}
+                imageWidth={24}
                 imageHeight={24}
                 imageResizeMode={"contain"}
                 displayLoader={false}
@@ -330,7 +330,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
 
               {isEditing && (
                 <CustomButton
-                  buttonText={localize("common.submit")}
+                  buttonText={"Save"}
                   btnContainerStyle={styles.submitButtonStyle}
                   handleOnSubmit={handleSave}
                 />
@@ -348,17 +348,6 @@ export default function Index({ route }: MeterReadingDetailsProps) {
             isFilePickerVisible={true}
             imageCompressionQuality={1}
           />
-
-          {isSuccessModal && (
-            <ThemeProvider useNewStyles={true}>
-              <CustomModal
-                title={localize("meterReadings.submitSuccess")}
-                modalVisible={isSuccessModal}
-                onRequestClose={() => setIsSuccessModal(false)}
-                onRequestActionButton={() => navigation.goBack()}
-              />
-            </ThemeProvider>
-          )}
         </ScrollView>
       </SafeAreaView>
     </WrapperContainer>

@@ -55,7 +55,8 @@ const CommonIcons = {
   formatQuoteIcon: require('../../assets/common/format_quote.png'),
   shareSquareIcon: require('../../assets/common/shareSquareIcon.png'),
   backgroundImage: require('../../assets/common/backgroundImage.png'),
-  bottomBarImage: require('../../assets/common/bottomBarImage.png')
+  bottomBarImage: require('../../assets/common/bottomBarImage.png'),
+  camera1: require('../../assets/common/camera1.png'),
 };
 
 export default CommonIcons;

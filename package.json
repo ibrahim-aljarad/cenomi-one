@@ -117,6 +117,7 @@
     "react-native-screens": "^3.22.1",
     "react-native-shadow-2": "^7.0.8",
     "react-native-share": "^9.4.1",
+    "react-native-simple-toast": "^3.3.1",
     "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-splash-screen": "^3.3.0",
