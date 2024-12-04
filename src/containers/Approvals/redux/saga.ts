@@ -349,6 +349,7 @@ function* getWorkflowTaskDetailRequest(action: { payload: { taskId: any } }) {
 
     if (response.success) {
       const { data } = response;
+      console.log(data);
       yield put(getWorkflowTasksDetails.success({ data }));
     } else {
       yield put(setGlobalError.success());

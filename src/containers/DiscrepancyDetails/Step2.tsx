@@ -8,11 +8,14 @@ import { createStructuredSelector } from "reselect";
 import { getUnitDiscrepancySelector } from "./redux/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import Step3 from "./Step3";
+import { localize } from "../../locale/utils";
+
+console.log(localize("discrepancy.unitStatus"));
 
 const keyValuePairs = [
-  { key: "status", label: "Unit Status" },
-  { key: "lease_id", label: "Contract" },
-  { key: "brand_name", label: "Brand" },
+  { key: "status", label: localize("discrepancy.unitStatus") },
+  { key: "lease_id", label: localize("discrepancy.contract") },
+  { key: "brand_name", label: localize("discrepancy.brand") },
 ];
 
 const stateStructure = createStructuredSelector({
@@ -24,9 +27,9 @@ function Step2({ setStep, selectValues, setSelectValues }) {
 
   const { unitDiscrepancy } = useSelector(stateStructure);
   useEffect(() => {
-    if(unitDiscrepancy?.status === "DRAFT"){
-      const {document_ids, payload} = unitDiscrepancy;
-      console.log('payload?.status',payload?.status)
+    if (unitDiscrepancy?.status === "DRAFT") {
+      const { document_ids, payload } = unitDiscrepancy;
+      console.log("payload?.status", payload?.status);
       setSelectValues((current) => ({
         ...current,
         storeClosed: payload?.store_closed,
@@ -35,11 +38,11 @@ function Step2({ setStep, selectValues, setSelectValues }) {
         openWithoutContract: payload?.open_without_contract,
         others: Boolean(payload?.others),
         othersText: payload?.others || "",
-        comment: payload?.comment||'',
-        documentId: document_ids||[],
+        comment: payload?.comment || "",
+        documentId: document_ids || [],
         reviewStatus: payload?.status,
-      }))
-    }else {
+      }));
+    } else {
       setSelectValues((current) => ({
         ...current,
         storeClosed: false,
@@ -50,15 +53,13 @@ function Step2({ setStep, selectValues, setSelectValues }) {
         othersText: "",
         comment: "",
         documentId: [],
-        reviewStatus: '',
-      }))
-
+        reviewStatus: "",
+      }));
     }
-
   }, [unitDiscrepancy]);
   const vals = [
-    { value: selectValues?.level?.label, label: "Level" },
-    { value: selectValues?.unit?.label, label: "Unit" },
+    { value: selectValues?.level?.label, label: localize("discrepancy.level") },
+    { value: selectValues?.unit?.label, label: localize("discrepancy.unit") },
   ];
 
   return (
