@@ -330,7 +330,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
 
               {isEditing && (
                 <CustomButton
-                  buttonText={"Save"}
+                  buttonText={localize("common.save")}
                   btnContainerStyle={styles.submitButtonStyle}
                   handleOnSubmit={handleSave}
                 />
