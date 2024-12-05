@@ -134,58 +134,9 @@ export default (
         draft.approvalPendingTasksData = undefined;
         break;
       }
+
       case getProcurementPendingTask.FAILURE: {
-        draft.approvalPendingTasksData = [
-          {
-            href: "https://fa-etiv-test-saasfaprod1.fa.ocs.oraclecloud.com:443/bpm/api/4.0/tasks/1691727",
-            length: 0,
-            rel: "self",
-            title: "Approve Purchase Order 0008912",
-            approvalDuration: 0,
-            assignedDate: "2024-11-14 12:10:27",
-            assignees: {
-              hasMore: false,
-              items: [
-                {
-                  email: null,
-                  firstName: null,
-                  id: "app.tester",
-                  identity: null,
-                  lastName: null,
-                  middleName: null,
-                  mobile: null,
-                  type: "user",
-                  workPhone: null,
-                },
-              ],
-            },
-            category: "Purchasing",
-            createdBy: "Shekar Sesham",
-            createdDate: "2024-11-14 12:10:28",
-            fromUserDisplayName: "Shekar Sesham",
-            fromUserName: "shekar.sesham",
-            identificationKey: "PO_145001_300001565959162_0",
-            number: 1691727,
-            ownerUser:
-              "Applications Development Framework Application Identity for Procurement",
-            priority: 3,
-            state: "ASSIGNED",
-            taskDefinitionName: "DocumentApproval",
-            taskId: "1f6c1c5d-8186-4160-8c61-5f8cd15ec4db",
-            taskNamespace:
-              "http://xmlns.oracle.com/apps/prc/po/approval/PrcPoApprovalComposite/DocumentApproval",
-            titlePrefix: "Action Required",
-            updatedDate: "2024-11-14 12:10:28",
-            notify: true,
-            featureModule: "approvals_procurement",
-            subModule: {
-              name: "PO",
-              externalId: "DocumentApproval",
-            },
-            date: "2024-11-14T12:10:28.000Z",
-            externalId: "1691727",
-          },
-        ];
+        draft.approvalPendingTasksData = [];
         break;
       }
 

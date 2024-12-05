@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,72 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { Images } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import { Colors, CommonStyles } from "../../../../theme";
 import { BorderRadius, WIDTH } from "../../../../theme/sizes";
 import { CustomText, IconButtonWrapper } from "../../../../components";
+import { getSaveData } from "../../../../utils/helpers";
+import { LOCAL_STORAGE_DATA_KEY } from "../../../../utils/constants";
+import Config from "../../../../utils/config";
+import DocumentsViewModal from "../../../../components/DocumentsViewModal";
 
-const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
+const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) => {
+  const [selectedDocument, setSelectedDocument] = useState({
+    isVisible: false,
+    url: "",
+    title: "",
+    fileType: "",
+    headers: {},
+  });
+
+
+  const handleDocumentOpen = async (attachment, isYardiServiceModule = false) => {
+    let title, url, fileType;
+    if (isYardiServiceModule) {
+        const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
+
+        const splitedTitle = attachment?.AttachmentName?.split(".");
+
+        title = attachment?.AttachmentName;
+        url = `${Config.API_BASE_URL}process/leasing/tasks-attachments/${attachment?.AttachmentID}?download=false&token=${token}`;
+        fileType = splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : "";
+      } else {
+        const fileName = attachment?.title || attachment?.attachmentName;
+        const splitedData = fileName?.split(".");
+        const splitedMimeType = attachment?.mimeType?.split("/");
+
+        title = fileName || splitedMimeType[1] + " file";
+        url = attachment?.uri?.href || attachment?.links?.href;
+        fileType =
+          splitedData?.length > 0
+            ? splitedData[splitedData?.length - 1]
+            : splitedMimeType?.length > 0
+            ? splitedMimeType[1]
+            : "";
+      }
+      setSelectedDocument({
+        isVisible: true,
+        url,
+        title,
+        fileType,
+        headers: taskDetails?.attachmentAuthHeaders || {},
+      });
+  }
+
+  const handleCloseDocument = () => {
+    setSelectedDocument({
+      isVisible: false,
+      url: "",
+      title: "",
+      fileType: "",
+      headers: {},
+    });
+  };
+
+
   const renderTaskDetailsData = () => {
     if (!taskDetails?.taskDetailsData?.length) {
       return null;
@@ -79,6 +137,84 @@ const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
     );
   };
 
+  const renderAttachmentsSection = () => {
+    if (!taskDetails?.attachments?.length) return null;
+
+    return (
+      <View
+        style={[
+          styles.requestCellView,
+          {
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.white,
+          },
+        ]}
+      >
+        <View style={styles.topHeader}>
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.black : Colors.black}
+            styling={{
+              ...CommonStyles.mediumFontStyle,
+              width: "95%",
+            }}
+          >
+            Attachments
+          </CustomText>
+        </View>
+        <FlatList
+          data={taskDetails?.attachments}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              style={[
+                styles.attachmentRow,
+                {
+                  backgroundColor: isDarkMode
+                    ? Colors.darkModeBackground
+                    : Colors.white,
+                  borderBottomWidth:
+                    index < taskDetails?.attachments.length - 1 ? 1 : 0,
+                  borderColor: getColorWithOpacity(Colors.black, 0.2),
+                },
+              ]}
+              onPress={() => handleDocumentOpen(
+                item,
+                isYardiServiceModule
+              )}
+            >
+              <View style={styles.attachmentContent}>
+                <CustomText
+                  fontSize={14}
+                  color={isDarkMode ? Colors.black : Colors.black}
+                  styling={{
+                    ...CommonStyles.regularFont400Style,
+                  }}
+                  numberOfLines={1}
+                >
+                  {item?.title || item?.attachmentName}
+                </CustomText>
+              </View>
+
+              <View style={styles.attachmentCTA}>
+                <CustomText
+                  fontSize={14}
+                  color={Colors.blue}
+                  styling={{
+                    ...CommonStyles.regularFont400Style,
+                  }}
+                >
+                  Open
+                </CustomText>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => `attachment-${index}`}
+        />
+      </View>
+    );
+  };
+
   const renderApprovers = () => {
     return (
       <>
@@ -113,6 +249,9 @@ const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
 
   return (
     <ScrollView style={styles.container}>
+
+      {renderTaskDetailsData()}
+
       <View
         style={[
           styles.requestCellView,
@@ -132,7 +271,7 @@ const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
               width: "95%",
             }}
           >
-            Task Details
+            Details
           </CustomText>
         </View>
         <View style={{ paddingVertical: RfH(5) }}>
@@ -145,7 +284,7 @@ const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
                   ...CommonStyles.regularFont400Style,
                 }}
               >
-                {taskDetails?.number ? "Task Number" : "Record ID"}
+                {taskDetails?.number ? "Number" : "Record ID"}
               </CustomText>
             </View>
             <View style={styles.valueContainer}>
@@ -265,8 +404,19 @@ const ProcurementDetails = ({ taskDetails, isDarkMode }) => {
         </View>
       </View>
 
-      {renderTaskDetailsData()}
+      {renderAttachmentsSection()}
       {renderApprovers()}
+
+
+      <DocumentsViewModal
+        isVisible={selectedDocument.isVisible}
+        onRequestClose={handleCloseDocument}
+        documentInfo={{
+          url: selectedDocument.url,
+          title: selectedDocument.title,
+          fileType: selectedDocument.fileType,
+        }}
+      />
     </ScrollView>
   );
 };
@@ -505,6 +655,21 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginLeft: RfW(8),
+  },
+  attachmentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: RfH(12),
+    paddingHorizontal: RfW(4),
+    width: "100%",
+  },
+  attachmentContent: {
+    flex: 1,
+    paddingRight: RfW(16),
+  },
+  attachmentCTA: {
+    width: RfW(50),
+    alignItems: "flex-end",
   },
 });
 
