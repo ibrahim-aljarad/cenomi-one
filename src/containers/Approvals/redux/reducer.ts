@@ -1,4 +1,4 @@
-import produce from 'immer';
+import produce from "immer";
 
 import {
   doApprovalAction,
@@ -16,8 +16,8 @@ import {
   getUserSearchList,
   getWorkflowPendingTasks,
   getWorkflowTasksDetails,
-  getWorkflowUserList
-} from './actions';
+  getWorkflowUserList,
+} from "./actions";
 
 export const initialState = {
   approvalPendingTasksData: undefined,
@@ -28,10 +28,13 @@ export const initialState = {
   userSearchListData: [],
   workflowUserListData: [],
   approvalTasksCountData: [],
-  approvalTasksCountDataLoading: false
+  approvalTasksCountDataLoading: false,
 };
 
-export default (state = initialState, action: { type: any; payload: { type: any } }) =>
+export default (
+  state = initialState,
+  action: { type: any; payload: { type: any } }
+) =>
   produce(state, (draft) => {
     switch (action.type) {
       case getApprovalPendingTasks.TRIGGER: {
@@ -131,6 +134,7 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         draft.approvalPendingTasksData = undefined;
         break;
       }
+
       case getProcurementPendingTask.FAILURE: {
         draft.approvalPendingTasksData = [];
         break;
@@ -201,7 +205,6 @@ export default (state = initialState, action: { type: any; payload: { type: any 
         break;
       }
 
-      
       default: {
         break;
       }
