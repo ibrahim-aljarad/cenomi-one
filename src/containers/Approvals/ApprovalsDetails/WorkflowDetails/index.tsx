@@ -424,7 +424,11 @@ function WorkflowDetails({
               </CustomText>
             </View>
           )}
-          <ApproverDetails taskItem={dataField} details={details} />
+          <ApproverDetails
+            taskItem={dataField}
+            details={details}
+            isDarkMode={isDarkMode}
+          />
         </>
       );
     }
