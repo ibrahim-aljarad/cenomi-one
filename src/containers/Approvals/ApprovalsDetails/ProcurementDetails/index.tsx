@@ -23,7 +23,6 @@ const ProcurementDetails = ({
   isDarkMode,
   isYardiServiceModule,
 }) => {
-  console.log("taskDetails", taskDetails);
   const [selectedDocument, setSelectedDocument] = useState({
     isVisible: false,
     url: "",
@@ -80,7 +79,11 @@ const ProcurementDetails = ({
   };
 
   const renderTaskDetailsData = () => {
-    if (!taskDetails?.taskDetailsData?.length) {
+    const hasValidDetails = taskDetails?.taskDetailsData?.some(
+      (item) => item.value
+    );
+
+    if (!hasValidDetails) {
       return null;
     }
     return (
@@ -425,6 +428,7 @@ const ProcurementDetails = ({
           url: selectedDocument.url,
           title: selectedDocument.title,
           fileType: selectedDocument.fileType,
+          headers: selectedDocument.headers,
         }}
       />
     </ScrollView>

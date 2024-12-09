@@ -1,15 +1,11 @@
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import { SafeAreaView, View } from "react-native";
-import {
-  HeaderSVG,
-  Loader,
-} from "../../../components";
+import { HeaderSVG, Loader } from "../../../components";
 import { Colors } from "../../../theme";
 import styles from "./styles";
 
 import { useNavigation } from "@react-navigation/native";
-
 import { ScrollView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
@@ -45,9 +41,8 @@ const ApprovalsDetails = (props: any) => {
   const { approvalItem } = props.route.params;
   const dispatch = useDispatch();
 
-  const { isDarkMode, approvalTasksDetailsData} = useSelector(stateSelector);
+  const { isDarkMode, approvalTasksDetailsData } = useSelector(stateSelector);
 
-  // approvalType is the servicemodule name
   const isYardiServiceModule = isYardiServiceModuleCheck(approvalItem);
   const isProcurementServiceModule =
     isProcurementServiceModuleCheck(approvalItem);
@@ -79,6 +74,73 @@ const ApprovalsDetails = (props: any) => {
     }
   }, []);
 
+  const isLoading =
+    isEmpty(approvalTasksDetailsData) ||
+    (!(isDealWorkflowModule || isProcurementServiceModule) &&
+      !approvalTasksDetailsData?.html);
+
+  const renderContent = () => {
+    if (isLoading) return null;
+
+    return (
+      <ScrollView
+        style={{
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.transparent,
+          flex: 1,
+        }}
+      >
+        {isDealWorkflowModule ? (
+          <WorkflowDetails
+            data={approvalTasksDetailsData}
+            isDarkMode={isDarkMode}
+            approvalType={approvalItem?.externalId}
+            formName={approvalItem?.formName}
+          />
+        ) : (
+          <ProcurementDetails
+            isDarkMode={isDarkMode}
+            taskDetails={approvalTasksDetailsData}
+            isYardiServiceModule={isYardiServiceModule}
+          />
+        )}
+      </ScrollView>
+    );
+  };
+
+  const renderActionButtons = () => {
+    if (isLoading) return null;
+
+    if (
+      !isEmpty(approvalTasksDetailsData) &&
+      (approvalTasksDetailsData?.actionRequired || isDealWorkflowModule)
+    ) {
+      return (
+        <View
+          style={[
+            styles.bottomButtonContainer,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeBackground
+                : Colors.white,
+              borderTopColor: Colors.grayBorder,
+              zIndex: 1,
+            },
+          ]}
+        >
+          <ApprovalsActionButtons
+            isDarkMode={isDarkMode}
+            approvalItem={approvalItem}
+            detailData={approvalTasksDetailsData}
+            actionSuccess={() => navigation.goBack()}
+          />
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <WrapperContainer showOverlay={true}>
       <SafeAreaView
@@ -108,61 +170,10 @@ const ApprovalsDetails = (props: any) => {
             />
           </ThemeProvider>
 
-          <ScrollView
-            style={{
-              backgroundColor: isDarkMode
-                ? Colors.darkModeBackground
-                : Colors.transparent,
-              flex: 1,
-            }}
-          >
-            {isDealWorkflowModule ? (
-              <WorkflowDetails
-                data={approvalTasksDetailsData}
-                isDarkMode={isDarkMode}
-                approvalType={approvalItem?.externalId}
-                formName={approvalItem?.formName}
-              />
-            ) : (
-              <ProcurementDetails
-                isDarkMode={isDarkMode}
-                taskDetails={approvalTasksDetailsData}
-                isYardiServiceModule={isYardiServiceModule}
-              />
-            )}
-          </ScrollView>
-
-          {!isEmpty(approvalTasksDetailsData) &&
-            (approvalTasksDetailsData?.actionRequired ||
-              isDealWorkflowModule) && (
-              <View
-                style={[
-                  styles.bottomButtonContainer,
-                  {
-                    backgroundColor: isDarkMode
-                      ? Colors.darkModeBackground
-                      : Colors.white,
-                    borderTopColor: Colors.grayBorder,
-                    zIndex: 1,
-                  },
-                ]}
-              >
-                <ApprovalsActionButtons
-                  isDarkMode={isDarkMode}
-                  approvalItem={approvalItem}
-                  detailData={approvalTasksDetailsData}
-                  actionSuccess={() => navigation.goBack()}
-                />
-              </View>
-            )}
+          {renderContent()}
+          {renderActionButtons()}
         </View>
-        <Loader
-          isLoading={
-            isEmpty(approvalTasksDetailsData) ||
-            (!(isDealWorkflowModule || isProcurementServiceModule) &&
-              !approvalTasksDetailsData?.html)
-          }
-        />
+        <Loader isLoading={isLoading} />
       </SafeAreaView>
     </WrapperContainer>
   );
@@ -172,6 +183,7 @@ ApprovalsDetails.propTypes = {
   route: PropTypes.object,
   isButtonDisable: PropTypes.bool,
 };
+
 ApprovalsDetails.defaultProps = {
   route: {},
   isButtonDisable: false,
