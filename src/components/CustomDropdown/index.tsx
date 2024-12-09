@@ -224,6 +224,8 @@ const CustomDropDown = (props: any) => {
                     ? Colors.darkModeButton
                     : Colors.white,
                   color: isDarkMode ? Colors.white : Colors.app_black,
+                   textAlign: isRTL() ? 'right' : 'left',
+                   writingDirection: isRTL() ? 'rtl' : 'ltr'
                 },
               ]}
             />

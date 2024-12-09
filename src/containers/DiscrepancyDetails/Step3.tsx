@@ -190,7 +190,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
           labelText={localize("discrepancy.match")}
           labelStyle={{ color: "white" }}
           labelSize={14}
-          containerStyle={{ width: "50%", paddingLeft: RfH(10) }}
+          containerStyle={{ width: "35%", paddingLeft: RfH(10) }}
           onSelect={() => dataChange("reviewStatus", "match")}
         />
         <CustomRadioButton
