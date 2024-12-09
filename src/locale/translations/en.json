@@ -596,6 +596,7 @@
     "validationError": "Validation Error",
     "detectionError": "Error detecting meter reading",
     "pleaseCorrectErrors": "Please correct the errors before saving.",
-    "submitSuccess": "Meter Reading Submitted Successfully"
+    "submitSuccess": "Meter Reading Submitted Successfully",
+    "confirmation": "Are you sure you want to submit all readings?"
   }
 }
