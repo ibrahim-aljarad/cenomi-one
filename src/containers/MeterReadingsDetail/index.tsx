@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MeterData,
   MeterReadingDetailsProps,
@@ -17,7 +17,7 @@ import WrapperContainer from "../../components/WrapperContainer";
 import styles from "./style";
 import { isDarkModeSelector } from "../redux/selectors";
 import { createStructuredSelector } from "reselect";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Colors, CommonStyles, Images } from "../../theme";
 import {
   CustomButton,
@@ -43,9 +43,13 @@ import {
 import { alertBox } from "../../utils/helpers";
 import { ThemeProvider } from "../../theme/context";
 import Toast from 'react-native-simple-toast';
+import { getMeterReadingDetails } from "../MeterReading/redux/actions";
+import { getLoadingSelector, getMeterReadingDetailSelector } from "../MeterReading/redux/selectors";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
+  meterReadingDetails: getMeterReadingDetailSelector,
+  isLoadingDetails: getLoadingSelector,
 });
 
 const initialMeterData: MeterData = {
@@ -59,18 +63,34 @@ const initialErrors: MeterValidationErrors = {
 };
 
 export default function Index({ route }: MeterReadingDetailsProps) {
-  const { id, property, srId } = route.params;
-  const { isDarkMode } = useSelector(stateSelector);
+  const { meterId, srId } = route.params;
+  const { isDarkMode, meterReadingDetails, isLoadingDetails } = useSelector(stateSelector);
+  console.log("Meter reading details", meterReadingDetails);
   const isFocused = useIsFocused();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
     useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isImageProcessing, setIsImageProcessing] = useState(false);
   const [meterData, setMeterData] = useState<MeterData>(initialMeterData);
   const [errors, setErrors] = useState<MeterValidationErrors>(initialErrors);
   const [isEditing, setIsEditing] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState(1);
+
+  useEffect(() => {
+    if (meterId) {
+      dispatch(getMeterReadingDetails.trigger(meterId));
+    }
+  }, [meterId, dispatch]);
+
+  useEffect(() => {
+    if (meterReadingDetails) {
+      if (meterReadingDetails.status === 'COMPLETED' && meterReadingDetails.document_ids?.[0]) {
+        setCapturedImage(meterReadingDetails.document_ids[0]);
+      }
+    }
+  }, [meterReadingDetails, meterId]);
 
   const resetForm = () => {
     setCapturedImage(null);
@@ -90,7 +110,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
   };
 
   const handleDocumentUpload = async (imageData) => {
-    setIsLoading(true);
+    setIsImageProcessing(true);
     try {
       setCapturedImage(imageData.path);
       Image.getSize(
@@ -117,7 +137,7 @@ export default function Index({ route }: MeterReadingDetailsProps) {
       );
       console.error("Error detecting meter reading:", error);
     } finally {
-      setIsLoading(false);
+      setIsImageProcessing(false);
     }
   };
 
@@ -167,36 +187,50 @@ export default function Index({ route }: MeterReadingDetailsProps) {
     }
   };
 
-  return (
-    <WrapperContainer showOverlay={true}>
-      <SafeAreaView
-        style={{
-          ...styles.mainContainer,
-          backgroundColor: isDarkMode
-            ? Colors.darkModeBackground
-            : Colors.transparent,
-        }}
-      >
-        <Loader isLoading={isLoading} />
-        <ThemeProvider useNewStyles={true}>
-          <HeaderSVG
-            isRightButtonVisible={true}
-            isBackButtonVisible={true}
-            titleText={`Service Request: ${srId}`}
-            titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={() => backHandler()}
-            isRight2BtnVisible={true}
-            onRight2BtnClick={() => {}}
-            containerStyle={{ zIndex: 99999 }}
-          />
-        </ThemeProvider>
-        <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={styles.scrollContentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <TouchableOpacity
+  const renderCompletedView = () => {
+    return (
+      <View style={styles.completedContainer}>
+        {capturedImage && (
+          <View style={styles.imagePreviewContainer}>
+            <Image
+              source={{ uri: capturedImage }}
+              style={[
+                styles.previewImage,
+                {
+                  width: imageWidth,
+                  height: imageHeight,
+                },
+              ]}
+              resizeMode="contain"
+            />
+          </View>
+        )}
+
+        <View style={styles.previousReadingContainer}>
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.white : Colors.black}
+            styling={styles.readingLabel}
+          >
+           Previous Meter Reading
+          </CustomText>
+          <View style={styles.readingValueContainer}>
+            <CustomText
+              fontSize={24}
+              color={isDarkMode ? Colors.white : Colors.black}
+              styling={styles.readingValue}
+            >
+              {meterReadingDetails?.previous_reading || '-'}
+            </CustomText>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPendingView = () => {
+    return (<>
+        <TouchableOpacity
             style={[
               styles.uploadItemContainer,
               { borderColor: isDarkMode ? Colors.white : Colors.black },
@@ -337,6 +371,43 @@ export default function Index({ route }: MeterReadingDetailsProps) {
               )}
             </View>
           )}
+    </>)
+  }
+
+  return (
+    <WrapperContainer showOverlay={true}>
+      <SafeAreaView
+        style={{
+          ...styles.mainContainer,
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.transparent,
+        }}
+      >
+         {isImageProcessing && <Loader isLoading={true} />}
+         {isLoadingDetails?.meterDetails && <Loader isLoading={true} />}
+        <ThemeProvider useNewStyles={true}>
+          <HeaderSVG
+            isRightButtonVisible={true}
+            isBackButtonVisible={true}
+            titleText={`Meter ID: ${meterId}`}
+            titleFont={20}
+            onRightButtonClickHandler={() => {}}
+            onBackPressHandler={() => backHandler()}
+            isRight2BtnVisible={true}
+            onRight2BtnClick={() => {}}
+            containerStyle={{ zIndex: 99999 }}
+          />
+        </ThemeProvider>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+       {meterReadingDetails?.status === 'COMPLETED'
+            ? renderCompletedView()
+            : renderPendingView()
+          }
           <UploadDocument
             title={localize("components.uploadPhoto")}
             isVisible={isShowDocumentPickerModal}

@@ -21,7 +21,7 @@ import { ThemeProvider } from "../../theme/context";
 
 const meterReadingItems = [
   {
-    srNumber: 991,
+    srNumber: 55,
     title: "Meter readings for Month November - 2024",
     mall: "Marina Mall",
     status: "IN_PROGRESS",
@@ -38,9 +38,7 @@ export default function MeterReadings() {
   const navigation = useNavigation();
   const handleOnClickItem = (item: MeterReadingItemsType) => {
     trackEvent(EVENT_NAME.PRESSED_METER_READINGS);
-    navigation.navigate(NavigationRouteNames.METER_READING_DETAILS as never, {
-      id: item?.srNumber,
-      property: { ...item },
+    navigation.navigate(NavigationRouteNames.METER_READING as never, {
       srId: item?.srNumber,
     });
   };

@@ -11,6 +11,7 @@ const REDUCER_KEY = {
   COMMON_REDUCER: 'common_reducer',
   REWARDS_PROFILE_REDUCER: 'rewards_profile_reducer',
   DISCREPANCY_REDUCER: 'discrepancy__reducer',
+  METER_READING_REDUCER: 'meter_reading_reducer',
 };
 
 export default REDUCER_KEY;

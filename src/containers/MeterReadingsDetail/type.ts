@@ -10,6 +10,7 @@ export interface MeterReadingDetailsProps {
         date: string;
       };
       srId: number;
+      meterId: number;
     };
   };
 }

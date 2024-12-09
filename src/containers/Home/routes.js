@@ -34,6 +34,7 @@ import DiscrepancyList from "../DiscrepancyList";
 import DiscrepancyDetails from "../DiscrepancyDetails";
 import MeterReadings from "../MeterReadingsList";
 import MeterReadingsDetails from "../MeterReadingsDetail";
+import MeterReading from "../MeterReading";
 const Stack = createStackNavigator();
 
 const HomeStack = () => (
@@ -214,6 +215,12 @@ const HomeStack = () => (
     <Stack.Screen
       name={NavigationRouteNames.METER_READINGS}
       component={MeterReadings}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.METER_READING}
+      component={MeterReading}
       options={{ headerShown: false, animationEnabled: false }}
     />
 

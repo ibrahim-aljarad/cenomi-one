@@ -13,6 +13,7 @@ import CommonReducer from '../containers/redux/reducer';
 // import RewardsReducer from '../containers/RewardsHome/redux/reducer';
 import RewardsReducer from '../containers/RewardsHome/RewardsProfile/redux/reducer';
 import DiscrepancyReducer from '../containers/DiscrepancyDetails/redux/reducer';
+import MeterReadingsReducer from '../containers/MeterReading/redux/reducer'
 
 export default () =>
   combineReducers({
@@ -28,4 +29,5 @@ export default () =>
     [REDUCER_KEY.COMMON_REDUCER]: CommonReducer,
     [REDUCER_KEY.REWARDS_PROFILE_REDUCER]: RewardsReducer,
     [REDUCER_KEY.DISCREPANCY_REDUCER]: DiscrepancyReducer,
+    [REDUCER_KEY.METER_READING_REDUCER]: MeterReadingsReducer,
   });

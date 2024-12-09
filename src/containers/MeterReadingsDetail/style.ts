@@ -51,6 +51,33 @@ scrollContentContainer: {
   },
   retakeButtonText: {
     ...CommonStyles.regularFont500Style,
+  },
+  completedContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  previousReadingContainer: {
+    marginTop: RfH(24),
+    alignItems: 'center',
+    backgroundColor: Colors.gray97,
+    padding: RfH(20),
+    borderRadius: 8,
+    width: '80%',
+  },
+  readingLabel: {
+    ...CommonStyles.regularFont500Style,
+    marginBottom: RfH(8),
+  },
+  readingValue: {
+    ...CommonStyles.boldFontStyle,
+  },
+  readingValueContainer: {
+    backgroundColor: Colors.white,
+    paddingVertical: RfH(12),
+    paddingHorizontal: RfW(24),
+    borderRadius: 6,
+    minWidth: 120,
+    alignItems: 'center',
   }
 });
 
