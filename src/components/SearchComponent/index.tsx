@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { I18nManager, Image, Keyboard, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors, HEIGHT, Images, WIDTH } from '../../theme';
-import { RfH } from '../../utils/helpers';
-import IconButtonWrapper from '../IconButtonWrapper';
 import styles from './style';
 import { createStructuredSelector } from 'reselect';
 import { isDarkModeSelector } from '../../containers/redux/selectors';
 import { useSelector } from 'react-redux';
 import { RfW, getColorWithOpacity } from '../../utils/helper';
 import CustomImage from '../CustomImage';
+import { useTheme } from "../../theme/context";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector
@@ -19,6 +18,23 @@ const stateSelector = createStructuredSelector({
 function SearchComponent(props) {
   const { placeholder, onChangeText, value, cancelSearch, styling, keyboardType } = props;
   const { isDarkMode } = useSelector(stateSelector);
+  const { useNewStyles } = useTheme();
+
+  const getNewStyles = () => {
+    if (useNewStyles) {
+      return {
+            textColor: Colors.black,
+            placeholderTextColor: Colors.blackCoral,
+        }
+      };
+      return {
+            textColor: Colors.white,
+            placeholderTextColor: Colors.grayLight,
+      }
+    }
+
+    const newStyles = getNewStyles();
+
   return (
     <View
       style={[
@@ -26,7 +42,7 @@ function SearchComponent(props) {
         {
           backgroundColor: isDarkMode
             ? Colors.darkModeDisabledColor
-            : getColorWithOpacity(Colors.midnightExpress, 0.24)
+            : getColorWithOpacity(Colors.midnightExpress, 0.7)
         },
         styling
       ]}>
@@ -60,11 +76,11 @@ function SearchComponent(props) {
       <TextInput
         style={[
           styles.textStyle,
-          { color: Colors.white, textAlign: I18nManager.isRTL ? 'right' : 'left' }
+          { color: newStyles.textColor, textAlign: I18nManager.isRTL ? 'right' : 'left' }
         ]}
         underlineColorAndroid="transparent"
         placeholder={placeholder}
-        placeholderTextColor={getColorWithOpacity(Colors.white)}
+        placeholderTextColor={getColorWithOpacity(newStyles.placeholderTextColor)}
         autoCorrect={false}
         autoCapitalize={'none'}
         keyboardType={keyboardType ?? 'number-pad'}

@@ -27,6 +27,7 @@ const NavigationRouteNames = {
   APPROVALS_DETAILS: "ApprovalsDetails",
   KNOWLEDGEHUBLIST: "KnowledgeHUBList",
   KNOWLEDGEHUB_SUBCATEGORYLIST: "KnowledgeHUB_SubcategoryList",
+  KNOWLEDGEHUB_DETAILS: "KnowledgeHUBDetails",
 
   LEAVEDETAILS: "LeaveDetails",
   EDUCATIONCLAIMDETAILS: "EducationClaimDetails",
@@ -50,6 +51,8 @@ const NavigationRouteNames = {
   DOCUMENT_DETAILS: "Document_details",
   DOCUMENT_VIEW: "Document_view",
   ORGANISATION: "Organisation",
+  DISCREPANCY_LIST: "Discrepancy_List",
+  DISCREPANCY_DETAILS: "Discrepancy_details",
 };
 
 export default NavigationRouteNames;

@@ -233,28 +233,57 @@ const Calendar = () => {
     }
 
     if (attendanceData?.length > 0) {
-      formattedData = attendanceData.reduce((acc, item) => {
-        const date = item.DateTime.split("T")[0]; // Extract date part
-        const time = formatTime(item.DateTime); // Extract time part
+        const uniqueEntries = new Map();
 
-        if (!acc[date]) {
-          acc[date] = {
+        attendanceData.forEach(item => {
+          const date = item.DateTime.split("T")[0];
+          const time = formatTime(item.DateTime);
+          const key = `${date}-${time}`; // Creates a unique key for each date-time combination
+          if (!uniqueEntries.has(key)) {
+            uniqueEntries.set(key, {
+              date,
+              time,
+              EMPLOYEEID: item.EMPLOYEEID,
+              MATCHINGSCORE: item.MATCHINGSCORE
+            });
+          }
+        });
+
+        formattedData = Array.from(uniqueEntries.values()).reduce((acc, item) => {
+          if (!acc[item.date]) {
+            acc[item.date] = {
+              marked: true,
+              dots: [
+                {
+                  key: "customDot",
+                  color: Colors.green,
+                },
+              ],
+              timestamps: [],
+            };
+          }
+
+          acc[item.date].timestamps.push(item.time);
+          return acc;
+        }, {});
+      }
+
+      if (publicHolidayData?.status) {
+        const holidayDate = moment(publicHolidayData.date).format("YYYY-MM-DD");
+        if (!formattedData[holidayDate]) {
+          formattedData[holidayDate] = {
             marked: true,
             dots: [
               {
-                key: "customDot",
+                key: "holidayDot",
                 color: Colors.green,
               },
             ],
             timestamps: [],
           };
         }
+      }
 
-        acc[date].timestamps.push(time); // Add the time to the timestamps array
-
-        return acc;
-      }, {});
-    }
     const updatedData = calculateTimestampDifferences(
       formattedData,
       selectedMonth
@@ -280,25 +309,29 @@ const Calendar = () => {
         moment(date?.dateString).format("YYYY-MM-DD") <= info?.endDate
     );
 
-    const attendenceDatas =
-      eventDateList[moment(date?.dateString).format("YYYY-MM-DD")];
+    const attendenceDatas = eventDateList[temp];
 
-    if (filteredData.length > 0 && attendenceDatas.dots.length > 0) {
-      setSelectedDateEventList([...filteredData, attendenceDatas]);
+    let selectedDateEvents = [];
+    if (filteredData.length > 0 && attendenceDatas?.dots?.length > 0) {
+      selectedDateEvents = [...filteredData, attendenceDatas];
     } else if (filteredData.length > 0) {
-      setSelectedDateEventList(filteredData);
-    } else {
-      setSelectedDateEventList(attendenceDatas);
+      selectedDateEvents = filteredData;
+    } else if (attendenceDatas) {
+      selectedDateEvents = [attendenceDatas];
     }
+
+    setSelectedDateEventList(selectedDateEvents);
+
     const modifiedEventList = {
       ...getEventList(),
       [temp]: {
+        ...eventDateList[temp],
         selected: true,
       },
     };
-    setEventDateList({ ...modifiedEventList });
-    setIsClearFilter(true);
 
+    setEventDateList(modifiedEventList);
+    setIsClearFilter(true);
     setSelectedDate(date?.dateString);
   };
 
@@ -416,7 +449,7 @@ const Calendar = () => {
               lineHeight: RfH(19.2),
             }}
           >
-            {title + "  " + item?.date || ""}
+            {`${title}  ${item.date || ""}`}
           </CustomText>
           <View
             style={[

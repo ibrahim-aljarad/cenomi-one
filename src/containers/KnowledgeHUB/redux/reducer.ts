@@ -1,9 +1,10 @@
-import produce from 'immer';
-import { getKnowledgehubDocuments, getKnowledgehubTag } from './actions';
+import produce from "immer";
+import { getKnowledgehubDocuments, getKnowledgehubTag } from "./actions";
 
 export const initialState = {
   KnowledgehubDocumentsData: [],
-  KnowledgehubTagsData: []
+  KnowledgehubTagsData: [],
+  isLoading: false,
 };
 
 export default (state = initialState, action: any) =>
@@ -11,11 +12,13 @@ export default (state = initialState, action: any) =>
     switch (action.type) {
       case getKnowledgehubDocuments.TRIGGER: {
         draft.KnowledgehubDocumentsData = [];
+        draft.isLoading = true;
         break;
       }
 
       case getKnowledgehubDocuments.SUCCESS: {
         draft.KnowledgehubDocumentsData = action.payload;
+        draft.isLoading = false;
         break;
       }
 

@@ -12,11 +12,23 @@ import {
 } from "./constants";
 import { isEmpty, isNumber } from "lodash";
 
+import CookieManager from "@react-native-cookies/cookies";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeviceInfo from "react-native-device-info";
 import { capatalizeText } from "./helper";
 import { localize } from "../locale/utils";
 import moment from "moment";
+
+type AlertConfig = {
+  positiveText?: string;
+  cancelable?: boolean;
+  middleText?: string;
+  onMiddleClick?: () => void;
+  negativeText?: string;
+  onPositiveClick?: () => void;
+  onNegativeClick?: () => void;
+};
 
 export const storeData = async (key, value) => {
   try {
@@ -53,7 +65,7 @@ export const clearAll = async () => {
 export const alertBox = (
   alertTitle = "",
   alertMsg = "",
-  config = {
+  config: AlertConfig = {
     positiveText: localize("common.ok"),
     cancelable: true,
 
@@ -571,3 +583,21 @@ export const getQuaterStartAndEndDate = () => {
 export const isNullOrUndefinedOrEmpty = (value) => {
   return value === undefined || value === null || value === "";
 };
+
+export const setCookie = async (
+  domain: string,
+  name: string,
+  value: string
+) => {
+  await CookieManager.set(domain, {
+    name,
+    value,
+  });
+};
+
+export const getCookie = async (domain: string) => {
+  const cookies = await CookieManager.get(domain);
+  return cookies;
+};
+
+export const isIos = Platform.OS === "ios";

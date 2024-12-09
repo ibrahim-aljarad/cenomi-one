@@ -7,49 +7,60 @@ import {
   TouchableWithoutFeedback,
   View,
   Linking,
-  FlatList
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
+  FlatList,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 
-import { alertBox, deviceWidth } from '../../utils/helpers';
-import { styles } from './styles';
-import DocumentPicker from 'react-native-document-picker';
-import PropTypes from 'prop-types';
-import IconButtonWrapper from '../IconButtonWrapper';
-import { Colors, CommonStyles, Images } from '../../theme';
-import { isEmpty, uniqueId } from 'lodash';
-import ImagePicker from 'react-native-image-crop-picker';
-import { RfH, RfW, getColorWithOpacity } from '../../utils/helper';
-import { ImageUploaderComponentErrorCode } from '../../constant';
-import CustomImage from '../CustomImage';
-import CustomText from '../CustomText';
-import { isRTL, localize } from '../../locale/utils';
-import { useDispatch, useSelector } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
+import { alertBox, deviceWidth } from "../../utils/helpers";
+import { styles } from "./styles";
+import DocumentPicker from "react-native-document-picker";
+import PropTypes from "prop-types";
+import { Colors, CommonStyles, Images } from "../../theme";
+import { isEmpty, uniqueId } from "lodash";
+import ImagePicker from "react-native-image-crop-picker";
+import { RfH, RfW, getColorWithOpacity } from "../../utils/helper";
+import { ImageUploaderComponentErrorCode } from "../../constant";
+import CustomImage from "../CustomImage";
+import CustomText from "../CustomText";
+import { isRTL, localize } from "../../locale/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { createStructuredSelector } from "reselect";
 import {
   getFilePreviewedDataSelector,
   getFileUploadedDataSelector,
-  isDarkModeSelector
-} from '../../containers/redux/selectors';
-import { fileUpload } from '../../containers/redux/actions';
-import { BorderRadius } from '../../theme/sizes';
-import CustomBottomSheet from '../CustomBottomSheet';
-import AppPrimaryButton from '../AppPrimaryButton';
-import AvatarUpload from './AvatarUpload';
+  isDarkModeSelector,
+} from "../../containers/redux/selectors";
+import { fileUpload, tenantFileUpload } from "../../containers/redux/actions";
+import CustomBottomSheet from "../CustomBottomSheet";
+import AvatarUpload from "./AvatarUpload";
+const RNFS = require("react-native-fs");
+// const imageCompressionQuality = 0.5;
 
-const RNFS = require('react-native-fs');
-const imageCompressionQuality = 0.5;
+import { Buffer } from 'buffer';
+
+const base64ToArrayBuffer = (base64) => {
+  // Decode the Base64 string using Buffer
+  const byteString = Buffer.from(base64, 'base64');
+
+  // Create an ArrayBuffer from the byte string
+  const arrayBuffer = byteString.buffer.slice(byteString.byteOffset, byteString.byteOffset + byteString.byteLength);
+
+  return arrayBuffer; // Return the ArrayBuffer
+};
+
+
 
 const stateStructure = createStructuredSelector({
   fileUploadedData: getFileUploadedDataSelector,
   filePreviewedData: getFilePreviewedDataSelector,
-  isDarkMode: isDarkModeSelector
+  isDarkMode: isDarkModeSelector,
 });
 function UploadDocument(props) {
-  const { fileUploadedData, filePreviewedData, isDarkMode } = useSelector(stateStructure);
+  const { fileUploadedData, filePreviewedData, isDarkMode } =
+    useSelector(stateStructure);
 
   const {
-    title = '',
+    title = "",
     isVisible,
     handleClose,
     isPhotoPickerVisible,
@@ -58,7 +69,11 @@ function UploadDocument(props) {
     maxFileSize,
     isCopyRequired,
     isUploadFileOnServer = false,
-    isAvatarVisible
+    isAvatarVisible,
+    cropping = false,
+    openCameraDefault = false,
+    imageCompressionQuality = 1,
+    isTenantServerUpload = false,
   } = props;
   const [imageSet, updateImageSet] = useState([]);
   const [isEnableUploadDocument, setIsEnableUploadDocument] = useState(false);
@@ -67,7 +82,31 @@ function UploadDocument(props) {
   const dispatch = useDispatch();
 
   const uploadDocument = (selectedFileData) => {
-    if (!isUploadFileOnServer) {
+    const filesUpload = async () => {
+      const { fileName, path, mime } = selectedFileData || {};
+      try {
+        // Read the file as a Base64 string
+        const base64String = await RNFS.readFile(path, 'base64');
+    
+        // Convert to ArrayBuffer
+        const arrayBuffer = base64ToArrayBuffer(base64String);
+        dispatch(
+          tenantFileUpload.trigger({
+            fileName,
+            document_type_id: "SR_DSC_OPN",
+            mime:  mime?.split("/")[1],
+            file: arrayBuffer,
+          })
+        );
+        
+        return arrayBuffer;
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
+    };
+    if (isTenantServerUpload) {
+      filesUpload();
+    } else if (!isUploadFileOnServer) {
       handleUpload(selectedFileData);
     } else {
       setIsEnableUploadDocument(true);
@@ -82,7 +121,7 @@ function UploadDocument(props) {
     const data = {
       path: selectedFile.url,
       fileName: selectedFile.name,
-      mime: 'image/png'
+      mime: "image/png",
       // size: selectedFile.size
     };
     uploadDocument(data);
@@ -96,6 +135,12 @@ function UploadDocument(props) {
     }
   }, [fileUploadedData]);
 
+  useEffect(() => {
+    if (isVisible && openCameraDefault) {
+      openCamera();
+    }
+  }, [isVisible]);
+
   const closeWindow = () => {
     handleClose();
     // setPickerVisibility(true);
@@ -107,20 +152,22 @@ function UploadDocument(props) {
     let fileSize = 0;
     files.forEach((file) => {
       fileSize += file.size;
-      console.log('Indivisual file Size', file.size);
+      console.log("Indivisual file Size", file.size);
     });
-    console.log('Total Size', fileSize);
+    console.log("Total Size", fileSize);
     if (maxFileSize && maxFileSize * 1000000 < fileSize) {
       alertBox(
-        localize('common.error'),
-        `${localize('common.maxFileSize')} ${maxFileSize} ${localize('common.MB')}`,
+        localize("common.error"),
+        `${localize("common.maxFileSize")} ${maxFileSize} ${localize(
+          "common.MB"
+        )}`,
         {
-          positiveText: localize('common.gotit'),
+          positiveText: localize("common.gotit"),
           onPositiveClick: () => {
             if (imageSet.length === 0) {
               closeWindow();
             }
-          }
+          },
         }
       );
       return false;
@@ -131,21 +178,21 @@ function UploadDocument(props) {
 
   const openCamera = () => {
     ImagePicker.openCamera({
-      // compressImageQuality: imageCompressionQuality,
-      mediaType: 'photo'
+      compressImageQuality: imageCompressionQuality || 1,
+      mediaType: "photo",
       // includeBase64: true,
-      // cropping: true,
+      cropping: cropping,
     })
       .then((image) => {
         handleClose();
         const isFileSizeCorrect = checkFileSize([...imageSet, image]);
         if (isFileSizeCorrect) {
-          const tempImageName = uniqueId() + '.jpg';
+          const tempImageName = uniqueId() + ".jpg";
           const data = {
             path: image.path,
             fileName: tempImageName,
             mime: image.mime,
-            size: image.size
+            size: image.size,
             // base64Data: image.data,
           };
 
@@ -155,16 +202,19 @@ function UploadDocument(props) {
         }
       })
       .catch((err) => {
-        if (err.code === ImageUploaderComponentErrorCode.E_NO_CAMERA_PERMISSION_KEY) {
+        if (
+          err.code ===
+          ImageUploaderComponentErrorCode.E_NO_CAMERA_PERMISSION_KEY
+        ) {
           alertBox(
-            localize('components.requiredPermissionMissing'),
-            localize('components.cameraPermissionMsg'),
+            localize("components.requiredPermissionMissing"),
+            localize("components.cameraPermissionMsg"),
             {
-              positiveText: localize('common.settings'),
+              positiveText: localize("common.settings"),
               onPositiveClick: () => {
                 Linking.openSettings();
               },
-              negativeText: localize('common.cancel')
+              negativeText: localize("common.cancel"),
             }
           );
         }
@@ -175,21 +225,21 @@ function UploadDocument(props) {
   const openGallery = () => {
     ImagePicker.openPicker({
       // compressImageQuality: imageCompressionQuality,
-      mediaType: 'photo'
+      mediaType: "photo",
       // includeBase64: true,
       // cropping: true,
     })
       .then((images) => {
-        const splitedImageName = images?.path?.split('.');
+        const splitedImageName = images?.path?.split(".");
         const finalFileName =
           splitedImageName?.length > 0
             ? splitedImageName[splitedImageName?.length - 2]
             : uniqueId();
         const temp = {
           path: images.path,
-          fileName: finalFileName + '.jpg',
+          fileName: finalFileName + ".jpg",
           mime: images.mime,
-          size: images.size
+          size: images.size,
           // base64Data: images.data,
         };
         const isFileSizeCorrect = checkFileSize([...imageSet, temp]);
@@ -201,16 +251,19 @@ function UploadDocument(props) {
         closeWindow();
       })
       .catch((err) => {
-        if (err.code === ImageUploaderComponentErrorCode.E_NO_LIBRARY_PERMISSION_KEY) {
+        if (
+          err.code ===
+          ImageUploaderComponentErrorCode.E_NO_LIBRARY_PERMISSION_KEY
+        ) {
           alertBox(
-            localize('components.requiredPermissionMissing'),
-            localize('components.galleryPermissonMsg'),
+            localize("components.requiredPermissionMissing"),
+            localize("components.galleryPermissonMsg"),
             {
-              positiveText: localize('common.settings'),
+              positiveText: localize("common.settings"),
               onPositiveClick: () => {
                 Linking.openSettings();
               },
-              negativeText: localize('common.cancel')
+              negativeText: localize("common.cancel"),
             }
           );
         }
@@ -221,34 +274,36 @@ function UploadDocument(props) {
   const openDocPicker = async () => {
     try {
       let options = {
-        type: [DocumentPicker.types.pdf, DocumentPicker.types.images]
+        type: [DocumentPicker.types.pdf, DocumentPicker.types.images],
       };
-      if (Platform.OS === 'ios' && isCopyRequired) {
+      if (Platform.OS === "ios" && isCopyRequired) {
         options = {
           ...options,
-          copyTo: 'cachesDirectory'
+          copyTo: "cachesDirectory",
         };
       }
       const res = await DocumentPicker.pickSingle(options);
       const isFileSizeCorrect = checkFileSize([res]);
       if (isFileSizeCorrect) {
-        const fileURL = Platform.OS === 'ios' && isCopyRequired ? res.fileCopyUri : res.uri;
-        const urlDecoded = Platform.OS === 'ios' ? decodeURIComponent(fileURL) : fileURL;
+        const fileURL =
+          Platform.OS === "ios" && isCopyRequired ? res.fileCopyUri : res.uri;
+        const urlDecoded =
+          Platform.OS === "ios" ? decodeURIComponent(fileURL) : fileURL;
         const fileName = res?.name;
 
-        RNFS.readFile(urlDecoded, 'base64').then((data) => {
+        RNFS.readFile(urlDecoded, "base64").then((data) => {
           const dataInfo = {
             // base64Data: data,
             path: fileURL,
             mime: res.type,
-            fileName
+            fileName,
           };
           uploadDocument(dataInfo);
           closeWindow();
         });
       }
     } catch (err) {
-      console.log('err', err);
+      console.log("err", err);
       closeWindow();
     }
   };
@@ -263,38 +318,42 @@ function UploadDocument(props) {
       <TouchableWithoutFeedback onPress={handleClose}>
         <SafeAreaView
           style={{
-            backgroundColor: isDarkMode ? Colors.darkModeBackground : Colors.modalForegroundColor
-          }}>
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.modalForegroundColor,
+          }}
+        >
           {isPhotoPickerVisible ? (
             <>
               <TouchableOpacity
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                   paddingHorizontal: RfW(24),
-                  alignItems: 'center'
+                  alignItems: "center",
                 }}
                 activeOpacity={0.4}
                 onPress={() => {
                   // handleClose();
                   openCamera();
-                }}>
+                }}
+              >
                 <CustomText
                   styling={styles.label}
                   color={isDarkMode ? Colors.white : Colors.white}
                   // color={isDarkMode ? Colors.white : Colors.app_black}
                 >
-                  {localize('common.takeAPhoto')}
+                  {localize("common.takeAPhoto")}
                 </CustomText>
                 <CustomImage
                   image={isRTL() ? Images.arrowLeft : Images.arrowRight}
                   imageWidth={RfH(16)}
                   imageHeight={RfH(16)}
-                  imageResizeMode={'contain'}
+                  imageResizeMode={"contain"}
                   displayLoader={false}
                   styling={{
-                    overflow: 'hidden',
-                    top: RfH(5)
+                    overflow: "hidden",
+                    top: RfH(5),
                   }}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
@@ -304,35 +363,39 @@ function UploadDocument(props) {
                   height: RfH(1),
                   backgroundColor: Colors.platiniumOne,
                   marginVertical: RfH(10),
-                  marginHorizontal: RfW(24)
+                  marginHorizontal: RfW(24),
                 }}
               />
 
               <TouchableOpacity
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                   paddingHorizontal: RfW(24),
-                  alignItems: 'center'
+                  alignItems: "center",
                 }}
                 activeOpacity={0.4}
                 onPress={() => {
                   // handleClose();
                   openGallery();
-                }}>
+                }}
+              >
                 {/* <Text style={styles.label}>Choose from gallery</Text> */}
-                <CustomText styling={styles.label} color={isDarkMode ? Colors.white : Colors.white}>
-                  {localize('common.chooseFromGallery')}
+                <CustomText
+                  styling={styles.label}
+                  color={isDarkMode ? Colors.white : Colors.white}
+                >
+                  {localize("common.chooseFromGallery")}
                 </CustomText>
                 <CustomImage
                   image={isRTL() ? Images.arrowLeft : Images.arrowRight}
                   imageWidth={RfH(16)}
                   imageHeight={RfH(16)}
-                  imageResizeMode={'contain'}
+                  imageResizeMode={"contain"}
                   displayLoader={false}
                   styling={{
-                    overflow: 'hidden',
-                    top: RfH(5)
+                    overflow: "hidden",
+                    top: RfH(5),
                   }}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
@@ -342,7 +405,7 @@ function UploadDocument(props) {
                   height: RfH(1),
                   backgroundColor: Colors.platiniumOne,
                   marginVertical: RfH(10),
-                  marginHorizontal: RfW(24)
+                  marginHorizontal: RfW(24),
                 }}
               />
             </>
@@ -351,29 +414,33 @@ function UploadDocument(props) {
             <>
               <TouchableOpacity
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                   paddingHorizontal: RfW(24),
-                  alignItems: 'center'
+                  alignItems: "center",
                 }}
                 activeOpacity={0.4}
                 onPress={() => {
                   // handleClose();
                   openDocPicker();
-                }}>
+                }}
+              >
                 {/* <Text style={styles.label}>File</Text> */}
-                <CustomText styling={styles.label} color={isDarkMode ? Colors.white : Colors.white}>
-                  {localize('common.file')}
+                <CustomText
+                  styling={styles.label}
+                  color={isDarkMode ? Colors.white : Colors.white}
+                >
+                  {localize("common.file")}
                 </CustomText>
                 <CustomImage
                   image={isRTL() ? Images.arrowLeft : Images.arrowRight}
                   imageWidth={RfH(16)}
                   imageHeight={RfH(16)}
-                  imageResizeMode={'contain'}
+                  imageResizeMode={"contain"}
                   displayLoader={false}
                   styling={{
-                    overflow: 'hidden',
-                    top: RfH(5)
+                    overflow: "hidden",
+                    top: RfH(5),
                   }}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
@@ -383,7 +450,7 @@ function UploadDocument(props) {
                   height: RfH(1),
                   backgroundColor: Colors.platiniumOne,
                   marginVertical: RfH(10),
-                  marginHorizontal: RfW(24)
+                  marginHorizontal: RfW(24),
                 }}
               />
             </>
@@ -392,27 +459,31 @@ function UploadDocument(props) {
             <>
               <TouchableOpacity
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                   paddingHorizontal: RfW(24),
-                  alignItems: 'center'
+                  alignItems: "center",
                 }}
                 activeOpacity={0.4}
                 onPress={() => {
                   chooseAvatar();
-                }}>
-                <CustomText styling={styles.label} color={isDarkMode ? Colors.white : Colors.white}>
-                  {localize('common.chooseAvatar')}
+                }}
+              >
+                <CustomText
+                  styling={styles.label}
+                  color={isDarkMode ? Colors.white : Colors.white}
+                >
+                  {localize("common.chooseAvatar")}
                 </CustomText>
                 <CustomImage
                   image={isRTL() ? Images.arrowLeft : Images.arrowRight}
                   imageWidth={RfH(16)}
                   imageHeight={RfH(16)}
-                  imageResizeMode={'contain'}
+                  imageResizeMode={"contain"}
                   displayLoader={false}
                   styling={{
-                    overflow: 'hidden',
-                    top: RfH(5)
+                    overflow: "hidden",
+                    top: RfH(5),
                   }}
                   tintColor={isDarkMode ? Colors.white : Colors.white}
                 />
@@ -422,7 +493,7 @@ function UploadDocument(props) {
                   height: RfH(1),
                   backgroundColor: Colors.platiniumOne,
                   marginVertical: RfH(10),
-                  marginHorizontal: RfW(24)
+                  marginHorizontal: RfW(24),
                 }}
               />
             </>
@@ -437,16 +508,17 @@ function UploadDocument(props) {
       <CustomBottomSheet
         title={
           isVisibleAvatar
-            ? localize('common.chooseAvatar')
-            : title || localize('profile.profilePhotoTitle')
+            ? localize("common.chooseAvatar")
+            : title || localize("profile.profilePhotoTitle")
         }
         rightIconWidth={RfH(14)}
         rightIconHeight={RfH(14)}
-        isVisible={isVisible}
-        innerViewContainer={isVisibleAvatar ? { height: '94%' } : {}}
+        isVisible={isVisible && !openCameraDefault}
+        innerViewContainer={isVisibleAvatar ? { height: "94%" } : {}}
         onRequestClose={() => {
           isVisibleAvatar ? setIsVisibleAvatar(false) : handleClose();
-        }}>
+        }}
+      >
         {isVisibleAvatar ? (
           <AvatarUpload onPressUploadAvatar={onPressUploadAvatar} />
         ) : (
@@ -468,7 +540,11 @@ UploadDocument.propTypes = {
   fileNameWithTimeStamp: PropTypes.bool,
   isUploadFileOnServer: PropTypes.bool,
   title: PropTypes.string,
-  isAvatarVisible: PropTypes.bool
+  isAvatarVisible: PropTypes.bool,
+  cropping: PropTypes.bool,
+  openCameraDefault: PropTypes.bool,
+  imageCompressionQuality: PropTypes.number,
+  isTenantServerUpload: PropTypes.bool,
 };
 
 UploadDocument.defaultProps = {
@@ -481,7 +557,7 @@ UploadDocument.defaultProps = {
   maxFileSize: 5,
   fileNameWithTimeStamp: false,
   isUploadFileOnServer: false,
-  isAvatarVisible: false
+  isAvatarVisible: false,
 };
 
 export default UploadDocument;

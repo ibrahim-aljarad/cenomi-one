@@ -32,6 +32,7 @@ import {
 import WrapperContainer from "../../../components/WrapperContainer";
 import { RfW } from "../../../utils/helper";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
+import { ThemeProvider } from "../../../theme/context";
 
 const stateSelector = createStructuredSelector({
   approvalPendingTasksData: getApprovalPendingTasksSelector,
@@ -59,22 +60,24 @@ const ApprovalsListing = (props: any) => {
   useEffect(() => {
     trackEvent(EVENT_NAME.SCREEN_APPROVALS_LISTING);
 
-    if (isYardiServiceModuleCheck(approvalType)) {
-      dispatch(getLeasingPendingTasks.trigger());
-    } else if (isProcurementServiceModuleCheck(approvalType)) {
-      dispatch(getProcurementPendingTask.trigger());
-    } else if (isDealWorkflowModuleCheck(approvalType)) {
-      const fetchWithUserName = async () => {
-        const userData = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_INFO);
-        dispatch(
-          getWorkflowPendingTasks.trigger({
-            loggedInUser: JSON.parse(userData || "{}")?.username,
-          })
-        );
-      };
-      fetchWithUserName();
-    } else {
-      dispatch(getApprovalPendingTasks.trigger());
+    if (!approvalPendingTasksData || !searchText) {
+      if (isYardiServiceModuleCheck(approvalType)) {
+        dispatch(getLeasingPendingTasks.trigger());
+      } else if (isProcurementServiceModuleCheck(approvalType)) {
+        dispatch(getProcurementPendingTask.trigger());
+      } else if (isDealWorkflowModuleCheck(approvalType)) {
+        const fetchWithUserName = async () => {
+          const userData = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_INFO);
+          dispatch(
+            getWorkflowPendingTasks.trigger({
+              loggedInUser: JSON.parse(userData || "{}")?.username,
+            })
+          );
+        };
+        fetchWithUserName();
+      } else {
+        dispatch(getApprovalPendingTasks.trigger());
+      }
     }
 
     dispatch(DoApprovalActionDone.trigger());
@@ -108,6 +111,12 @@ const ApprovalsListing = (props: any) => {
       setApprovalPendingTasksList([]);
     }
   }, [approvalPendingTasksData]);
+
+  useEffect(() => {
+    if (isFocused && searchText) {
+      SearchFilterFunction(searchText);
+    }
+  }, [isFocused, filterPendingTasksList]);
 
   const navigateToDetailScreen = (item) => {
     trackEvent(EVENT_NAME.PRESSED_APPROVALS_TASK_ITEM, { taskInfo: item });
@@ -248,7 +257,7 @@ const ApprovalsListing = (props: any) => {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay>
       <SafeAreaView
         style={[
           styles.mainContainer,
@@ -259,16 +268,19 @@ const ApprovalsListing = (props: any) => {
           },
         ]}
       >
-        <HeaderSVG
-          isRightButtonVisible={false}
-          isBackButtonVisible={true}
-          titleText={module.name}
-          titleFont={20}
-          onRightButtonClickHandler={() => {}}
-          onBackPressHandler={() => navigation.goBack()}
-          isRight2BtnVisible={false}
-          isBorderRadius={false}
-        />
+        <ThemeProvider useNewStyles={true}>
+          <HeaderSVG
+            isRightButtonVisible={false}
+            isBackButtonVisible={true}
+            titleText={module.name}
+            titleFont={20}
+            onRightButtonClickHandler={() => {}}
+            onBackPressHandler={() => navigation.goBack()}
+            isRight2BtnVisible={false}
+            isBorderRadius={false}
+          />
+        </ThemeProvider>
+
         <View
           style={{
             backgroundColor: isDarkMode

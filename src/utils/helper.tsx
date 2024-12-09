@@ -24,9 +24,30 @@ import { alertBox, clearAll, getSaveData, storeData } from "./helpers";
 import Color from "color";
 import { initializeSslPinning } from "react-native-ssl-public-key-pinning";
 import JailMonkey from "jail-monkey";
+import crashlytics from "@react-native-firebase/crashlytics";
 
 export function openLinkInBrowser(url: string) {
-  Linking.canOpenURL(url).then((canOpen) => canOpen && Linking.openURL(url));
+  Linking.canOpenURL(url)
+    .then((canOpen) => {
+      if (canOpen) {
+        return Linking.openURL(url).catch((error) => {
+          crashlytics().recordError(
+            new Error(`Failed to open URL: ${url}. Error: ${error.message}`)
+          );
+          crashlytics().log(`Attempted to open URL: ${url}`);
+          console.error("Error opening URL:", error);
+        });
+      } else {
+        crashlytics().log(`URL not supported: ${url}`);
+        console.warn(`Cannot open URL: ${url}`);
+      }
+    })
+    .catch((error) => {
+      crashlytics().recordError(
+        new Error(`URL check failed: ${url}. Error: ${error.message}`)
+      );
+      console.error("Error checking URL:", error);
+    });
 }
 
 export const RfW = (value: number) =>
@@ -69,6 +90,14 @@ export const getImageUrl = (url: string) => {
     return url?.includes(IMAGE_BASE_URL) ? url : `${IMAGE_BASE_URL}${url}`;
   }
   return undefined;
+};
+
+export const processUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("file://")) {
+    return url;
+  }
+  return getImageUrl(url);
 };
 
 export const getPhoneNumBytype = (type, list) => {

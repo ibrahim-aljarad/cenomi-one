@@ -19,6 +19,7 @@ export const LOCAL_STORAGE_DATA_KEY = {
   IS_SHOW_WORKANNIVERSARY_WISHES_MODAL: "is_show_workanniversary_wishes_modal",
   IN_APP_REVIEW: "in_app_review",
   QUOTES_READED_DATA: "QUOTES_READED_DATA",
+  TENANT_TOKEN: "tenant_token",
 };
 
 export const LOTTIE_JSON_FILES = {
@@ -66,6 +67,7 @@ export const DOCUMENTS_DOC = "doc";
 export const DOCUMENTS_DOCX = "docx";
 export const DOCUMENTS_XLS = "xls";
 export const DOCUMENTS_XLSX = "xlsx";
+export const DOCUMENTS_MSG = "msg";
 
 export const inputs = {};
 

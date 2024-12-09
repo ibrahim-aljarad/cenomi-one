@@ -146,7 +146,6 @@ const MoreOptions = () => {
       featureModuleData
     )
   ) {
-    console.log("menu list", menuList);
     menuList = [
       ...menuList,
       {
@@ -191,6 +190,23 @@ const MoreOptions = () => {
     ];
   }
 
+
+  if (
+    getUserConfigData(
+      myProfileDetails?.config?.config,
+      CONFIG_CONSTANT?.CALENDAR,
+      featureModuleData
+    )
+  ) {
+    menuList = [
+      ...menuList,
+      {
+        name: localize("home.discrepancy"),
+        routeName: NavigationRouteNames.DISCREPANCY_LIST,
+        featureName: "send_wishes",
+      },
+    ];
+  }
   useEffect(() => {
     if (isFocused) {
       try {

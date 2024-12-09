@@ -39,6 +39,7 @@ import { getWishesListSelector, isDarkModeSelector } from "../redux/selectors";
 import {
   getPendingAcknowledgement,
   getQoutes,
+  getTenantLogin,
   submitAcknowledge,
 } from "./redux/actions";
 import {
@@ -136,7 +137,7 @@ const Home = () => {
     if (!isEmpty(notificationPayload)) {
       let payload = notificationPayload?.payload;
 
-      dispatch(markReadNotification.trigger({ id: payload?.id }));
+      dispatch(markReadNotification.trigger({ id: payload?.externalId }));
 
       if (payload.action === "open_module_details" && !payload.foreground) {
         // clean state for notificationPayload
@@ -187,6 +188,15 @@ const Home = () => {
               id: payload.externalId,
             });
           }
+        } else if (payload.featureModule === CONFIG_CONSTANT?.KNOWLEDGE_HUB) {
+          if (payload.externalId) {
+            navigation.navigate(
+              NavigationRouteNames.KNOWLEDGEHUB_DETAILS as never,
+              {
+                externalId: payload.externalId,
+              }
+            );
+          }
         } else if (payload.featureModule === CONFIG_CONSTANT?.SEND_WISHES) {
           if (!isEmpty(payload?.additionalInfo)) {
             const { type, username } = payload?.additionalInfo || {};
@@ -201,11 +211,16 @@ const Home = () => {
   }, [notificationPayload]);
 
   useEffect(() => {
+    const getTenantLoginToken = async () => {
+      const user = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
+      dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
+    };
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
       dispatch(getOrganizationConfig.trigger());
       dispatch(getQoutes.trigger());
       dispatch(getPendingAcknowledgement.trigger());
+      getTenantLoginToken();
 
       const jailBreakStatus = jailBreak();
       if (jailBreakStatus) {

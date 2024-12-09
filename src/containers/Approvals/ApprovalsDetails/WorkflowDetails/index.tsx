@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   CustomImage,
   CustomRenderHtml,
   CustomText,
 } from "../../../../components";
-import { FlatList, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
-import { Colors, CommonStyles, Images } from "../../../../theme";
+import { Colors, CommonStyles } from "../../../../theme";
 import { RfH, RfW, getColorWithOpacity } from "../../../../utils/helper";
 import {
   colorValue,
@@ -23,6 +23,9 @@ import {
 } from "./serializer";
 import { localize } from "../../../../locale/utils";
 import { isString, sortBy } from "lodash";
+import ApproverDetails from "../../../../components/ApproverDetails";
+import DocumentsViewModal from "../../../../components/DocumentsViewModal";
+import DocumentViewer from "./DocumentViewer";
 
 function WorkflowDetails({
   data,
@@ -34,17 +37,180 @@ function WorkflowDetails({
   isDarkMode?: boolean;
   formName?: string;
 }) {
-  const { requestData, taskData } = data || {};
+  const { requestData, taskData, requestDataUrl, documentData } = data || {};
+  const [memoMessage, setMemoMessage] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState({
+    isVisible: false,
+    url: "",
+    title: "",
+    fileType: "",
+  });
+
+  const handleDocumentOpen = (attachment) => {
+    setSelectedDocument({
+      isVisible: true,
+      url: attachment.document_BLOB_url,
+      title: attachment.name,
+      fileType: attachment.extension,
+    });
+  };
+
+  const handleCloseDocument = () => {
+    setSelectedDocument({
+      isVisible: false,
+      url: "",
+      title: "",
+      fileType: "",
+    });
+  };
+
+  const fetchMemoMessage = async (url: string) => {
+    if (!url) return;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data?.memoMessage) {
+        setMemoMessage(data.memoMessage);
+      }
+    } catch (error) {
+      console.error("Error fetching memo message:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (Array.isArray(requestDataUrl) && requestDataUrl[0]) {
+      fetchMemoMessage(requestDataUrl[0]);
+    } else if (requestData?.memoMessage) {
+      setMemoMessage(requestData.memoMessage);
+    }
+  }, [requestData?.memoMessage, requestDataUrl]);
 
   const getApprovalTitle = (taskItem, index, allTaskData) => {
-    if(allTaskData?.[index-1]?.requestMoreInfo) {
-      return `Information Requested From - ${taskItem?.name}`
+    if (allTaskData?.[index - 1]?.requestMoreInfo) {
+      return `Information Requested From - ${taskItem?.name}`;
     }
-    if(isString(taskItem?.groupName)){
-      return `${taskItem?.groupName} - ${taskItem?.name}`
+    if (isString(taskItem?.groupName)) {
+      return `${taskItem?.groupName} - ${taskItem?.name}`;
     }
-    return taskItem?.name
+    return taskItem?.name;
   };
+
+  const renderAttachmentItem = ({ item, index }) => (
+    <TouchableOpacity
+      style={[
+        styles.attachmentRow,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          borderBottomWidth:
+            index < documentData?.attachements?.length - 1 ? 1 : 0,
+          borderColor: getColorWithOpacity(Colors.black, 0.2),
+        },
+      ]}
+      onPress={() => handleDocumentOpen(item)}
+    >
+      <View style={styles.attachmentContent}>
+        <CustomText
+          fontSize={14}
+          color={isDarkMode ? Colors.black : Colors.black}
+          styling={{
+            ...CommonStyles.regularFont400Style,
+          }}
+          numberOfLines={1}
+        >
+          {item.name}
+        </CustomText>
+      </View>
+
+      <View style={styles.attachmentCTA}>
+        <CustomText
+          fontSize={14}
+          color={Colors.blue}
+          styling={{
+            ...CommonStyles.regularFont400Style,
+          }}
+        >
+          Open
+        </CustomText>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderAttachmentsSection = () => {
+    if (!documentData?.attachements?.length) return null;
+
+    return (
+      <View
+        style={[
+          styles.requestCellView,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.topHeader,
+            { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+          ]}
+        >
+          <CustomText
+            fontSize={16}
+            color={isDarkMode ? Colors.black : Colors.black}
+            styling={{
+              ...CommonStyles.mediumFontStyle,
+              width: "95%",
+            }}
+          >
+            Attachments
+          </CustomText>
+        </View>
+        <FlatList
+          data={documentData?.attachements || []}
+          renderItem={renderAttachmentItem}
+          keyExtractor={(item) => item.documentIdPk.toString()}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.attachmentsContainer}
+        />
+      </View>
+    );
+  };
+
+  const renderLodDocumentSection = () => {
+    if (!documentData?.lodDocument?.length) return null;
+    return <DocumentViewer documentId={documentData?.lodDocument[0]} />;
+  };
+
+  const renderCommentsSection = (details) => (
+    <View
+      style={[
+        styles.requestCellView,
+        {
+          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.topHeader,
+          { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+        ]}
+      >
+        <CustomText
+          fontSize={16}
+          color={isDarkMode ? Colors.black : Colors.black}
+          styling={{ ...CommonStyles.mediumFontStyle, width: "95%" }}
+        >
+          Additional Comments
+        </CustomText>
+      </View>
+      <View style={styles.commentBox}>
+        <Text style={styles.commentText}>{details.userNotes}</Text>
+      </View>
+    </View>
+  );
 
   const dealCardsData: any = [
     {
@@ -52,16 +218,16 @@ function WorkflowDetails({
       details: getGenaralDetailsCard(formName) || generalDetailsTermination,
       dataField: { ...data, ...requestData, ...taskData },
     },
-    ...(requestData?.memoMessage
+    // for Imemo message
+    ...(memoMessage?.trim()
       ? [
           {
             title: "Memo",
             details: {},
-            component: true,
+            component: "memo",
           },
         ]
       : []),
-    ,
     //for Termination Committee Approval
     ...(requestData?.terminationGridData
       ? [
@@ -153,14 +319,45 @@ function WorkflowDetails({
         ]
       : []),
 
-    //for all
-    ...sortBy(taskData?.data || [], ({ order }) => order).map((taskItem, index, allTaskData) => ({
-      title: getApprovalTitle(taskItem, index, allTaskData) ,
-      icon: !!taskItem?.isCompleted ? Images.tickUploadDoc : null,
+    ...(documentData?.lodDocument?.length
+      ? [
+          {
+            title: "LOD Document",
+            component: "lod",
+          },
+        ]
+      : []),
+    ...(documentData?.attachements?.length
+      ? [
+          {
+            title: "Attachments",
+            component: "attachments",
+          },
+        ]
+      : []),
+    ...(requestData?.userNotes
+      ? [
+          {
+            title: "Comments",
+            details: { userNotes: requestData.userNotes },
+            component: "comments",
+          },
+        ]
+      : []),
+  ];
+
+  const generalCards = dealCardsData.filter(
+    (card) => !["attachments", "comments", "card"].includes(card?.component)
+  );
+
+  const approverCards = sortBy(taskData?.data || [], ({ order }) => order).map(
+    (taskItem, index, allTaskData) => ({
+      title: getApprovalTitle(taskItem, index, allTaskData),
       details: taskDataFields,
       dataField: taskItem,
-    })),
-  ];
+      component: "card",
+    })
+  );
 
   const horizontalDataConversion = ({ details, dataField }) =>
     details
@@ -203,7 +400,35 @@ function WorkflowDetails({
     dataField,
     component,
     maxWidth,
+    isFirstApprover,
   }) => {
+    if (component === "card") {
+      return (
+        <>
+          {isFirstApprover && (
+            <View
+              style={[
+                styles.approverContainer,
+                { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+              ]}
+            >
+              <CustomText
+                fontSize={16}
+                color={isDarkMode ? Colors.black : Colors.white}
+                styling={{
+                  ...CommonStyles.semiboldFontStyle,
+                  width: "95%",
+                }}
+              >
+                Approvers
+              </CustomText>
+            </View>
+          )}
+          <ApproverDetails taskItem={dataField} details={details} />
+        </>
+      );
+    }
+
     if (component === "table")
       return (
         <View style={styles.tableContainer}>
@@ -212,7 +437,7 @@ function WorkflowDetails({
               style={[
                 styles.topHeader,
                 {
-                  borderColor: getColorWithOpacity(Colors.white, 0.2),
+                  borderColor: getColorWithOpacity(Colors.black, 0.2),
                   paddingTop: RfH(0),
                   ...styles.tableHead,
                 },
@@ -220,7 +445,7 @@ function WorkflowDetails({
             >
               <CustomText
                 fontSize={16}
-                color={isDarkMode ? Colors.white : Colors.white}
+                color={isDarkMode ? Colors.white : Colors.black}
                 styling={{
                   ...CommonStyles.mediumFontStyle,
                   width: "80%",
@@ -262,7 +487,9 @@ function WorkflowDetails({
                     >
                       <CustomText
                         fontSize={14}
-                        color={textColor || Colors.white}
+                        color={
+                          textColor || bgColor ? Colors.white : Colors.black
+                        }
                         styling={{
                           marginHorizontal: RfW(5),
                           lineHeight: RfH(20),
@@ -285,45 +512,52 @@ function WorkflowDetails({
         </View>
       );
 
-    return (
-      <View
-        style={[
-          styles.requestCellView,
-          {
-            backgroundColor: isDarkMode
-              ? Colors.darkModeButton
-              : getColorWithOpacity(Colors.midnightExpress, 0.24),
-          },
-        ]}
-      >
+    if (title === "Memo" && (!memoMessage || !memoMessage.trim())) {
+      return null;
+    }
+
+    // Regular memo rendering with content
+    if (title === "Memo" && memoMessage?.trim()) {
+      return (
         <View
           style={[
-            styles.topHeader,
-            { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+            styles.requestCellView,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeButton
+                : Colors.white,
+            },
           ]}
         >
-          <CustomText
-            fontSize={16}
-            color={isDarkMode ? Colors.white : Colors.white}
-            styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+          <View
+            style={[
+              styles.topHeader,
+              { borderColor: getColorWithOpacity(Colors.black, 0.2) },
+            ]}
           >
-            {localize("Memo")}
-          </CustomText>
+            <CustomText
+              fontSize={16}
+              color={isDarkMode ? Colors.black : Colors.black}
+              styling={{ ...CommonStyles.mediumFontStyle, width: "80%" }}
+            >
+              {localize("Memo")}
+            </CustomText>
+          </View>
+          <CustomRenderHtml
+            source={memoMessage}
+            tagsStyles={{
+              body: {
+                whiteSpace: "normal",
+                color: isDarkMode ? Colors.black : Colors.black,
+                fontSize: 14,
+                lineHeight: 22,
+                ...CommonStyles.regularFont400Style,
+              },
+            }}
+          />
         </View>
-        <CustomRenderHtml
-          source={requestData?.memoMessage}
-          tagsStyles={{
-            body: {
-              whiteSpace: "normal",
-              color: isDarkMode ? Colors.white : Colors.white,
-              fontSize: 14,
-              lineHeight: 22,
-              ...CommonStyles.regularFont400Style,
-            },
-          }}
-        />
-      </View>
-    );
+      );
+    }
   };
 
   if (!data) return <></>;
@@ -336,10 +570,17 @@ function WorkflowDetails({
 
   return (
     <>
-      {dealCardsData?.map(
+      {generalCards?.map(
         ({ title, details, dataField, component, icon, maxWidth }) =>
           component ? (
-            renderComponent({ title, details, dataField, component, maxWidth })
+            renderComponent({
+              title,
+              details,
+              dataField,
+              component,
+              maxWidth,
+              isFirstApprover: false,
+            })
           ) : (
             <View
               style={[
@@ -347,7 +588,7 @@ function WorkflowDetails({
                 {
                   backgroundColor: isDarkMode
                     ? Colors.darkModeButton
-                    : getColorWithOpacity(Colors.midnightExpress, 0.24),
+                    : Colors.white,
                 },
               ]}
               key={title}
@@ -355,12 +596,12 @@ function WorkflowDetails({
               <View
                 style={[
                   styles.topHeader,
-                  { borderColor: getColorWithOpacity(Colors.white, 0.2) },
+                  { borderColor: getColorWithOpacity(Colors.black, 0.2) },
                 ]}
               >
                 <CustomText
                   fontSize={16}
-                  color={isDarkMode ? Colors.white : Colors.white}
+                  color={isDarkMode ? Colors.black : Colors.black}
                   styling={{
                     ...CommonStyles.mediumFontStyle,
                     width: icon ? "80%" : "95%",
@@ -383,20 +624,31 @@ function WorkflowDetails({
                 {details?.map(({ label, key, method }) =>
                   isContentAvailable(dataField?.[key]) ? (
                     <View style={styles.cellContainerView} key={key + title}>
-                      <CustomText
-                        fontSize={14}
-                        color={Colors.white}
-                        styling={{
-                          marginStart: RfW(5),
-                          lineHeight: RfH(20),
-                          ...CommonStyles.regularFont400Style,
-                        }}
-                      >
-                        {label ? `${label}: ` : ""}
-                        {method
-                          ? method(dataField?.[key])
-                          : dataField?.[key]?.join?.(", ") || dataField?.[key]}
-                      </CustomText>
+                      <View style={styles.labelContainer}>
+                        <CustomText
+                          fontSize={14}
+                          color={Colors.darkGrey113}
+                          styling={{
+                            ...CommonStyles.regularFont400Style,
+                          }}
+                        >
+                          {label}
+                        </CustomText>
+                      </View>
+                      <View style={styles.valueContainer}>
+                        <CustomText
+                          fontSize={14}
+                          color={Colors.black}
+                          styling={{
+                            ...CommonStyles.regularFont400Style,
+                          }}
+                        >
+                          {method
+                            ? method(dataField?.[key])
+                            : dataField?.[key]?.join?.(", ") ||
+                              dataField?.[key]}
+                        </CustomText>
+                      </View>
                     </View>
                   ) : (
                     <></>
@@ -407,7 +659,30 @@ function WorkflowDetails({
           )
       )}
 
+      {documentData?.lodDocument?.length > 0 && renderLodDocumentSection()}
+
+      {renderAttachmentsSection()}
+
+      {requestData?.userNotes &&
+        renderCommentsSection({ userNotes: requestData.userNotes })}
+
+      {approverCards.map((card, index) =>
+        renderComponent({
+          ...card,
+          isFirstApprover: index === 0,
+        })
+      )}
+
       <View style={{ height: RfH(30) }} />
+      <DocumentsViewModal
+        isVisible={selectedDocument.isVisible}
+        onRequestClose={handleCloseDocument}
+        documentInfo={{
+          url: selectedDocument.url,
+          title: selectedDocument.title,
+          fileType: selectedDocument.fileType,
+        }}
+      />
     </>
   );
 }

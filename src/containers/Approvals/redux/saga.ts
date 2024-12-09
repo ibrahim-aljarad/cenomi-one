@@ -168,7 +168,6 @@ function* getApprovalPendingTasksRequest() {
   try {
     yield put(getApprovalPendingTasks.request({ isLoading: false }));
     const response = yield call(getApprovalPendingTasksApiCall);
-    console.log("getApprovalPendingTasks", response);
 
     if (response.success) {
       const { data } = response;
@@ -350,6 +349,7 @@ function* getWorkflowTaskDetailRequest(action: { payload: { taskId: any } }) {
 
     if (response.success) {
       const { data } = response;
+      console.log(data);
       yield put(getWorkflowTasksDetails.success({ data }));
     } else {
       yield put(setGlobalError.success());

@@ -36,7 +36,8 @@
     "en": "English",
     "ar": "Arabic",
     "currentLanguage": "Current language",
-
+    "serviceRequest": "Service Request",
+    "save": "Save",
     "all": "ALL",
     "lorem": "Lorem Ipsum",
     "hello": "Hello",
@@ -153,7 +154,8 @@
     "cameraPermissionMsg": "Please grant permission to access camera",
     "galleryPermissonMsg": "Please grant permission to access photo gallery",
     "uploadDocument": "Upload document",
-    "uploadAttachment": "Upload attachment"
+    "uploadAttachment": "Upload attachment",
+    "uploadPhoto": "Upload Photo"
   },
 
   "home": {
@@ -184,7 +186,8 @@
     "chatGpt": "ChatGPT",
     "calendarC": "Calendar",
     "attendance": "Attendance",
-    "corporateCommunication": "Corporate Communication"
+    "corporateCommunication": "Corporate Communication",
+    "discrepancy": "Discrepancy"
   },
   "hrRequest": {
     "annualLimit": "Annual Limit",
@@ -316,6 +319,10 @@
     "expectedDateOfChildbirth": "Expected Date of Childbirth",
     "specialConditions": "Special Conditions",
     "singleDay": "Single Day",
+    "level": "Level",
+    "unit": "Unit",
+    "comment": "Comment",
+    "others": "Others",
     "warning": {
       "reasonForTravelBlank": "Reason for travel cannot be empty",
       "travelRequestTypeBlank": "Travel request type cannot be empty",
@@ -337,7 +344,10 @@
       "trainingCourseCannotBeEmpty": "Training course title cannot be empty",
       "trainingVenueCannotBeEmpty": "Training venue cannot be empty",
       "commentCannotBeEmpty": "Comments cannot be empty"
-    }
+    },
+    "selectFloorFirst": "Please select a floor first",
+    "loadingUnits": "Loading units...",
+    "noUnitsOnFloor": "No units available on this floor"
   },
 
   "login": {
@@ -517,5 +527,61 @@
     "sColleagues": "'s Colleagues",
     "organisation": "Organisation",
     "userList": "User List"
+  },
+  "discrepancy": {
+    "mall": "Mall",
+    "companyName": "Company Name",
+    "remainingUnits": "Remaining Units",
+    "takePhoto": "Take Photo",
+    "takePhotoError": "At least one photo needed",
+    "selectStatus": "Select Status",
+    "specifyStatus": "Specify Review Status",
+    "scanUnitQR": "Scan Unit QR Code",
+    "saved": "Discrepancy Saved",
+    "continue": "Continue",
+    "submitAll": "Submit All",
+    "submitted": "Discrepancy Submitted Successfully",
+    "approvers": "Approvers",
+    "noMoreDiscrepancy": "No more discrepancies",
+    "title": "Title",
+    "selectOthers": "Others Field Required",
+    "selectOthersDesc": "Please specify details in Others field",
+    "selectFloor": "Select Floor",
+    "selectFloorDesc": "Please select a floor",
+    "selectUnit": "Select Unit",
+    "selectUnitDesc": "Please select a unit",
+    "searchUnit": "Search Unit...",
+    "invalidDataFormat": "Invalid QR code format. Please scan again.",
+    "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall",
+    "level": "Level",
+    "unit": "Unit",
+    "unitStatus": "Unit Status",
+    "contract": "Contract",
+    "brand": "Brand",
+    "storeClosed": "Store Closed",
+    "wrongLocation": "Wrong Location",
+    "brandChanged": "Brand Changed",
+    "openWithoutContract": "Open without Contract",
+    "others": "Others",
+    "reviewStatus": "Review Status",
+    "match": "Match",
+    "mismatch": "Mismatch",
+    "status": {
+        "in_process": "Pending",
+        "in_progress": "Pending",
+        "new": "New",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "yet_to_start": "Yet to start",
+        "action_required": "Action required",
+        "completed": "Completed",
+        "finished": "Finished"
+      },
+      "roles": {
+        "leasing_admin": "Leasing Admin",
+        "mall_manager": "Mall Manager",
+        "operations_manager": "Operations Manager",
+        "operations_support": "Operations Support"
+      }
   }
 }
