@@ -18,7 +18,11 @@ import { LOCAL_STORAGE_DATA_KEY } from "../../../../utils/constants";
 import Config from "../../../../utils/config";
 import DocumentsViewModal from "../../../../components/DocumentsViewModal";
 
-const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) => {
+const ProcurementDetails = ({
+  taskDetails,
+  isDarkMode,
+  isYardiServiceModule,
+}) => {
   const [selectedDocument, setSelectedDocument] = useState({
     isVisible: false,
     url: "",
@@ -27,39 +31,42 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
     headers: {},
   });
 
-
-  const handleDocumentOpen = async (attachment, isYardiServiceModule = false) => {
+  const handleDocumentOpen = async (
+    attachment,
+    isYardiServiceModule = false
+  ) => {
     let title, url, fileType;
     if (isYardiServiceModule) {
-        const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
+      const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
 
-        const splitedTitle = attachment?.AttachmentName?.split(".");
+      const splitedTitle = attachment?.AttachmentName?.split(".");
 
-        title = attachment?.AttachmentName;
-        url = `${Config.API_BASE_URL}process/leasing/tasks-attachments/${attachment?.AttachmentID}?download=false&token=${token}`;
-        fileType = splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : "";
-      } else {
-        const fileName = attachment?.title || attachment?.attachmentName;
-        const splitedData = fileName?.split(".");
-        const splitedMimeType = attachment?.mimeType?.split("/");
+      title = attachment?.AttachmentName;
+      url = `${Config.API_BASE_URL}process/leasing/tasks-attachments/${attachment?.AttachmentID}?download=false&token=${token}`;
+      fileType =
+        splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : "";
+    } else {
+      const fileName = attachment?.title || attachment?.attachmentName;
+      const splitedData = fileName?.split(".");
+      const splitedMimeType = attachment?.mimeType?.split("/");
 
-        title = fileName || splitedMimeType[1] + " file";
-        url = attachment?.uri?.href || attachment?.links?.href;
-        fileType =
-          splitedData?.length > 0
-            ? splitedData[splitedData?.length - 1]
-            : splitedMimeType?.length > 0
-            ? splitedMimeType[1]
-            : "";
-      }
-      setSelectedDocument({
-        isVisible: true,
-        url,
-        title,
-        fileType,
-        headers: taskDetails?.attachmentAuthHeaders || {},
-      });
-  }
+      title = fileName || splitedMimeType[1] + " file";
+      url = attachment?.uri?.href || attachment?.links?.href;
+      fileType =
+        splitedData?.length > 0
+          ? splitedData[splitedData?.length - 1]
+          : splitedMimeType?.length > 0
+          ? splitedMimeType[1]
+          : "";
+    }
+    setSelectedDocument({
+      isVisible: true,
+      url,
+      title,
+      fileType,
+      headers: taskDetails?.attachmentAuthHeaders || {},
+    });
+  };
 
   const handleCloseDocument = () => {
     setSelectedDocument({
@@ -71,9 +78,12 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
     });
   };
 
-
   const renderTaskDetailsData = () => {
-    if (!taskDetails?.taskDetailsData?.length) {
+    const hasValidDetails = taskDetails?.taskDetailsData?.some(
+      (item) => item.value
+    );
+
+    if (!hasValidDetails) {
       return null;
     }
     return (
@@ -165,50 +175,55 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
         </View>
         <FlatList
           data={taskDetails?.attachments}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity
-              style={[
-                styles.attachmentRow,
-                {
-                  backgroundColor: isDarkMode
-                    ? Colors.darkModeBackground
-                    : Colors.white,
-                  borderBottomWidth:
-                    index < taskDetails?.attachments.length - 1 ? 1 : 0,
-                  borderColor: getColorWithOpacity(Colors.black, 0.2),
-                },
-              ]}
-              onPress={() => handleDocumentOpen(
-                item,
-                isYardiServiceModule
-              )}
-            >
-              <View style={styles.attachmentContent}>
-                <CustomText
-                  fontSize={14}
-                  color={isDarkMode ? Colors.black : Colors.black}
-                  styling={{
-                    ...CommonStyles.regularFont400Style,
-                  }}
-                  numberOfLines={1}
-                >
-                  {item?.title || item?.attachmentName}
-                </CustomText>
-              </View>
+          renderItem={({ item, index }) => {
+            const attachmentName =
+              item?.attachmentName ||
+              item?.title ||
+              (item?.mimeType
+                ? `${item.mimeType.split("/")[1]} File`
+                : "Attachment");
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.attachmentRow,
+                  {
+                    backgroundColor: isDarkMode
+                      ? Colors.darkModeBackground
+                      : Colors.white,
+                    borderBottomWidth:
+                      index < taskDetails?.attachments.length - 1 ? 1 : 0,
+                    borderColor: getColorWithOpacity(Colors.black, 0.2),
+                  },
+                ]}
+                onPress={() => handleDocumentOpen(item, isYardiServiceModule)}
+              >
+                <View style={styles.attachmentContent}>
+                  <CustomText
+                    fontSize={14}
+                    color={isDarkMode ? Colors.black : Colors.black}
+                    styling={{
+                      ...CommonStyles.regularFont400Style,
+                    }}
+                    numberOfLines={1}
+                  >
+                    {attachmentName}
+                  </CustomText>
+                </View>
 
-              <View style={styles.attachmentCTA}>
-                <CustomText
-                  fontSize={14}
-                  color={Colors.blue}
-                  styling={{
-                    ...CommonStyles.regularFont400Style,
-                  }}
-                >
-                  Open
-                </CustomText>
-              </View>
-            </TouchableOpacity>
-          )}
+                <View style={styles.attachmentCTA}>
+                  <CustomText
+                    fontSize={14}
+                    color={Colors.blue}
+                    styling={{
+                      ...CommonStyles.regularFont400Style,
+                    }}
+                  >
+                    Open
+                  </CustomText>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
           keyExtractor={(item, index) => `attachment-${index}`}
         />
       </View>
@@ -249,7 +264,6 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
 
   return (
     <ScrollView style={styles.container}>
-
       {renderTaskDetailsData()}
 
       <View
@@ -407,7 +421,6 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
       {renderAttachmentsSection()}
       {renderApprovers()}
 
-
       <DocumentsViewModal
         isVisible={selectedDocument.isVisible}
         onRequestClose={handleCloseDocument}
@@ -415,6 +428,7 @@ const ProcurementDetails = ({ taskDetails, isDarkMode, isYardiServiceModule }) =
           url: selectedDocument.url,
           title: selectedDocument.title,
           fileType: selectedDocument.fileType,
+          headers: selectedDocument.headers,
         }}
       />
     </ScrollView>
