@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, FlatList } from "react-native";
+import { View, SafeAreaView, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import WrapperContainer from "../../components/WrapperContainer";
 import { CustomText, HeaderSVG } from "../../components";
@@ -11,7 +11,6 @@ import styles from "./style";
 import { BenefitListSkeleton } from "../../components/SkeletonLoader";
 import { RfW } from "../../utils/helpers";
 import { RfH } from "../../utils/helper";
-import ListItem from "./ListItem";
 import EmptyListComponent from "../../components/EmptyListComponent";
 import { EVENT_NAME, trackEvent } from "../../utils/analytics";
 import { useNavigation } from "@react-navigation/core";
@@ -24,6 +23,7 @@ import {
 } from "../Home/redux/selectors";
 import { isEmpty } from "lodash";
 import { getMeterReadingList } from "../Home/redux/actions";
+import ListItem from "../DiscrepancyList/ListItem";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -53,7 +53,7 @@ export default function MeterReadings() {
 
   useEffect(() => {
     if (meterReadingList?.list) {
-      setMeterReadingItems(prevItems =>
+      setMeterReadingItems((prevItems) =>
         page === 1
           ? [...meterReadingList.list]
           : [...prevItems, ...meterReadingList.list]
@@ -62,7 +62,7 @@ export default function MeterReadings() {
     }
 
     if (error) {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   }, [meterReadingList, error]);
 
@@ -81,17 +81,20 @@ export default function MeterReadings() {
       !isLoading &&
       meterReadingList?.total_count > meterReadingItems.length
     ) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
       fetchMeterReadingList(page + 1);
     }
   };
 
   const renderEndMessage = () => {
-    if (meterReadingItems.length >= (meterReadingList?.total_count || 0) && page > 1) {
+    if (
+      meterReadingItems.length >= (meterReadingList?.total_count || 0) &&
+      page > 1
+    ) {
       return (
         <View style={styles.endMessageContainer}>
           <CustomText color={Colors.grayTwo}>
-            {localize("discrepancy.noMoreDiscrepancy")}
+            {localize("meterReadings.noMoreMeterReadings")}
           </CustomText>
         </View>
       );
@@ -99,7 +102,7 @@ export default function MeterReadings() {
     return null;
   };
 
-const renderContent = () => {
+  const renderContent = () => {
     if (isLoading && page === 1 && !error) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
     }
@@ -137,16 +140,17 @@ const renderContent = () => {
               onPressItem={handleOnClickItem}
             />
           )}
-          keyExtractor={(item, index) =>
-            `${index}-${item?.service_request_id}`
-          }
+          keyExtractor={(item, index) => `${index}-${item?.service_request_id}`}
           showsVerticalScrollIndicator={false}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.2}
           ListFooterComponent={
             <>
               {isLoading && page > 1 && (
-                <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />
+                <BenefitListSkeleton
+                  isDarkMode={isDarkMode}
+                  height={RfH(125)}
+                />
               )}
               {renderEndMessage()}
               <View style={{ height: RfH(10) }} />

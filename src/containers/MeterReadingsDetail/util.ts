@@ -23,8 +23,6 @@ export const detectMeterReading = async (
     signedUrl: string
 ): Promise<MeterData> => {
   try {
-    // const response = await fetch(imagePath);
-    // const imageBuffer = await response.blob();
     const modelId = Config.AZURE_MODEL_ID as string
     const poller = await client.beginAnalyzeDocument(
         modelId,

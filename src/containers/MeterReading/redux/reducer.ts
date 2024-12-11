@@ -1,4 +1,5 @@
 import produce from "immer";
+import { localize } from "../../../locale/utils";
 import {
   MeterDetail,
   MeterReadingDetail,
@@ -60,7 +61,7 @@ export default (state = initialState, action: { type: any; payload: any }) =>
       case getSrMeters.FAILURE: {
         draft.loading.metersList = false;
         draft.error.metersList =
-          action.payload?.message || "Failed to fetch meters list";
+          action.payload?.message || localize("meterReadings.failedToFetchMeters");
         draft.metersList = [];
         break;
       }
@@ -98,7 +99,7 @@ export default (state = initialState, action: { type: any; payload: any }) =>
       case updateMeterReading.FAILURE: {
         draft.loading.updateReading = false;
         draft.error.updateReading =
-          action.payload?.message || "Failed to update meter reading";
+          action.payload?.message || localize("meterReadings.failedToUpdateMeter");
         draft.updatedReading = {};
         break;
       }

@@ -156,7 +156,8 @@
     "galleryPermissonMsg": "Please grant permission to access photo gallery",
     "uploadDocument": "Upload document",
     "uploadAttachment": "Upload attachment",
-    "uploadPhoto": "Upload Photo"
+    "uploadPhoto": "Upload Photo",
+    "notAvailable": "N/A"
   },
 
   "home": {
@@ -569,35 +570,67 @@
     "match": "Match",
     "mismatch": "Mismatch",
     "status": {
-        "in_process": "Pending",
-        "in_progress": "Pending",
-        "new": "New",
-        "approved": "Approved",
-        "rejected": "Rejected",
-        "yet_to_start": "Yet to start",
-        "action_required": "Action required",
-        "completed": "Completed",
-        "finished": "Finished"
-      },
-      "roles": {
-        "leasing_admin": "Leasing Admin",
-        "mall_manager": "Mall Manager",
-        "operations_manager": "Operations Manager",
-        "operations_support": "Operations Support"
-      }
+      "in_process": "Pending",
+      "in_progress": "Pending",
+      "new": "New",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "yet_to_start": "Yet to start",
+      "action_required": "Action required",
+      "completed": "Completed",
+      "finished": "Finished"
+    },
+    "roles": {
+      "leasing_admin": "Leasing Admin",
+      "mall_manager": "Mall Manager",
+      "operations_manager": "Operations Manager",
+      "operations_support": "Operations Support"
+    }
   },
   "meterReadings": {
     "meterNumber": "Meter Number",
     "meterReading": "Meter Reading",
     "retakeImage": "Retake Image",
     "validation": {
-        "invalidMeterNumber": "Meter number must only contain digits",
-        "invalidMeterReading": "Meter reading must only contain digits"
-      },
+      "invalidMeterNumber": "Meter number must only contain digits",
+      "invalidMeterReading": "Meter reading must only contain digits"
+    },
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "draft": "Draft",
+      "submitted": "Submitted"
+    },
     "validationError": "Validation Error",
     "detectionError": "Error detecting meter reading",
     "pleaseCorrectErrors": "Please correct the errors before saving.",
     "submitSuccess": "Meter Reading Submitted Successfully",
-    "confirmation": "Are you sure you want to submit all readings?"
+    "confirmation": "Are you sure you want to submit all readings?",
+    "noMoreMeterReadings": "No more meter readings",
+    "serviceRequestId": "SR ID",
+    "meterReadingId": "Meter Reading ID",
+    "propertyGroup": "Property Group",
+    "propertyCode": "Property Code",
+    "meterDigit": "Meter Digit",
+    "billCategory": "Bill Category",
+    "subStation": "Sub Station",
+    "area": "Area",
+    "ampere": "Ampere",
+    "ctValue": "CT Value",
+    "previousReading": "Previous Reading",
+    "presentReading": "Present Reading",
+    "status": "Status",
+    "createdDate": "Created Date",
+    "updatedDate": "Updated Date",
+    "meterDetails": "Meter Details",
+    "noMeters": "No meters found",
+    "meters": "Meters",
+    "failedToFetchMeters": "Failed to fetch meters",
+    "failedToUpdateMeter": "Failed to update meter",
+    "imageUploadFailed": "Image upload failed",
+    "imageUploadFailedDesc": "Failed to upload image. Please try again.",
+    "failedToProcessImage": "Failed to process image",
+    "noMatchingMeter": "Could not find matching meter for the detected number.",
+    "remainingMetersConfirmation": "{{count}} meters are remaining out of {{total}}. Do you want to submit?"
   }
 }

@@ -1,5 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
+import { localize } from "../../../locale/utils";
 import { tenantCentralApi } from "../../../utils/axios";
 import {
   getSrMeters,
@@ -70,7 +71,7 @@ function* getSrMetersRequest(action: { payload: string | number }) {
       yield put(getSrMeters.success({ data }));
     } else {
       yield put(setGlobalError.success());
-      yield put(getSrMeters.failure({ message: "Failed to fetch SR meters" }));
+      yield put(getSrMeters.failure({ message: localize("meterReadings.failedToFetchMeters") }));
     }
   } catch (error: any) {
     yield put(setGlobalError.success());
@@ -101,12 +102,12 @@ function* updateMeterReadingRequest(action: {
       console.log("data", data);
       yield put(updateMeterReading.success({ data }));
     } else {
-        const errorMessage = response.message || "Failed to update meter reading";
+        const errorMessage = response.message || localize("meterReadings.failedToUpdateMeter");
         yield put(updateMeterReading.failure({ message: errorMessage }));
     }
   } catch (error: any) {
     console.error("Meter reading update error:", error);
-    const errorMessage = error.response?.data?.message || error.message || "An unexpected error occurred";
+    const errorMessage = error.response?.data?.message || error.message || localize("common.someThingWentWrong");
     yield put(updateMeterReading.failure({ message: errorMessage }));
   } finally {
     yield put(updateMeterReading.fulfill({ isLoading: false }));

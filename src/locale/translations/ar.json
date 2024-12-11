@@ -156,7 +156,8 @@
     "galleryPermissonMsg": " يرجى منح الإذن للوصول إلى معرض الصور",
     "uploadDocument": "تحميل المستند ",
     "uploadAttachment": " تحميل المستند ",
-    "uploadPhoto": "تحميل الصورة"
+    "uploadPhoto": "تحميل الصورة",
+    "notAvailable": "لا يوجد"
   },
   "home": {
     "cenomiBenefits": "حوافز سينومي",
@@ -569,35 +570,67 @@
     "match": "مباراة",
     "mismatch": "مباراة",
     "status": {
-        "in_process": "قيد الانتظار",
-        "in_progress": "قيد الانتظار",
-        "new": "جديد",
-        "approved": "تمت الموافقة",
-        "rejected": "مرفوض",
-        "yet_to_start": "لم يبدأ بعد",
-        "action_required": "يتطلب إجراء",
-        "completed": "مكتمل",
-        "finished": "منتهي"
-      },
-      "roles": {
-        "leasing_admin": "مدير التأجير",
-        "mall_manager": "مدير المول",
-        "operations_manager": "مدير العمليات",
-        "operations_support": "دعم العمليات"
-      }
+      "in_process": "قيد الانتظار",
+      "in_progress": "قيد الانتظار",
+      "new": "جديد",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض",
+      "yet_to_start": "لم يبدأ بعد",
+      "action_required": "يتطلب إجراء",
+      "completed": "مكتمل",
+      "finished": "منتهي"
+    },
+    "roles": {
+      "leasing_admin": "مدير التأجير",
+      "mall_manager": "مدير المول",
+      "operations_manager": "مدير العمليات",
+      "operations_support": "دعم العمليات"
+    }
   },
   "meterReadings": {
     "meterNumber": "رقم العداد",
     "meterReading": "قراءة العداد",
     "retakeImage": "إعادة التقاط الصورة",
     "validation": {
-        "invalidMeterNumber": "يجب أن يحتوي رقم العداد على أرقام فقط",
-        "invalidMeterReading": "يجب أن تحتوي قراءة العداد على أرقام فقط"
-      },
+      "invalidMeterNumber": "يجب أن يحتوي رقم العداد على أرقام فقط",
+      "invalidMeterReading": "يجب أن تحتوي قراءة العداد على أرقام فقط"
+    },
+    "tabs": {
+      "all": "الجميع",
+      "pending": "ريثما",
+      "draft": "مسودة",
+      "submitted": "مُقَدَّم"
+    },
     "validationError": "خطأ في التحقق",
     "detectionError": "خطأ في اكتشاف قراءة العداد",
     "pleaseCorrectErrors": "يرجى تصحيح الأخطاء قبل الحفظ.",
     "submitSuccess": "تم إرسال قراءة العداد بنجاح",
-    "confirmation": "هل أنت متأكد من أنك تريد تقديم كافة القراءات؟"
+    "confirmation": "هل أنت متأكد من أنك تريد تقديم كافة القراءات؟",
+    "noMoreMeterReadings": "لا مزيد من قراءات العدادات",
+    "serviceRequestId": "معرف طلب الخدمة",
+    "meterReadingId": "معرف قراءة العداد",
+    "propertyGroup": "مجموعة العقارات",
+    "propertyCode": "رمز الملكية",
+    "meterDigit": "رقم العداد",
+    "billCategory": "فئة الفاتورة",
+    "subStation": "المحطة الفرعية",
+    "area": "منطقة",
+    "ampere": "أمبير",
+    "ctValue": "قيمة الأشعة المقطعية",
+    "previousReading": "القراءة السابقة",
+    "presentReading": "القراءة الحاضرة",
+    "status": "حالة",
+    "createdDate": "البيانات التي تم إنشاؤها",
+    "updatedDate": "تاريخ التحديث",
+    "meterDetails": "تفاصيل العداد",
+    "noMeters": "لم يتم العثور على متر",
+    "meters": "متر",
+    "failedToFetchMeters": "فشل في جلب العدادات",
+    "failedToUpdateMeter": "فشل في تحديث العداد",
+    "imageUploadFailed": "فشل تحميل الصورة",
+    "imageUploadFailedDesc": "فشل تحميل الصورة. يرجى المحاولة مرة أخرى",
+    "failedToProcessImage": "فشلت معالجة الصورة",
+    "noMatchingMeter": "تعذر العثور على عداد مطابق للرقم المكتشف.",
+    "remainingMetersConfirmation": "يتبقى {{count}} متر من {{total}}. هل تريد أن تقدم؟"
   }
 }

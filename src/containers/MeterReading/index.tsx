@@ -61,6 +61,7 @@ import {
 } from "../redux/selectors";
 import { clearTenantFileUpload } from "../redux/actions";
 import { isEmpty } from "lodash";
+import { navigate } from "../../appContainer/rootNavigation";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -96,11 +97,11 @@ const initialErrors = {
 };
 
 const METER_TABS = [
-    { id: "ALL", label: "All" },
-    { id: "PENDING", label: "Pending" },
-    { id: "DRAFT", label: "Draft" },
-    { id: "SUBMITTED", label: "Submitted" },
-  ] as const;
+  { id: "ALL", label: localize("meterReadings.tabs.all") },
+  { id: "PENDING", label: localize("meterReadings.tabs.pending") },
+  { id: "DRAFT", label: localize("meterReadings.tabs.draft") },
+  { id: "SUBMITTED", label: localize("meterReadings.tabs.submitted") },
+] as const;
 
 type TabType = (typeof METER_TABS)[number]["id"];
 
@@ -160,8 +161,8 @@ export default function CombinedMeterReading({ route }) {
   useEffect(() => {
     if (!isEmpty(imageUploadError)) {
       alertBox(
-        "Image Upload Failed",
-        "Something went wrong while uploading the image. Please try again.",
+        localize("meterReadings.imageUploadFailed"),
+        localize("meterReadings.imageUploadFailedDesc"),
         {
           positiveText: "Ok",
           cancelable: true,
@@ -174,20 +175,15 @@ export default function CombinedMeterReading({ route }) {
     }
   }, [imageUploadError]);
 
-
   useEffect(() => {
     if (error.updateReading) {
-      alertBox(
-        localize("common.error"),
-        error.updateReading,
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-          onPositiveClick: () => {
-            dispatch(updateMeterReading.failure(null));
-          }
-        }
-      );
+      alertBox(localize("common.error"), error.updateReading, {
+        positiveText: localize("common.ok"),
+        cancelable: true,
+        onPositiveClick: () => {
+          dispatch(updateMeterReading.failure(null));
+        },
+      });
     }
   }, [error.updateReading, dispatch]);
 
@@ -226,16 +222,17 @@ export default function CombinedMeterReading({ route }) {
 
   const totalMeters = useMemo(() => metersList?.length || 0, [metersList]);
   const remainingMeters = useMemo(
-  () => metersList?.filter(meter => meter.status === "PENDING")?.length || 0,
-  [metersList]
-);
+    () =>
+      metersList?.filter((meter) => meter.status === "PENDING")?.length || 0,
+    [metersList]
+  );
 
-const resetForm = () => {
+  const resetForm = () => {
     setImageState({
       localUri: null,
       serverUri: null,
       documentId: null,
-      aspectRatio: 1
+      aspectRatio: 1,
     });
     setMeterData(initialMeterData);
     setErrors(initialErrors);
@@ -305,10 +302,14 @@ const resetForm = () => {
     } catch (error) {
       resetForm();
       dispatch(clearTenantFileUpload.trigger());
-      alertBox(localize("common.error"), "Failed to process image", {
-        positiveText: localize("common.ok"),
-        cancelable: true,
-      });
+      alertBox(
+        localize("common.error"),
+        localize("meterReadings.failedToProcessImage"),
+        {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+        }
+      );
     } finally {
       setIsLoading(false);
     }
@@ -322,44 +323,40 @@ const resetForm = () => {
     );
 
     if (isValid) {
-        const selectedMeter = metersList?.find(
-            (meter) => meter["meter-no"] === meterData.meterNumber
-          );
+      const selectedMeter = metersList?.find(
+        (meter) => meter["meter-no"] === meterData.meterNumber
+      );
 
-          if (!selectedMeter) {
-            alertBox(
-              localize("common.error"),
-              "Could not find matching meter for the detected number.",
-              {
-                positiveText: localize("common.ok"),
-                cancelable: true,
-              }
-            );
-            return;
+      if (!selectedMeter) {
+        alertBox(
+          localize("common.error"),
+          localize("meterReadings.noMatchingMeter"),
+          {
+            positiveText: localize("common.ok"),
+            cancelable: true,
           }
+        );
+        return;
+      }
       setIsLoading(true);
       try {
         const payload = {
-            "service-request-id": selectedMeter["service-request-id"],
-            "meter-reading-id": selectedMeter["meter-reading-id"],
-            "present-reading": meterData.meterReading,
-            "document-ids": imageState.documentId,
-            "status": "DRAFT"
-          };
-          console.log("payload", payload);
-          dispatch(
-            updateMeterReading.trigger(payload)
-          );
-        await Promise.all([
-          dispatch(getSrMeters.trigger(srId)),
-        ]);
+          "service-request-id": selectedMeter["service-request-id"],
+          "meter-reading-id": selectedMeter["meter-reading-id"],
+          "present-reading": meterData.meterReading,
+          "document-ids": imageState.documentId,
+          status: "DRAFT",
+        };
+        console.log("payload", payload);
+        dispatch(updateMeterReading.trigger(payload));
+        await Promise.all([dispatch(getSrMeters.trigger(srId))]);
         Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
         resetForm();
         dispatch(clearTenantFileUpload.trigger());
       } catch (error) {
         alertBox(
           localize("common.error"),
-          localize("meterReadings.savingError"),
+          localize("common.someThingWentWrong"),
           {
             positiveText: localize("common.ok"),
             cancelable: true,
@@ -381,17 +378,39 @@ const resetForm = () => {
     }
   };
 
-const renderMeterItem = ({ item }) => {
-    const isNavigatable = item?.status === "COMPLETED" || item?.status === "DRAFT";
+  const handleMeterSubmission = () => {
+    try {
+      dispatch(
+        updateMeterReading.trigger({
+          "service-request-id": parseInt(srId),
+          status: "SUBMITTED",
+        })
+      );
+
+      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
+      resetForm();
+      dispatch(clearTenantFileUpload.trigger());
+      navigation.navigate(NavigationRouteNames.METER_READINGS as never);
+    } catch (error) {
+      console.error("Submit all failed:", error);
+      Toast.show(localize("common.someThingWentWrong"), Toast.SHORT);
+    }
+  };
+
+  const renderMeterItem = ({ item }) => {
+    const isNavigatable =
+      item?.status === "COMPLETED" || item?.status === "DRAFT";
 
     const itemContent = (
-      <View style={[
-        styles.item_con,
-        {
-          backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-          opacity: isNavigatable ? 1 : 0.8
-        },
-      ]}>
+      <View
+        style={[
+          styles.item_con,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+            opacity: isNavigatable ? 1 : 0.8,
+          },
+        ]}
+      >
         <View style={{ flex: 1 }}>
           <CustomText
             fontSize={14}
@@ -402,7 +421,8 @@ const renderMeterItem = ({ item }) => {
               lineHeight: RfH(21),
             }}
           >
-            Meter ID: {item["meter-reading-id"]}
+            {localize("meterReadings.meterReadingId")}:{" "}
+            {item["meter-reading-id"]}
           </CustomText>
           <CustomText
             fontSize={14}
@@ -413,7 +433,8 @@ const renderMeterItem = ({ item }) => {
               lineHeight: RfH(21),
             }}
           >
-            Property Name: {item["property-group-name"] || "N/A"}
+            {localize("meterReadings.propertyGroup")} :{" "}
+            {item["property-group-name"] || localize("common.notAvailable")}
           </CustomText>
 
           <View style={[styles.statusPill, getMeterStatusStyle(item?.status)]}>
@@ -457,7 +478,7 @@ const renderMeterItem = ({ item }) => {
             {
               meterId: item["meter-reading-id"],
               srId,
-              meterDetails: item
+              meterDetails: item,
             }
           )
         }
@@ -475,14 +496,14 @@ const renderMeterItem = ({ item }) => {
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont500Style }}
         >
-          Meters
+          {localize("meterReadings.meters")}
         </CustomText>
         <CustomText
           fontSize={16}
           color={Colors.voiletTwo}
           styling={{ ...CommonStyles.regularFont500Style }}
         >
-         {remainingMeters} / {totalMeters}
+          {remainingMeters} / {totalMeters}
         </CustomText>
       </View>
     );
@@ -520,14 +541,14 @@ const renderMeterItem = ({ item }) => {
             >
               {tab.label}
               {tab.id === "ALL" && (
-              <CustomText
-                fontSize={12}
-                color={activeTab === tab.id ? Colors.white : Colors.gray}
-                styling={CommonStyles.regularFont400Style}
-              >
-                {` (${totalMeters})`}
-              </CustomText>
-            )}
+                <CustomText
+                  fontSize={12}
+                  color={activeTab === tab.id ? Colors.white : Colors.gray}
+                  styling={CommonStyles.regularFont400Style}
+                >
+                  {` (${totalMeters})`}
+                </CustomText>
+              )}
               {tab.id !== "ALL" && (
                 <CustomText
                   fontSize={12}
@@ -555,7 +576,7 @@ const renderMeterItem = ({ item }) => {
     if (error.metersList) {
       return (
         <EmptyListComponent
-          errorText={error.metersList || "An error occurred"}
+          errorText={localize("common.someThingWentWrong")}
           icon={Images.benefitEmptyIcon}
         />
       );
@@ -565,7 +586,7 @@ const renderMeterItem = ({ item }) => {
     if (meters.length === 0) {
       return (
         <EmptyListComponent
-          errorText="No meters found"
+          errorText={localize("common.noDataFound")}
           icon={Images.benefitEmptyIcon}
         />
       );
@@ -592,7 +613,7 @@ const renderMeterItem = ({ item }) => {
                 ...CommonStyles.regularFont500Style,
               }}
             >
-              No meters found
+              {localize("meterReadings.noMeters")}
             </CustomText>
           </View>
         }
@@ -624,7 +645,7 @@ const renderMeterItem = ({ item }) => {
         <ThemeProvider useNewStyles={true}>
           <HeaderSVG
             isBackButtonVisible={true}
-            titleText={`Service Request: ${srId}`}
+            titleText={`${localize("common.serviceRequest")}: ${srId}`}
             titleFont={20}
             onBackPressHandler={backHandler}
           />
@@ -794,19 +815,22 @@ const renderMeterItem = ({ item }) => {
                 ]}
               >
                 <CustomButton
-                  buttonText="Submit All"
+                  buttonText={localize("discrepancy.submitAll")}
                   showSeperator={false}
                   btnContainerStyle={styles.submitAllButtonStyle}
                   handleOnSubmit={() => {
                     if (remainingMeters > 0) {
                       alertBox(
                         localize("meterReadings.confirmation"),
-                        `${remainingMeters} meters are remaining out of ${totalMeters}. Do you want to submit?`,
+                        localize("meterReadings.remainingMetersConfirmation", {
+                          count: remainingMeters,
+                          total: totalMeters,
+                        }),
                         {
                           positiveText: localize("common.yes"),
                           negativeText: localize("common.no"),
                           onPositiveClick: () => {
-                            console.log("Submitting all meters...");
+                            handleMeterSubmission();
                           },
                           onNegativeClick: () => {
                             console.log("Submission canceled.");
@@ -814,7 +838,7 @@ const renderMeterItem = ({ item }) => {
                         }
                       );
                     } else {
-                      console.log("Submitting all meters...");
+                      handleMeterSubmission();
                     }
                   }}
                 />
