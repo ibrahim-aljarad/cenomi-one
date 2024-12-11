@@ -24,10 +24,12 @@ import {
   getknowledgeHubCategories,
   organizationStructure,
   submitAcknowledge,
+  getMeterReadingList,
 } from "./actions";
 import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
 import Config from "../../../utils/config";
 import { setApiError } from "../../DiscrepancyDetails/redux/actions";
+import { localize } from "../../../locale/utils";
 
 const CORPORATE_COMMUNICATION_URL = "cms/corporate-communication";
 
@@ -167,6 +169,12 @@ const getDiscrepancyListApiCall = (data: any) =>
   tenantCentralApi({
     method: "GET",
     url: `${SERVICE_REQUEST_URL}?service_category=OPERATIONS&sub_category=DISCREPANCY&page=${data?.page}&limit=${data?.limit}`,
+  });
+
+const getMeterReadingListApiCall = (data: any) =>
+  tenantCentralApi({
+    method: "GET",
+    url: `${SERVICE_REQUEST_URL}?service_category=OPERATIONS&sub_category=METER_READING&page=${data?.page}&limit=${data?.limit}`,
   });
 
 function* getCorporateCommunicationRequest(action: any) {
@@ -571,6 +579,44 @@ function* getDiscrepancyListRequest(action: any) {
     }
   }
 
+  function* getMeterReadingListRequest(action) {
+    try {
+      const { page, limit } = action?.payload || {};
+      if (page === 1) {
+        yield put(getMeterReadingList.request({ isLoading: true }));
+      }
+      const response = yield call(getMeterReadingListApiCall, { page, limit });
+      if (response?.success && response?.data?.success) {
+        const { data } = response.data;
+        yield put(getMeterReadingList.success({
+          data: {
+            list: data?.list || [],
+            current_page: data?.current_page,
+            total_count: data?.total_count,
+            limit: data?.limit
+          }
+        }));
+      }else {
+        const backendError = response?.data?.errors?.[0];
+        yield put(getMeterReadingList.failure({
+          error: {
+            title: backendError?.code === 403 ? localize('common.permissionDenied') : localize('common.error'),
+            message: backendError?.message || response?.error || localize('common.someThingWentWrong')
+          }
+        }));
+      }
+    } catch (error) {
+      yield put(getMeterReadingList.failure({
+        error: {
+          title: localize('common.error'),
+          message: localize('common.someThingWentWrong')
+        }
+      }));
+    } finally {
+      yield put(getMeterReadingList.fulfill({ isLoading: false }));
+    }
+  }
+
  function* handleApiError({ payload }) {
     if (payload?.error?.title === 'Access Denied') {
       yield put(setApiError.trigger(payload?.error));
@@ -612,4 +658,5 @@ export default function* homeSaga() {
   );
   yield takeLatest(getTenantLogin.TRIGGER, getTenantLoginRequest);
   yield takeLatest(getDiscrepancyList.TRIGGER, getDiscrepancyListRequest);
+  yield takeLatest(getMeterReadingList.TRIGGER, getMeterReadingListRequest);
 }

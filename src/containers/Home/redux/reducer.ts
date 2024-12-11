@@ -1,4 +1,6 @@
 import produce from "immer";
+import { isEmpty } from "lodash";
+import { localize } from "../../../locale/utils";
 import {
   APPROVALS,
   SERVICEREQUEST,
@@ -29,6 +31,7 @@ import {
   setNotificationCount,
   getTenantLogin,
   getDiscrepancyList,
+  getMeterReadingList,
 } from "./actions";
 
 export const initialState = {
@@ -54,6 +57,8 @@ export const initialState = {
   pendingAcknowledgementData: {},
   unreadNotificationCount: undefined,
   serviceRequestList: undefined,
+  meterServiceRequestList: undefined,
+  meterServiceRequestError: {},
 };
 
 export default (
@@ -325,6 +330,49 @@ export default (
         }
         break;
       }
+
+      case getMeterReadingList.TRIGGER: {
+        if (action?.payload?.page === 1) {
+            draft.meterServiceRequestList = undefined;
+          }
+        draft.meterServiceRequestList = undefined;
+        draft.meterServiceRequestError = {}
+        break;
+      }
+
+      case getMeterReadingList.SUCCESS: {
+        console.log("success reducer", action?.payload?.data)
+        const newData = action?.payload?.data || {};
+        const currentPage = newData?.current_page || 1;
+        if (currentPage === 1) {
+          draft.meterServiceRequestList = newData;
+        } else {
+          draft.meterServiceRequestList = {
+            ...newData,
+            list: [
+              ...(draft.meterServiceRequestList?.list || []),
+              ...(newData?.list || [])
+            ]
+          };
+        }
+        draft.meterServiceRequestError = {}
+        console.log("updated list", draft.meterServiceRequestList)
+        break;
+      }
+
+      case getMeterReadingList.FAILURE: {
+        if (isEmpty(action.payload)) {
+            draft.meterServiceRequestError = {
+              title: localize('common.error'),
+              message: localize('common.someThingWentWrong')
+            };
+          } else {
+            const { error } = action.payload as any;
+            draft.meterServiceRequestError = error;
+          }
+        break;
+      }
+
 
       case setNotificationCount.TRIGGER: {
         draft.unreadNotificationCount = action?.payload || 0;

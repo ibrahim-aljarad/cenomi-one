@@ -15,14 +15,6 @@ const getMeterReadingStateSelector = createSelector(
   (globalState: MeterReadingState): MeterReadingState => globalState
 );
 
-const getServiceRequestDetailsSelector = createSelector(
-  getMeterReadingStateSelector,
-  (
-    globalState: MeterReadingState
-  ): MeterReadingState["serviceRequestDetails"] =>
-    globalState.serviceRequestDetails
-);
-
 const getMeterReadingDetailSelector = createSelector(
   getMeterReadingStateSelector,
   (globalState: MeterReadingState): MeterReadingState["meterReadingDetail"] =>
@@ -54,7 +46,6 @@ const getErrorSelector = createSelector(
 );
 
 export {
-  getServiceRequestDetailsSelector,
   getMeterReadingDetailSelector,
   getMetersListSelector,
   getUpdatedReadingSelector,

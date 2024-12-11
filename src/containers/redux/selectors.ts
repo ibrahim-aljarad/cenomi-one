@@ -57,6 +57,10 @@ const getTenantFileUploadedDataSelector = createSelector(selectGlobalSubStore, (
   return globalState.tenantfileUploadedData;
 });
 
+const getTenantFileUploadErrorSelector = createSelector(selectGlobalSubStore, (globalState) => {
+  return globalState.tenantfileUploadError;
+});
+
 export {
   getFileUploadedDataSelector,
   getFilePreviewedDataSelector,
@@ -70,5 +74,6 @@ export {
   getOrganizationConfigSelector,
   getNewsListSelector,
   getGreetingsDataSelector,
-  getTenantFileUploadedDataSelector
+  getTenantFileUploadedDataSelector,
+  getTenantFileUploadErrorSelector
 };

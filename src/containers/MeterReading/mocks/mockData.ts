@@ -43,50 +43,6 @@ export const mockServiceRequestDetails = {
         property_group_name_ar: "برج ب",
         status: "COMPLETED",
         document_ids: ["doc101"]
-      },
-      {
-        meter_id: "meter-003",
-        service_request_id: 55,
-        present_reading: 8766,
-        previous_reading: 8700,
-        lease_id: 23224,
-        property_group_name: "Tower B",
-        property_group_name_ar: "برج ب",
-        status: "COMPLETED",
-        document_ids: ["doc101"]
-      },
-      {
-        meter_id: "meter-004",
-        service_request_id: 55,
-        present_reading: 8766,
-        previous_reading: 8700,
-        lease_id: 23224,
-        property_group_name: "Tower B",
-        property_group_name_ar: "برج ب",
-        status: "PENDING",
-        document_ids: ["doc101"]
-      },
-      {
-        meter_id: "meter-005",
-        service_request_id: 55,
-        present_reading: 8766,
-        previous_reading: 8700,
-        lease_id: 23224,
-        property_group_name: "Tower B",
-        property_group_name_ar: "برج ب",
-        status: "COMPLETED",
-        document_ids: ["doc101"]
-      },
-      {
-        meter_id: "meter-006",
-        service_request_id: 55,
-        present_reading: 8766,
-        previous_reading: 8700,
-        lease_id: 23224,
-        property_group_name: "Tower B",
-        property_group_name_ar: "برج ب",
-        status: "PENDING",
-        document_ids: ["doc101"]
       }
     ]
   };

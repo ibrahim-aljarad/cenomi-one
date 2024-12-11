@@ -1,10 +1,3 @@
-export type ServiceRequestDetails = {
-  status: string;
-  property: string;
-  total_meter_no: number;
-  remaining_meter_no: number;
-};
-
 export type MeterReadingDetail = {
   meter_id: string;
   service_request_id: number;

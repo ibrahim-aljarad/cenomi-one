@@ -313,7 +313,7 @@ function* tenantFileUploadRequest(action: any) {
   try {
     yield put(tenantFileUpload.request({ isLoading: true }));
     const { fileName, mime, file, document_type_id } = action?.payload || {};
-
+    console.log("fileName", fileName);
     const response = yield call(tenantFileUploadApiCall, {
       file_name: fileName,
       file_extension: mime,
@@ -326,10 +326,12 @@ function* tenantFileUploadRequest(action: any) {
       const { data } = response;
       yield put(tenantFileUpload.success({ data }));
     } else {
-      yield put(setGlobalError.success());
+      console.log("error", response);
+      yield put(tenantFileUpload.failure());
     }
   } catch (error) {
-    yield put(setGlobalError.success());
+    console.log("error", error);
+    yield put(tenantFileUpload.failure());
   } finally {
     yield put(tenantFileUpload.fulfill({ isLoading: false }));
   }

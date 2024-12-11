@@ -156,6 +156,16 @@ const getServiceRequestListSelector = createSelector(
   (globalState) => globalState.serviceRequestList
 );
 
+const getMeterReadingListSelector = createSelector(
+  selectGlobalSubStore,
+  (globalState) => globalState.meterServiceRequestList
+);
+
+const getMeterReadingListErrorSelector = createSelector(
+  selectGlobalSubStore,
+  (globalState) => globalState.meterServiceRequestError
+);
+
 export {
   getCorporateCommunicationSelector,
   getCorporateCommunicationDetailsSelector,
@@ -179,4 +189,6 @@ export {
   getPendingAcknowledgementDataSelector,
   getUnreadNotificationCountSelector,
   getServiceRequestListSelector,
+  getMeterReadingListSelector,
+  getMeterReadingListErrorSelector,
 };

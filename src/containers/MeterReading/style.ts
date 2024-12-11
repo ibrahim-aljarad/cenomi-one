@@ -112,6 +112,11 @@ const styles = StyleSheet.create({
       submitAllButtonStyle: {
         backgroundColor: Colors.primary,
       },
+      arrowContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingRight: RfW(10),
+      },
   });
 
 export default styles;

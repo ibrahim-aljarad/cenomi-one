@@ -1,355 +1,170 @@
+import React from 'react';
 import {
-  BackHandler,
-  Dimensions,
-  Image,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
   View,
-} from "react-native";
-import React, { useState } from "react";
+  StyleSheet,
+} from 'react-native';
+import { useSelector } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+
+import WrapperContainer from '../../components/WrapperContainer';
+import { Colors, CommonStyles } from '../../theme';
 import {
-  MeterData,
-  MeterReadingDetailsProps,
-  MeterValidationErrors,
-} from "./type";
-import WrapperContainer from "../../components/WrapperContainer";
-import styles from "./style";
-import { isDarkModeSelector } from "../redux/selectors";
-import { createStructuredSelector } from "reselect";
-import { useSelector } from "react-redux";
-import { Colors, CommonStyles, Images } from "../../theme";
-import {
-  CustomButton,
-  CustomImage,
   CustomText,
-  CustomTextInput,
   HeaderSVG,
-  Loader,
-} from "../../components";
-import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
-} from "@react-navigation/core";
-import { RfH, RfW } from "../../utils/helper";
-import { isRTL, localize } from "../../locale/utils";
-import UploadDocument from "../../components/UploadDocument";
-import {
-  detectMeterReading,
-  sanitizeNumericInput,
-  validateMeterForm,
-} from "./util";
-import { alertBox } from "../../utils/helpers";
-import { ThemeProvider } from "../../theme/context";
-import Toast from 'react-native-simple-toast';
+} from '../../components';
+import { ThemeProvider } from '../../theme/context';
+import { RfH, RfW } from '../../utils/helper';
+import { isDarkModeSelector } from '../redux/selectors';
+import TenantImageViewer from '../../components/TenantImageViewer';
+import COLORS from '../../theme/colors';
+import { SCREEN_WIDTH } from '../../constant';
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
 });
 
-const initialMeterData: MeterData = {
-  meterNumber: "",
-  meterReading: "",
-};
+const DetailRow = ({ label, value }) => (
+  <View style={styles.cellContainerView}>
+    <View style={styles.labelContainer}>
+      <CustomText
+        fontSize={14}
+        color={Colors.darkGrey113}
+        styling={CommonStyles.regularFont400Style}
+      >
+        {label}
+      </CustomText>
+    </View>
+    <View style={styles.valueContainer}>
+      <CustomText
+        fontSize={14}
+        color={Colors.black}
+        styling={CommonStyles.regularFont400Style}
+      >
+        {value || 'N/A'}
+      </CustomText>
+    </View>
+  </View>
+);
 
-const initialErrors: MeterValidationErrors = {
-  meterNumber: "",
-  meterReading: "",
-};
-
-export default function Index({ route }: MeterReadingDetailsProps) {
-  const { meterId, srId } = route.params;
+export default function MeterReadingDetails({ route, navigation }) {
+  const { meterDetails, srId, meterId } = route.params;
   const { isDarkMode } = useSelector(stateSelector);
-  const isFocused = useIsFocused();
-  const navigation = useNavigation();
-  const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
-    useState(false);
-  const [capturedImage, setCapturedImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [meterData, setMeterData] = useState<MeterData>(initialMeterData);
-  const [errors, setErrors] = useState<MeterValidationErrors>(initialErrors);
-  const [isEditing, setIsEditing] = useState(false);
-  const [imageAspectRatio, setImageAspectRatio] = useState(1);
 
-  const resetForm = () => {
-    setCapturedImage(null);
-    setMeterData(initialMeterData);
-    setErrors(initialErrors);
-    setIsEditing(false);
-    setImageAspectRatio(1);
-  };
-
-  const handleRetake = () => {
-    resetForm();
-    setIsShowDocumentPickerModal(true);
-  };
-
-  const onPressUploadAttachment = () => {
-    setIsShowDocumentPickerModal(true);
-  };
-
-  const handleDocumentUpload = async (imageData) => {
-    setIsLoading(true);
-    try {
-      setCapturedImage(imageData.path);
-      Image.getSize(
-        imageData.path,
-        (width, height) => {
-          setImageAspectRatio(width / height);
-        },
-        (error) => {
-          console.error("Error getting image size:", error);
-        }
-      );
-      const detectedData = await detectMeterReading(imageData.path);
-      setMeterData(detectedData);
-      setIsEditing(true);
-    } catch (error) {
-      resetForm();
-      alertBox(
-        localize("common.error"),
-        localize("meterReadings.detectionError"),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
-      console.error("Error detecting meter reading:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const screenWidth = Dimensions.get("window").width;
-  const containerPadding = 32;
-  const imageWidth = screenWidth - containerPadding;
-  const imageHeight = imageWidth / imageAspectRatio;
-
-  const backHandler = (): boolean => {
-    navigation.goBack();
-    return true;
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log("useCallback>>hardwareBackPress");
-      if (isFocused) {
-        BackHandler.addEventListener("hardwareBackPress", backHandler);
-      }
-      return () => {
-        BackHandler.removeEventListener("hardwareBackPress", backHandler);
-      };
-    }, [isFocused])
-  );
-
-  const handleSave = () => {
-    const { isValid, errors: validationErrors } = validateMeterForm(
-      meterData.meterNumber,
-      meterData.meterReading
-    );
-
-    if (isValid) {
-      console.log("Saving meter data:", meterData);
-      setIsEditing(false);
-      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
-      resetForm();
-    } else {
-      setErrors(validationErrors);
-      alertBox(
-        localize("meterReadings.validationError"),
-        localize("meterReadings.pleaseCorrectErrors"),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
-    }
-  };
+  const details = [
+    { label: 'Service Request ID', value: meterDetails['service-request-id'] },
+    { label: 'Meter Reading ID', value: meterDetails['meter-reading-id'] },
+    { label: 'Property Group', value: meterDetails['property-group-name'] || 'N/A' },
+    { label: 'Property Code', value: meterDetails['yardi-property-code'] },
+    { label: 'Meter Number', value: meterDetails['meter-no'] },
+    { label: 'Meter Digit', value: meterDetails['meter-digit'] },
+    { label: 'Bill Category', value: meterDetails['bill-category'] },
+    { label: 'Sub Station', value: meterDetails['sub-station'] },
+    { label: 'Area', value: meterDetails['area'] },
+    { label: 'Ampere', value: meterDetails['ampere'] },
+    { label: 'CT Value', value: meterDetails['ct-value'] },
+    { label: 'Previous Reading', value: meterDetails['previous-reading'] },
+    { label: 'Present Reading', value: meterDetails['present-reading'] },
+    { label: 'Status', value: meterDetails['status'] },
+    { label: 'Created Date', value: new Date(meterDetails['created-date']).toLocaleDateString() },
+    { label: 'Updated Date', value: new Date(meterDetails['updated-date']).toLocaleDateString() },
+  ];
 
   return (
-    <WrapperContainer showOverlay={true}>
+    <WrapperContainer showOverlay>
       <SafeAreaView
-        style={{
-          ...styles.mainContainer,
-          backgroundColor: isDarkMode
-            ? Colors.darkModeBackground
-            : Colors.transparent,
-        }}
+        style={[
+          styles.mainContainer,
+          {
+            backgroundColor: isDarkMode
+              ? Colors.darkModeBackground
+              : Colors.transparent,
+          },
+        ]}
       >
-        <Loader isLoading={isLoading} />
         <ThemeProvider useNewStyles={true}>
           <HeaderSVG
-            isRightButtonVisible={true}
             isBackButtonVisible={true}
-            titleText={`Meter ID: ${meterId}`}
+            titleText={`Meter Details: ${meterDetails['meter-reading-id']}`}
             titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={() => backHandler()}
-            isRight2BtnVisible={true}
-            onRight2BtnClick={() => {}}
-            containerStyle={{ zIndex: 99999 }}
+            onBackPressHandler={() => navigation.goBack()}
           />
         </ThemeProvider>
+
         <ScrollView
           style={styles.scrollContainer}
-          contentContainerStyle={styles.scrollContentContainer}
+          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity
-            style={[
-              styles.uploadItemContainer,
-              { borderColor: isDarkMode ? Colors.white : Colors.black },
-            ]}
-            onPress={onPressUploadAttachment}
-          >
-            <View style={styles.directionRowCenter}>
-              <CustomImage
-                image={Images.camera1}
-                imageWidth={24}
-                imageHeight={24}
-                imageResizeMode={"contain"}
-                displayLoader={false}
-                containerStyling={{}}
-                tintColor={isDarkMode ? Colors.white : Colors.black}
+          {meterDetails['document-ids'] && (
+            <View style={styles.imageContainer}>
+               <TenantImageViewer
+                docId={Array.isArray(meterDetails['document-ids'])
+                  ? meterDetails['document-ids'][0]
+                  : meterDetails['document-ids']}
+                key={meterDetails['meter-reading-id']}
+                imageWidth={SCREEN_WIDTH - RfW(32)}
+                imageHeight={SCREEN_WIDTH - RfW(32)}
               />
-              <CustomText
-                fontSize={14}
-                color={Colors.black}
-                styling={{
-                  ...CommonStyles.regularFont500Style,
-                  lineHeight: RfH(17),
-                  marginLeft: RfW(12),
-                  marginTop: RfH(2),
-                }}
-              >
-                {localize("common.takeAPhoto")}
-              </CustomText>
-            </View>
-
-            <CustomImage
-              image={isRTL() ? Images.arrowLeft : Images.arrowRight}
-              imageWidth={15}
-              imageHeight={15}
-              imageResizeMode={"contain"}
-              displayLoader={false}
-              containerStyling={{}}
-              tintColor={isDarkMode ? Colors.white : Colors.black}
-            />
-          </TouchableOpacity>
-
-          {capturedImage && (
-            <View style={styles.imagePreviewContainer}>
-              <Image
-                source={{ uri: capturedImage }}
-                style={[
-                  styles.previewImage,
-                  {
-                    width: imageWidth,
-                    height: imageHeight,
-                  },
-                ]}
-                resizeMode="contain"
-              />
-              <TouchableOpacity
-                style={styles.retakeButton}
-                onPress={handleRetake}
-              >
-                <CustomText
-                  fontSize={14}
-                  color={Colors.white}
-                  styling={styles.retakeButtonText}
-                >
-                  {localize("meterReadings.retakeImage")}
-                </CustomText>
-              </TouchableOpacity>
             </View>
           )}
 
-          {meterData.meterNumber && (
-            <View>
-              <View>
-                <CustomTextInput
-                  label={localize("meterReadings.meterNumber")}
-                  isMandatory={false}
-                  noOfLines={1}
-                  multiline={false}
-                  showClearButton={false}
-                  value={meterData.meterNumber}
-                  onChangeHandler={(text) => {
-                    const sanitizedText = sanitizeNumericInput(text);
-                    setMeterData((prev) => ({
-                      ...prev,
-                      meterNumber: sanitizedText,
-                    }));
-                    if (errors.meterNumber) {
-                      setErrors((prev) => ({ ...prev, meterNumber: "" }));
-                    }
-                  }}
-                  inputwrapperStyle={{
-                    borderWidth: 1,
-                    borderColor: errors.meterNumber ? Colors.red : Colors.white,
-                    paddingHorizontal: 5,
-                  }}
-                  editable={isEditing}
-                  keyboardType="numeric"
-                  error={errors.meterNumber}
-                />
-              </View>
-
-              <View style={{ marginBottom: RfH(32) }}>
-                <CustomTextInput
-                  label={localize("meterReadings.meterReading")}
-                  isMandatory={false}
-                  noOfLines={1}
-                  multiline={false}
-                  showClearButton={false}
-                  value={meterData.meterReading}
-                  onChangeHandler={(text) => {
-                    const sanitizedText = sanitizeNumericInput(text);
-                    setMeterData((prev) => ({
-                      ...prev,
-                      meterReading: sanitizedText,
-                    }));
-                    if (errors.meterReading) {
-                      setErrors((prev) => ({ ...prev, meterReading: "" }));
-                    }
-                  }}
-                  keyboardType="numeric"
-                  inputwrapperStyle={{
-                    borderWidth: 1,
-                    borderColor: errors.meterReading
-                      ? Colors.red
-                      : Colors.white,
-                    paddingHorizontal: 5,
-                  }}
-                  editable={isEditing}
-                  error={errors.meterReading}
-                />
-              </View>
-
-              {isEditing && (
-                <CustomButton
-                  buttonText={localize("common.save")}
-                  btnContainerStyle={styles.submitButtonStyle}
-                  handleOnSubmit={handleSave}
-                />
-              )}
-            </View>
-          )}
-          <UploadDocument
-            title={localize("components.uploadPhoto")}
-            isVisible={isShowDocumentPickerModal}
-            handleClose={() => setIsShowDocumentPickerModal(false)}
-            handleUpload={handleDocumentUpload}
-            isUploadFileOnServer={false}
-            cropping
-            isTenantServerUpload={false}
-            isFilePickerVisible={true}
-            imageCompressionQuality={1}
-          />
+          <View style={styles.detailsContainer}>
+            {details.map((detail, index) => (
+              <DetailRow
+                key={index}
+                label={detail.label}
+                value={detail.value}
+              />
+            ))}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </WrapperContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: RfW(16),
+  },
+  imageContainer: {
+    marginBottom: RfH(24),
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: 'transparent', 
+  },
+  detailsContainer: {
+    backgroundColor: Colors.white,
+    padding: RfW(16),
+    borderRadius: 8,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cellContainerView: {
+    flexDirection: 'row',
+    paddingVertical: RfH(12),
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGrey,
+  },
+  labelContainer: {
+    width: "40%",
+    paddingRight: RfW(10),
+  },
+  valueContainer: {
+    flex: 1,
+  },
+});

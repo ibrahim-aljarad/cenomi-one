@@ -18,7 +18,8 @@ export const initialState = {
   isLoading: false,
   isError: false,
   isAppUnderMaintenance: false,
-  isAppForceUpdate: false
+  isAppForceUpdate: false,
+  error: {}
 };
 
 let handler = '';

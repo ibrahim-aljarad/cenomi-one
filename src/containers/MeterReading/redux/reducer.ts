@@ -2,29 +2,24 @@ import produce from "immer";
 import {
   MeterDetail,
   MeterReadingDetail,
-  ServiceRequestDetails,
 } from "../type";
 
 import {
-  getSrDetails,
   getSrMeters,
   getMeterReadingDetails,
   updateMeterReading,
 } from "./actions";
 
 export type MeterReadingState = {
-  serviceRequestDetails: ServiceRequestDetails | undefined | {};
   meterReadingDetail: MeterReadingDetail | undefined | {};
   metersList: MeterDetail[] | undefined | [];
   updatedReading: any;
   loading: {
-    srDetails: boolean;
     meterDetails: boolean;
     metersList: boolean;
     updateReading: boolean;
   };
   error: {
-    srDetails: string | null;
     meterDetails: string | null;
     metersList: string | null;
     updateReading: string | null;
@@ -32,18 +27,15 @@ export type MeterReadingState = {
 };
 
 export const initialState: MeterReadingState = {
-  serviceRequestDetails: {},
   meterReadingDetail: {},
   metersList: [],
   updatedReading: {},
   loading: {
-    srDetails: false,
     meterDetails: false,
     metersList: false,
     updateReading: false,
   },
   error: {
-    srDetails: null,
     meterDetails: null,
     metersList: null,
     updateReading: null,
@@ -53,25 +45,6 @@ export const initialState: MeterReadingState = {
 export default (state = initialState, action: { type: any; payload: any }) =>
   produce(state, (draft) => {
     switch (action.type) {
-      // Service Request Details
-      case getSrDetails.TRIGGER: {
-        draft.loading.srDetails = true;
-        draft.error.srDetails = null;
-        break;
-      }
-      case getSrDetails.SUCCESS: {
-        draft.loading.srDetails = false;
-        draft.serviceRequestDetails = action.payload?.data;
-        break;
-      }
-      case getSrDetails.FAILURE: {
-        draft.loading.srDetails = false;
-        draft.error.srDetails =
-          action.payload?.message || "Failed to fetch SR details";
-        draft.serviceRequestDetails = {};
-        break;
-      }
-
       // Service Request Meters List
       case getSrMeters.TRIGGER: {
         draft.loading.metersList = true;
@@ -80,7 +53,8 @@ export default (state = initialState, action: { type: any; payload: any }) =>
       }
       case getSrMeters.SUCCESS: {
         draft.loading.metersList = false;
-        draft.metersList = action.payload?.data;
+        console.log("getSrMeters.SUCCESS", action.payload?.data?.data);
+        draft.metersList = action.payload?.data?.data;
         break;
       }
       case getSrMeters.FAILURE: {

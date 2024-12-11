@@ -20,15 +20,15 @@ const client = new DocumentAnalysisClient(
 );
 
 export const detectMeterReading = async (
-  imagePath: string
+    signedUrl: string
 ): Promise<MeterData> => {
   try {
-    const response = await fetch(imagePath);
-    const imageBuffer = await response.blob();
+    // const response = await fetch(imagePath);
+    // const imageBuffer = await response.blob();
     const modelId = Config.AZURE_MODEL_ID as string
     const poller = await client.beginAnalyzeDocument(
         modelId,
-        imageBuffer
+        signedUrl
       );
     const result = await poller.pollUntilDone();
     const document = result?.documents?.[0];

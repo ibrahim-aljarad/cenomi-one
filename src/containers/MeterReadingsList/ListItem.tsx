@@ -17,7 +17,7 @@ import {
 } from "../DiscrepancyList/util";
 import { ListItemProps } from "./type";
 
-const ListItem = (props: ListItemProps) => {
+const ListItem = (props: any) => {
   const { isDarkMode, item, onPressItem } = props;
   return (
     <>
@@ -41,7 +41,7 @@ const ListItem = (props: ListItemProps) => {
               lineHeight: RfH(21),
             }}
           >
-            {localize("SR. No")}: {item?.srNumber}
+            {localize("SR. No")}: {item?.service_request_id}
           </CustomText>
           <CustomText
             fontSize={14}
@@ -63,7 +63,7 @@ const ListItem = (props: ListItemProps) => {
               lineHeight: RfH(21),
             }}
           >
-            {localize("discrepancy.mall")}: {item?.mall}
+            {localize("discrepancy.mall")}: {item?.payload?.marketing_name}
           </CustomText>
           <View style={[styles.statusPill, getStatusStyle(item?.status)]}>
             <CustomText
@@ -98,7 +98,7 @@ const ListItem = (props: ListItemProps) => {
                 marginLeft: RfW(5),
               }}
             >
-              {getDateFormat(item?.date)}
+              {getDateFormat(item?.created_at)}
             </CustomText>
           </View>
         </View>

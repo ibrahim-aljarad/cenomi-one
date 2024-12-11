@@ -1,4 +1,6 @@
 import produce from "immer";
+import { isEmpty } from "lodash";
+import { localize } from "../../locale/utils";
 
 import {
   filePreview,
@@ -34,6 +36,7 @@ export const initialState = {
   newsList: undefined,
   greetingsListData: undefined,
   tenantfileUploadedData: {},
+  tenantfileUploadError: {},
 };
 
 export default (
@@ -189,8 +192,22 @@ export default (
       }
       case tenantFileUpload.SUCCESS: {
         const { data } = action.payload || {};
+        console.log("tenantFileUpload.SUCCESS", data);
         draft.tenantfileUploadedData = data?.data;
         break;
+      }
+
+      case tenantFileUpload.FAILURE: {
+        if (isEmpty(action.payload)) {
+            draft.tenantfileUploadError = {
+              title: localize('common.error'),
+              message: localize('common.someThingWentWrong')
+            };
+          } else {
+            const { error } = action.payload as any;
+            draft.tenantfileUploadError = error;
+          }
+          break;
       }
 
       default:

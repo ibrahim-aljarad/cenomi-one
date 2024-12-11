@@ -22,6 +22,7 @@ import {
   SUBMIT_ACKNOWLEDGE,
   GET_TENANT_LOGIN,
   GET_DISCREPANCY_LIST,
+  GET_METER_READING_LIST,
 } from './constants';
 
 export const getCorporateCommunication = createRoutine(GET_CORPORATE_COMMUNICATION);
@@ -45,3 +46,4 @@ export const getPendingAcknowledgement = createRoutine(GET_PENDING_ACKNOWLEDGEME
 export const setNotificationCount = createRoutine(SET_NOTIFICATION_COUNT);
 export const getTenantLogin = createRoutine(GET_TENANT_LOGIN);
 export const getDiscrepancyList = createRoutine(GET_DISCREPANCY_LIST);
+export const getMeterReadingList = createRoutine(GET_METER_READING_LIST);

@@ -139,7 +139,8 @@
     "viewDetails": "View Details",
     "youdontHaveAccess": "You don’t have access, Please contact the support team.",
     "jailBrokenDeviceDetected": "Jailbroken Device Detected",
-    "jailBrokenWarningMsg": "Your account information may not be secure by running the Cenomi mobile app on a jailbroken device. For your protection, it is strongly recommended that your access your account on antoher device, or reset your device to its original settings."
+    "jailBrokenWarningMsg": "Your account information may not be secure by running the Cenomi mobile app on a jailbroken device. For your protection, it is strongly recommended that your access your account on antoher device, or reset your device to its original settings.",
+    "permissionDenied": "Permission Denied"
   },
   "components": {
     "pleaseWait": "Please wait",

@@ -1,9 +1,9 @@
 import { View, Text, SafeAreaView, StyleSheet, FlatList } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WrapperContainer from "../../components/WrapperContainer";
 import { CustomText, HeaderSVG } from "../../components";
 import { isDarkModeSelector } from "../redux/selectors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { Colors, Images } from "../../theme";
 import { localize } from "../../locale/utils";
@@ -18,33 +18,76 @@ import { useNavigation } from "@react-navigation/core";
 import NavigationRouteNames from "../../routes/ScreenNames";
 import { MeterReadingItemsType } from "./type";
 import { ThemeProvider } from "../../theme/context";
-
-const meterReadingItems = [
-  {
-    srNumber: 55,
-    title: "Meter readings for Month November - 2024",
-    mall: "Marina Mall",
-    status: "IN_PROGRESS",
-    date: "2024-11-07",
-  },
-];
+import {
+  getMeterReadingListErrorSelector,
+  getMeterReadingListSelector,
+} from "../Home/redux/selectors";
+import { isEmpty } from "lodash";
+import { getMeterReadingList } from "../Home/redux/actions";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
+  meterReadingList: getMeterReadingListSelector,
+  error: getMeterReadingListErrorSelector,
 });
 
 export default function MeterReadings() {
-  const { isDarkMode } = useSelector(stateSelector);
+  const { isDarkMode, meterReadingList, error } = useSelector(stateSelector);
   const navigation = useNavigation();
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [meterReadingItems, setMeterReadingItems] = useState([]);
+  const ITEMS_PER_PAGE = 10;
+  const dispatch = useDispatch();
+
   const handleOnClickItem = (item: MeterReadingItemsType) => {
     trackEvent(EVENT_NAME.PRESSED_METER_READINGS);
     navigation.navigate(NavigationRouteNames.METER_READING as never, {
-      srId: item?.srNumber,
+      srId: item?.service_request_id,
     });
   };
 
+  useEffect(() => {
+    fetchMeterReadingList(1);
+  }, []);
+
+  useEffect(() => {
+    if (meterReadingList?.list) {
+      setMeterReadingItems(prevItems =>
+        page === 1
+          ? [...meterReadingList.list]
+          : [...prevItems, ...meterReadingList.list]
+      );
+      setIsLoading(false);
+    }
+
+    if (error) {
+        setIsLoading(false);
+    }
+  }, [meterReadingList, error]);
+
+  const fetchMeterReadingList = (pageNumber: number) => {
+    setIsLoading(true);
+    dispatch(
+      getMeterReadingList.trigger({
+        page: pageNumber,
+        limit: ITEMS_PER_PAGE,
+      })
+    );
+  };
+
+  const handleLoadMore = () => {
+    if (
+      !isLoading &&
+      meterReadingList?.total_count > meterReadingItems.length
+    ) {
+      setPage(prev => prev + 1);
+      fetchMeterReadingList(page + 1);
+    }
+  };
+
   const renderEndMessage = () => {
-    if (meterReadingItems.length === 0) {
+    if (meterReadingItems.length >= (meterReadingList?.total_count || 0) && page > 1) {
       return (
         <View style={styles.endMessageContainer}>
           <CustomText color={Colors.grayTwo}>
@@ -56,40 +99,21 @@ export default function MeterReadings() {
     return null;
   };
 
-  const listSection = () => {
-    if (meterReadingItems === undefined) {
+const renderContent = () => {
+    if (isLoading && page === 1 && !error) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
-    } else if (meterReadingItems?.length > 0) {
+    }
+
+    if (!isEmpty(error)) {
       return (
-        <View style={styles.listView}>
-          <FlatList
-            data={meterReadingItems}
-            contentContainerStyle={{
-              paddingHorizontal: RfW(16),
-              paddingTop: RfH(8),
-            }}
-            renderItem={({ item }) => (
-              <ListItem
-                isDarkMode={isDarkMode}
-                item={item}
-                onPressItem={handleOnClickItem}
-              />
-            )}
-            keyExtractor={(item, index) => index.toString() + item?.srNumber}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={null}
-            onEndReached={() => {}}
-            onEndReachedThreshold={0.2}
-            ListFooterComponent={
-              <>
-                {renderEndMessage()}
-                <View style={{ height: RfH(10) }} />
-              </>
-            }
-          />
-        </View>
+        <EmptyListComponent
+          errorText={error?.title || localize("common.someThingWentWrong")}
+          icon={Images.benefitEmptyIcon}
+        />
       );
-    } else if (meterReadingItems?.length === 0) {
+    }
+
+    if (isEmpty(meterReadingItems)) {
       return (
         <EmptyListComponent
           errorText={localize("common.noDataFound")}
@@ -97,6 +121,40 @@ export default function MeterReadings() {
         />
       );
     }
+
+    return (
+      <View style={styles.listView}>
+        <FlatList
+          data={meterReadingItems}
+          contentContainerStyle={{
+            paddingHorizontal: RfW(16),
+            paddingTop: RfH(8),
+          }}
+          renderItem={({ item }) => (
+            <ListItem
+              isDarkMode={isDarkMode}
+              item={item}
+              onPressItem={handleOnClickItem}
+            />
+          )}
+          keyExtractor={(item, index) =>
+            `${index}-${item?.service_request_id}`
+          }
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={
+            <>
+              {isLoading && page > 1 && (
+                <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />
+              )}
+              {renderEndMessage()}
+              <View style={{ height: RfH(10) }} />
+            </>
+          }
+        />
+      </View>
+    );
   };
 
   return (
@@ -128,7 +186,7 @@ export default function MeterReadings() {
             },
           ]}
         >
-          {listSection()}
+          {renderContent()}
         </View>
       </SafeAreaView>
     </WrapperContainer>

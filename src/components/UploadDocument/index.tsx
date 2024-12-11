@@ -38,7 +38,7 @@ const RNFS = require("react-native-fs");
 
 import { Buffer } from 'buffer';
 
-const base64ToArrayBuffer = (base64) => {
+export const base64ToArrayBuffer = (base64) => {
   // Decode the Base64 string using Buffer
   const byteString = Buffer.from(base64, 'base64');
 
@@ -87,9 +87,10 @@ function UploadDocument(props) {
       try {
         // Read the file as a Base64 string
         const base64String = await RNFS.readFile(path, 'base64');
-    
+
         // Convert to ArrayBuffer
         const arrayBuffer = base64ToArrayBuffer(base64String);
+        console.log("arrayBuffer", arrayBuffer);
         dispatch(
           tenantFileUpload.trigger({
             fileName,
@@ -98,7 +99,6 @@ function UploadDocument(props) {
             file: arrayBuffer,
           })
         );
-        
         return arrayBuffer;
       } catch (error) {
         console.error('Error reading file:', error);
@@ -106,6 +106,7 @@ function UploadDocument(props) {
     };
     if (isTenantServerUpload) {
       filesUpload();
+      handleUpload(selectedFileData);
     } else if (!isUploadFileOnServer) {
       handleUpload(selectedFileData);
     } else {
