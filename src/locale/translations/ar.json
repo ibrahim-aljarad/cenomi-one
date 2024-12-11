@@ -569,6 +569,8 @@
     "reviewStatus": "حالة المراجعة",
     "match": "مباراة",
     "mismatch": "مباراة",
+    "invalidRequest": "بيانات الطلب غير صالحة",
+    "level1ApproverNotInProgress": "المعتمد من المستوى 1 ليس قيد التقدم",
     "status": {
       "in_process": "قيد الانتظار",
       "in_progress": "قيد الانتظار",
@@ -584,7 +586,9 @@
       "leasing_admin": "مدير التأجير",
       "mall_manager": "مدير المول",
       "operations_manager": "مدير العمليات",
-      "operations_support": "دعم العمليات"
+      "operations_support": "دعم العمليات",
+        "finance_manager": "مدير المالية",
+        "mall_admin": "مشرف مول"
     }
   },
   "meterReadings": {

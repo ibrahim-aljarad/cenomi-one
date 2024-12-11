@@ -56,7 +56,6 @@ const stateStructure = createStructuredSelector({
 
 function DocumentsViewModal(props) {
   const { isVisible, onRequestClose, documentInfo } = props;
-  console.log('documentInfo', documentInfo);
   const [isError, setIsError] = useState(false);
   const [playing, setPlaying] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -523,7 +522,7 @@ function DocumentsViewModal(props) {
             />
           </ThemeProvider>
           {mainView()}
-          {isError && (
+          {isError && documentInfo?.fileType?.toLowerCase() !== DOCUMENTS_PDF.toLowerCase() && (
             <View
               style={{
                 flex: 1,

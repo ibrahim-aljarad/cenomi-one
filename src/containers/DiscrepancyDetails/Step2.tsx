@@ -10,8 +10,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Step3 from "./Step3";
 import { localize } from "../../locale/utils";
 
-console.log(localize("discrepancy.unitStatus"));
-
 const keyValuePairs = [
   { key: "status", label: localize("discrepancy.unitStatus") },
   { key: "lease_id", label: localize("discrepancy.contract") },

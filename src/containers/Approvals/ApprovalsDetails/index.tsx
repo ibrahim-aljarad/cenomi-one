@@ -1,22 +1,14 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
-import { SafeAreaView, TouchableOpacity, View } from "react-native";
-import {
-  CustomImage,
-  CustomRenderHtml,
-  HeaderSVG,
-  Loader,
-} from "../../../components";
-import { Colors, HEIGHT, Images, WIDTH } from "../../../theme";
+import React, { useEffect } from "react";
+import { SafeAreaView, View } from "react-native";
+import { HeaderSVG, Loader } from "../../../components";
+import { Colors } from "../../../theme";
 import styles from "./styles";
 
 import { useNavigation } from "@react-navigation/native";
-
 import { ScrollView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
-import DocumentsViewModal from "../../../components/DocumentsViewModal";
-import { localize } from "../../../locale/utils";
 import {
   getApprovalTasksDetails,
   getLeasingTasksDetails,
@@ -27,9 +19,6 @@ import { getApprovalTasksDetailsSelector } from "../redux/selectors";
 
 import { isEmpty } from "lodash";
 import { EVENT_NAME, trackEvent } from "../../../utils/analytics";
-import Config from "../../../utils/config";
-import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
-import { getSaveData } from "../../../utils/helpers";
 import { isDarkModeSelector } from "../../redux/selectors";
 import {
   isDealWorkflowModuleCheck,
@@ -37,10 +26,10 @@ import {
   isYardiServiceModuleCheck,
 } from "../serializer";
 import ApprovalsActionButtons from "./ApprovalsActionButtons";
-import AttachmentModal from "./AttachmentModal";
 import WrapperContainer from "../../../components/WrapperContainer";
 import WorkflowDetails from "./WorkflowDetails";
 import { ThemeProvider } from "../../../theme/context";
+import ProcurementDetails from "./ProcurementDetails";
 
 const stateSelector = createStructuredSelector({
   approvalTasksDetailsData: getApprovalTasksDetailsSelector,
@@ -49,25 +38,11 @@ const stateSelector = createStructuredSelector({
 
 const ApprovalsDetails = (props: any) => {
   const navigation = useNavigation();
-
-  const [isModalDocumentVisible, setModalDocumentVisible] =
-    useState<boolean>(false);
-  const [selectedDocumentItem, setSelectedDocumentItem] = useState({});
-  const { approvalItem, fromNotification, approvalType } = props.route.params;
-
-  const [attachmentListModal, setAttachmentListModal] = useState(false);
-  const [documentInfo, setDocumentInfo] = useState({
-    title: "",
-    url: "",
-    fileType: "",
-    headers: {},
-  });
-
+  const { approvalItem } = props.route.params;
   const dispatch = useDispatch();
 
-  const { approvalTasksDetailsData, isDarkMode } = useSelector(stateSelector);
+  const { isDarkMode, approvalTasksDetailsData } = useSelector(stateSelector);
 
-  // approvalType is the servicemodule name
   const isYardiServiceModule = isYardiServiceModuleCheck(approvalItem);
   const isProcurementServiceModule =
     isProcurementServiceModuleCheck(approvalItem);
@@ -90,7 +65,7 @@ const ApprovalsDetails = (props: any) => {
       );
     } else if (isDealWorkflowModule) {
       dispatch(
-        getWorkflowTasksDetails.trigger({ taskId: approvalItem?.number, })
+        getWorkflowTasksDetails.trigger({ taskId: approvalItem?.number })
       );
     } else {
       dispatch(
@@ -99,52 +74,71 @@ const ApprovalsDetails = (props: any) => {
     }
   }, []);
 
-  // attachments of a task
-  const callAttachmentApi = () => {
-    trackEvent(EVENT_NAME.PRESSED_APPROVALS_ATTACHMENT);
+  const isLoading =
+    isEmpty(approvalTasksDetailsData) ||
+    (!(isDealWorkflowModule || isProcurementServiceModule) &&
+      !approvalTasksDetailsData?.html);
 
-    setAttachmentListModal(approvalTasksDetailsData?.attachments?.length > 0);
+  const renderContent = () => {
+    if (isLoading) return null;
+
+    return (
+      <ScrollView
+        style={{
+          backgroundColor: isDarkMode
+            ? Colors.darkModeBackground
+            : Colors.transparent,
+          flex: 1,
+        }}
+      >
+        {isDealWorkflowModule ? (
+          <WorkflowDetails
+            data={approvalTasksDetailsData}
+            isDarkMode={isDarkMode}
+            approvalType={approvalItem?.externalId}
+            formName={approvalItem?.formName}
+          />
+        ) : (
+          <ProcurementDetails
+            isDarkMode={isDarkMode}
+            taskDetails={approvalTasksDetailsData}
+            isYardiServiceModule={isYardiServiceModule}
+          />
+        )}
+      </ScrollView>
+    );
   };
 
-  const handleAttechmentItemClick = async (item) => {
-    let title, url, fileType;
+  const renderActionButtons = () => {
+    if (isLoading) return null;
 
-    if (isYardiServiceModule) {
-      // call api for document download
-      const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
-
-      const splitedTitle = item?.AttachmentName?.split(".");
-
-      title = item?.AttachmentName;
-      url = `${Config.API_BASE_URL}process/leasing/tasks-attachments/${item?.AttachmentID}?download=false&token=${token}`;
-      fileType =
-        splitedTitle?.length > 0 ? splitedTitle[splitedTitle?.length - 1] : "";
-    } else {
-      const fileName = item?.title || item?.attachmentName;
-      const splitedData = fileName?.split(".");
-      const splitedMimeType = item?.mimeType?.split("/");
-
-      title = fileName || splitedMimeType[1] + " file";
-
-      url = item?.uri?.href;
-      fileType =
-        splitedData?.length > 0
-          ? splitedData[splitedData?.length - 1]
-          : splitedMimeType?.length > 0
-          ? splitedMimeType[1]
-          : "";
+    if (
+      !isEmpty(approvalTasksDetailsData) &&
+      (approvalTasksDetailsData?.actionRequired || isDealWorkflowModule)
+    ) {
+      return (
+        <View
+          style={[
+            styles.bottomButtonContainer,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.darkModeBackground
+                : Colors.white,
+              borderTopColor: Colors.grayBorder,
+              zIndex: 1,
+            },
+          ]}
+        >
+          <ApprovalsActionButtons
+            isDarkMode={isDarkMode}
+            approvalItem={approvalItem}
+            detailData={approvalTasksDetailsData}
+            actionSuccess={() => navigation.goBack()}
+          />
+        </View>
+      );
     }
-
-    setDocumentInfo({
-      title,
-      url,
-      fileType,
-      headers: approvalTasksDetailsData?.attachmentAuthHeaders || {},
-    });
-
-    setSelectedDocumentItem(item);
-    setModalDocumentVisible(true);
-    setAttachmentListModal(false);
+    return null;
   };
 
   return (
@@ -159,122 +153,27 @@ const ApprovalsDetails = (props: any) => {
       >
         <View style={styles.mainContainer}>
           <ThemeProvider useNewStyles={true}>
-          <HeaderSVG
-            isRightButtonVisible={
-              !isEmpty(approvalTasksDetailsData) &&
-              approvalTasksDetailsData?.attachments?.length > 0
-            }
-            isBackButtonVisible={true}
-            rightIcon={
-              <TouchableOpacity
-                style={{ alignItems: "flex-end" }}
-                onPress={callAttachmentApi}
-              >
-                <CustomImage
-                  image={Images.attachment}
-                  imageWidth={WIDTH.W24}
-                  imageHeight={HEIGHT.H24}
-                  tintColor={isDarkMode ? Colors.white : Colors.white}
-                />
-              </TouchableOpacity>
-            }
-            titleText={
-              approvalItem.externalId
-                ? approvalItem.externalId +
-                  " - " +
-                  (approvalItem.subModule?.name ||
-                    approvalItem.subModuleName ||
-                    "")
-                : approvalItem?.heading
-            }
-            titleFont={20}
-            onRightButtonClickHandler={() => {}}
-            onBackPressHandler={() => navigation.goBack()}
-            isRight2BtnVisible={false}
-          />
+            <HeaderSVG
+              isBackButtonVisible={true}
+              titleText={
+                approvalItem.externalId
+                  ? approvalItem.externalId +
+                    " - " +
+                    (approvalItem.subModule?.name ||
+                      approvalItem.subModuleName ||
+                      "")
+                  : approvalItem?.heading
+              }
+              titleFont={20}
+              onBackPressHandler={() => navigation.goBack()}
+              isRight2BtnVisible={false}
+            />
           </ThemeProvider>
 
-          <ScrollView
-            style={{
-              backgroundColor: isDarkMode
-                ? Colors.darkModeBackground
-                : Colors.transparent,
-              flex: 1,
-            }}
-          >
-            {isDealWorkflowModule ? (
-              <WorkflowDetails
-                data={approvalTasksDetailsData}
-                approvalType={approvalItem?.externalId}
-                formName={approvalItem?.formName}
-              />
-            ) : (
-              <CustomRenderHtml
-                source={approvalTasksDetailsData?.html}
-                style={{ backgroundColor: Colors.transparent }}
-              />
-            )}
-          </ScrollView>
-
-          {!isEmpty(approvalTasksDetailsData) &&
-            (approvalTasksDetailsData?.actionRequired ||
-              isDealWorkflowModule) && (
-              <View
-                style={[
-                  styles.bottomButtonContainer,
-                  {
-                    backgroundColor: isDarkMode
-                      ? Colors.darkModeBackground
-                      : Colors.white,
-                    borderTopColor: Colors.grayBorder,
-                    zIndex: 1,
-                  },
-                ]}
-              >
-                <ApprovalsActionButtons
-                  isDarkMode={isDarkMode}
-                  approvalItem={approvalItem}
-                  detailData={approvalTasksDetailsData}
-                  actionSuccess={() => navigation.goBack()}
-                />
-              </View>
-            )}
-          {attachmentListModal && (
-            <AttachmentModal
-              isDarkMode={isDarkMode}
-              isVisible={attachmentListModal}
-              headerText={localize("approvals.attachments")}
-              openModal={() => setAttachmentListModal(false)}
-              attachments={approvalTasksDetailsData?.attachments}
-              onClick={(item) => {
-                handleAttechmentItemClick(item);
-              }}
-            />
-          )}
-
-          {isModalDocumentVisible && (
-            <DocumentsViewModal
-              isVisible={isModalDocumentVisible}
-              documentInfo={documentInfo}
-              onRequestClose={() => {
-                setDocumentInfo({
-                  title: "",
-                  url: "",
-                  fileType: "",
-                  headers: {},
-                });
-                setModalDocumentVisible(false);
-              }}
-              onClick={(item) => {}}
-            />
-          )}
+          {renderContent()}
+          {renderActionButtons()}
         </View>
-        <Loader
-          isLoading={
-            !(isDealWorkflowModule && approvalTasksDetailsData) &&
-            !approvalTasksDetailsData?.html
-          }
-        />
+        <Loader isLoading={isLoading} />
       </SafeAreaView>
     </WrapperContainer>
   );
@@ -284,6 +183,7 @@ ApprovalsDetails.propTypes = {
   route: PropTypes.object,
   isButtonDisable: PropTypes.bool,
 };
+
 ApprovalsDetails.defaultProps = {
   route: {},
   isButtonDisable: false,

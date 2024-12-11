@@ -113,6 +113,7 @@ const DiscrepancyList = () => {
       id: item?.service_request_id,
       property: { ...item?.payload },
       srId: item?.service_request_id,
+      operations: item?.operations,
     });
   };
 
