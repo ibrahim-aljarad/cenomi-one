@@ -91,20 +91,23 @@ function* updateMeterReadingRequest(action: {
 }) {
   try {
     const data = action.payload;
+    console.log("data", data);
     yield put(updateMeterReading.request({ isLoading: true }));
 
     const response = yield call(updateMeterReadingApiCall, data);
-
+    console.log("response", response);
     if (response.success) {
       const { data } = response;
+      console.log("data", data);
       yield put(updateMeterReading.success({ data }));
     } else {
-      yield put(setGlobalError.success());
-      yield put(updateMeterReading.failure({ message: "Failed to update meter reading" }));
+        const errorMessage = response.message || "Failed to update meter reading";
+        yield put(updateMeterReading.failure({ message: errorMessage }));
     }
   } catch (error: any) {
-    yield put(setGlobalError.success());
-    yield put(updateMeterReading.failure({ message: error.message }));
+    console.error("Meter reading update error:", error);
+    const errorMessage = error.response?.data?.message || error.message || "An unexpected error occurred";
+    yield put(updateMeterReading.failure({ message: errorMessage }));
   } finally {
     yield put(updateMeterReading.fulfill({ isLoading: false }));
   }

@@ -59,7 +59,7 @@ import {
   getTenantFileUploadErrorSelector,
   isDarkModeSelector,
 } from "../redux/selectors";
-import metersList from "./mocks/meterList.json";
+import { clearTenantFileUpload } from "../redux/actions";
 import { isEmpty } from "lodash";
 
 const stateSelector = createStructuredSelector({
@@ -96,10 +96,11 @@ const initialErrors = {
 };
 
 const METER_TABS = [
-  { id: "ALL", label: "All" },
-  { id: "PENDING", label: "Pending" },
-  { id: "COMPLETED", label: "Completed" },
-] as const;
+    { id: "ALL", label: "All" },
+    { id: "PENDING", label: "Pending" },
+    { id: "DRAFT", label: "Draft" },
+    { id: "SUBMITTED", label: "Submitted" },
+  ] as const;
 
 type TabType = (typeof METER_TABS)[number]["id"];
 
@@ -107,7 +108,7 @@ export default function CombinedMeterReading({ route }) {
   const { srId } = route.params;
   const {
     isDarkMode,
-    // metersList,
+    metersList,
     loading,
     tenantfileUploadedData,
     imageUploadError,
@@ -133,8 +134,6 @@ export default function CombinedMeterReading({ route }) {
     [imageState.serverUri, imageState.localUri]
   );
 
-  console.log(metersList);
-
   const screenWidth = Dimensions.get("window").width;
   const containerPadding = 32;
   const imageWidth = screenWidth - containerPadding;
@@ -143,6 +142,7 @@ export default function CombinedMeterReading({ route }) {
   useEffect(() => {
     if (showMeterList) {
       dispatch(getSrMeters.trigger(srId));
+      dispatch(clearTenantFileUpload.trigger());
     }
   }, [srId, dispatch, showMeterList]);
 
@@ -167,11 +167,29 @@ export default function CombinedMeterReading({ route }) {
           cancelable: true,
           onPositiveClick: () => {
             resetForm();
+            dispatch(clearTenantFileUpload.trigger());
           },
         }
       );
     }
   }, [imageUploadError]);
+
+
+  useEffect(() => {
+    if (error.updateReading) {
+      alertBox(
+        localize("common.error"),
+        error.updateReading,
+        {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+          onPositiveClick: () => {
+            dispatch(updateMeterReading.failure(null));
+          }
+        }
+      );
+    }
+  }, [error.updateReading, dispatch]);
 
   const handleMeterDetection = async (signedUrl: string) => {
     setIsLoading(true);
@@ -181,6 +199,7 @@ export default function CombinedMeterReading({ route }) {
       setIsEditing(true);
     } catch (error) {
       resetForm();
+      dispatch(clearTenantFileUpload.trigger());
       alertBox(
         localize("common.error"),
         localize("meterReadings.detectionError"),
@@ -211,18 +230,26 @@ export default function CombinedMeterReading({ route }) {
   [metersList]
 );
 
-  const resetForm = () => {
-    setImageState(initialImageState);
+const resetForm = () => {
+    setImageState({
+      localUri: null,
+      serverUri: null,
+      documentId: null,
+      aspectRatio: 1
+    });
     setMeterData(initialMeterData);
     setErrors(initialErrors);
     setIsEditing(false);
     setShowMeterList(true);
     setFileUploadStarted(false);
+    setIsShowDocumentPickerModal(false);
+    setIsLoading(false);
   };
 
   const backHandler = (): boolean => {
     if (!showMeterList) {
       resetForm();
+      dispatch(clearTenantFileUpload.trigger());
       return true;
     }
     navigation.goBack();
@@ -243,6 +270,7 @@ export default function CombinedMeterReading({ route }) {
   // Camera handlers
   const handleRetake = () => {
     resetForm();
+    dispatch(clearTenantFileUpload.trigger());
     setIsShowDocumentPickerModal(true);
     setFileUploadStarted(true);
   };
@@ -276,6 +304,7 @@ export default function CombinedMeterReading({ route }) {
       });
     } catch (error) {
       resetForm();
+      dispatch(clearTenantFileUpload.trigger());
       alertBox(localize("common.error"), "Failed to process image", {
         positiveText: localize("common.ok"),
         cancelable: true,
@@ -293,24 +322,40 @@ export default function CombinedMeterReading({ route }) {
     );
 
     if (isValid) {
+        const selectedMeter = metersList?.find(
+            (meter) => meter["meter-no"] === meterData.meterNumber
+          );
+
+          if (!selectedMeter) {
+            alertBox(
+              localize("common.error"),
+              "Could not find matching meter for the detected number.",
+              {
+                positiveText: localize("common.ok"),
+                cancelable: true,
+              }
+            );
+            return;
+          }
       setIsLoading(true);
       try {
-        // dispatch(
-        //   updateMeterReading.trigger({
-        //     srId,
-        //     meterId: meterData.meterNumber,
-        //     reading: meterData.meterReading,
-        //     image: capturedImage,
-        //   })
-        // );
-
-        // // Refresh the list data
-        // await Promise.all([
-        //   dispatch(getSrDetails.trigger(srId)),
-        //   dispatch(getSrMeters.trigger(srId)),
-        // ]);
+        const payload = {
+            "service-request-id": selectedMeter["service-request-id"],
+            "meter-reading-id": selectedMeter["meter-reading-id"],
+            "present-reading": meterData.meterReading,
+            "document-ids": imageState.documentId,
+            "status": "DRAFT"
+          };
+          console.log("payload", payload);
+          dispatch(
+            updateMeterReading.trigger(payload)
+          );
+        await Promise.all([
+          dispatch(getSrMeters.trigger(srId)),
+        ]);
         Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
         resetForm();
+        dispatch(clearTenantFileUpload.trigger());
       } catch (error) {
         alertBox(
           localize("common.error"),
@@ -336,73 +381,15 @@ export default function CombinedMeterReading({ route }) {
     }
   };
 
-  // List rendering
-//   const renderMeterItem = ({ item }) => (
-//     <TouchableOpacity
-//       style={[
-//         styles.item_con,
-//         {
-//           backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-//         },
-//       ]}
-//       activeOpacity={0.8}
-//       onPress={() =>
-//         navigation.navigate(
-//           NavigationRouteNames.METER_READING_DETAILS as never,
-//           {
-//             meterId: item.meter_id,
-//             srId,
-//           }
-//         )
-//       }
-//     >
-//       <View style={{ flex: 1 }}>
-//         <CustomText
-//           fontSize={14}
-//           numberOfLines={2}
-//           color={Colors.black}
-//           styling={{
-//             ...CommonStyles.regularFont500Style,
-//             lineHeight: RfH(21),
-//           }}
-//         >
-//           Meter ID: {item["meter-reading-id"]}
-//         </CustomText>
-//         <CustomText
-//           fontSize={14}
-//           numberOfLines={2}
-//           color={Colors.black}
-//           styling={{
-//             ...CommonStyles.regularFont500Style,
-//             lineHeight: RfH(21),
-//           }}
-//         >
-//           Property Name: {item["property-group-name"] || "N/A"}
-//         </CustomText>
-
-//         <View style={[styles.statusPill, getMeterStatusStyle(item?.status)]}>
-//           <CustomText
-//             fontSize={12}
-//             color={METER_STATUS_COLORS[item?.status]?.border}
-//             styling={CommonStyles.regularFont500Style}
-//           >
-//             {formatMeterStatus(item?.status)}
-//           </CustomText>
-//         </View>
-//       </View>
-//     </TouchableOpacity>
-//   );
-
-
 const renderMeterItem = ({ item }) => {
-    const isCompleted = item?.status === "COMPLETED";
+    const isNavigatable = item?.status === "COMPLETED" || item?.status === "DRAFT";
 
     const itemContent = (
       <View style={[
         styles.item_con,
         {
           backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-          opacity: isCompleted ? 1 : 0.7
+          opacity: isNavigatable ? 1 : 0.8
         },
       ]}>
         <View style={{ flex: 1 }}>
@@ -440,7 +427,7 @@ const renderMeterItem = ({ item }) => {
           </View>
         </View>
 
-        {isCompleted && (
+        {isNavigatable && (
           <View style={styles.arrowContainer}>
             <CustomImage
               image={isRTL() ? Images.arrowLeft : Images.arrowRight}
@@ -456,7 +443,7 @@ const renderMeterItem = ({ item }) => {
       </View>
     );
 
-    if (!isCompleted) {
+    if (!isNavigatable) {
       return itemContent;
     }
 
@@ -502,47 +489,62 @@ const renderMeterItem = ({ item }) => {
   };
 
   const renderTabs = () => (
-    <View style={styles.tabContainer}>
-      {METER_TABS.map((tab) => (
-        <TouchableOpacity
-          key={tab.id}
-          style={[
-            styles.tab,
-            activeTab === tab.id && styles.activeTab,
-            {
-              backgroundColor: isDarkMode
-                ? activeTab === tab.id
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.tabScrollContainer}
+    >
+      <View style={styles.tabContainer}>
+        {METER_TABS.map((tab) => (
+          <TouchableOpacity
+            key={tab.id}
+            style={[
+              styles.tab,
+              activeTab === tab.id && styles.activeTab,
+              {
+                backgroundColor: isDarkMode
+                  ? activeTab === tab.id
+                    ? Colors.primary
+                    : Colors.darkModeButton
+                  : activeTab === tab.id
                   ? Colors.primary
-                  : Colors.darkModeButton
-                : activeTab === tab.id
-                ? Colors.primary
-                : Colors.white,
-            },
-          ]}
-          onPress={() => setActiveTab(tab.id)}
-        >
-          <CustomText
-            fontSize={14}
-            color={activeTab === tab.id ? Colors.white : Colors.gray}
-            styling={CommonStyles.regularFont500Style}
+                  : Colors.white,
+              },
+            ]}
+            onPress={() => setActiveTab(tab.id)}
           >
-            {tab.label}
-            {tab.id !== "ALL" && (
+            <CustomText
+              fontSize={14}
+              color={activeTab === tab.id ? Colors.white : Colors.gray}
+              styling={CommonStyles.regularFont500Style}
+            >
+              {tab.label}
+              {tab.id === "ALL" && (
               <CustomText
                 fontSize={12}
                 color={activeTab === tab.id ? Colors.white : Colors.gray}
                 styling={CommonStyles.regularFont400Style}
               >
-                {` (${
-                  metersList?.filter((meter) => meter.status === tab.id)
-                    .length || 0
-                })`}
+                {` (${totalMeters})`}
               </CustomText>
             )}
-          </CustomText>
-        </TouchableOpacity>
-      ))}
-    </View>
+              {tab.id !== "ALL" && (
+                <CustomText
+                  fontSize={12}
+                  color={activeTab === tab.id ? Colors.white : Colors.gray}
+                  styling={CommonStyles.regularFont400Style}
+                >
+                  {` (${
+                    metersList?.filter((meter) => meter.status === tab.id)
+                      .length || 0
+                  })`}
+                </CustomText>
+              )}
+            </CustomText>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
   );
 
   const renderListSection = () => {

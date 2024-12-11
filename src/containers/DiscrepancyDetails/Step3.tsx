@@ -282,7 +282,6 @@ function Step3({ selectValues, setSelectValues, setStep }) {
             <TouchableOpacity onPress={() => setImageModal(id)}>
               <TenantImageViewer
                 docId={id}
-                key={id}
                 imageWidth={100}
                 imageHeight={100}
               />

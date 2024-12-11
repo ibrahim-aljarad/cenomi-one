@@ -18,6 +18,7 @@ import {
   getNewsList,
   getGreetingsData,
   tenantFileUpload,
+  clearTenantFileUpload,
 } from "./actions";
 
 export const initialState = {
@@ -208,6 +209,12 @@ export default (
             draft.tenantfileUploadError = error;
           }
           break;
+      }
+
+      case clearTenantFileUpload.TRIGGER: {
+        console.log("clearTenantFileUpload.TRIGGER");
+        draft.tenantfileUploadedData = {};
+        break;
       }
 
       default:

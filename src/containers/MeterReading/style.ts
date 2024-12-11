@@ -79,16 +79,20 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       backgroundColor: getColorWithOpacity("#7716FF", 0.1),
     },
+    tabScrollContainer: {
+        flexGrow: 1,
+      },
     tabContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: RfH(16),
+      gap: RfW(12),
       marginTop: RfH(8),
+      marginBottom: RfH(16),
     },
     tab: {
       flex: 1,
       paddingVertical: RfH(8),
-      marginHorizontal: RfW(4),
+      paddingHorizontal: RfW(8),
       borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',

@@ -15,7 +15,8 @@ import {
   ORGANIZATION_CONFIG,
   NEWS_LIST,
   GREETINGS_DATA,
-  TENANT_FILE_UPLOAD
+  TENANT_FILE_UPLOAD,
+  CLEAR_TENANT_FILE_UPLOAD
 } from './constants';
 
 export const fileUpload = createRoutine(FILE_UPLOAD);
@@ -36,3 +37,4 @@ export const getOrganizationConfig = createRoutine(ORGANIZATION_CONFIG);
 export const getNewsList = createRoutine(NEWS_LIST);
 
 export const tenantFileUpload = createRoutine(TENANT_FILE_UPLOAD);
+export const clearTenantFileUpload = createRoutine(CLEAR_TENANT_FILE_UPLOAD);

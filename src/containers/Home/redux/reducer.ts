@@ -341,7 +341,6 @@ export default (
       }
 
       case getMeterReadingList.SUCCESS: {
-        console.log("success reducer", action?.payload?.data)
         const newData = action?.payload?.data || {};
         const currentPage = newData?.current_page || 1;
         if (currentPage === 1) {
@@ -356,7 +355,6 @@ export default (
           };
         }
         draft.meterServiceRequestError = {}
-        console.log("updated list", draft.meterServiceRequestList)
         break;
       }
 

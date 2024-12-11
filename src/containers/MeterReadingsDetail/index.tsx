@@ -19,7 +19,6 @@ import { RfH, RfW } from '../../utils/helper';
 import { isDarkModeSelector } from '../redux/selectors';
 import TenantImageViewer from '../../components/TenantImageViewer';
 import COLORS from '../../theme/colors';
-import { SCREEN_WIDTH } from '../../constant';
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -53,7 +52,7 @@ export default function MeterReadingDetails({ route, navigation }) {
   const { isDarkMode } = useSelector(stateSelector);
 
   const details = [
-    { label: 'Service Request ID', value: meterDetails['service-request-id'] },
+    { label: 'SR ID', value: meterDetails['service-request-id'] },
     { label: 'Meter Reading ID', value: meterDetails['meter-reading-id'] },
     { label: 'Property Group', value: meterDetails['property-group-name'] || 'N/A' },
     { label: 'Property Code', value: meterDetails['yardi-property-code'] },
@@ -103,9 +102,7 @@ export default function MeterReadingDetails({ route, navigation }) {
                 docId={Array.isArray(meterDetails['document-ids'])
                   ? meterDetails['document-ids'][0]
                   : meterDetails['document-ids']}
-                key={meterDetails['meter-reading-id']}
-                imageWidth={SCREEN_WIDTH - RfW(32)}
-                imageHeight={SCREEN_WIDTH - RfW(32)}
+                fullSize={true}
               />
             </View>
           )}
@@ -139,7 +136,7 @@ const styles = StyleSheet.create({
     marginBottom: RfH(24),
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
   },
   detailsContainer: {
     backgroundColor: Colors.white,

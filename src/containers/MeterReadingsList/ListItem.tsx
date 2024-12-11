@@ -15,10 +15,10 @@ import {
   getStatusStyle,
   STATUS_COLORS,
 } from "../DiscrepancyList/util";
-import { ListItemProps } from "./type";
 
 const ListItem = (props: any) => {
   const { isDarkMode, item, onPressItem } = props;
+  console.log("item", item);
   return (
     <>
       <TouchableOpacity

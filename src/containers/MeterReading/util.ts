@@ -1,35 +1,24 @@
-import { localize } from "../../locale/utils";
 import { getColorWithOpacity } from "../../utils/helper";
 
 export type MeterReadingStatus =
   | "PENDING"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "REJECTED"
-  | "APPROVED";
+  | "DRAFT"
+  | "SUBMITTED"
 
-export const METER_STATUS_COLORS = {
-  PENDING: {
-    bg: "#FFF3C4",
-    border: "#FFB300",
-  },
-  IN_PROGRESS: {
-    bg: "#E3F2FD",
-    border: "#2196F3",
-  },
-  COMPLETED: {
-    bg: "#E8F5E9",
-    border: "#4CAF50",
-  },
-  REJECTED: {
-    bg: "#FFEBEE",
-    border: "#F44336",
-  },
-  APPROVED: {
-    bg: "#E8F5E9",
-    border: "#4CAF50",
-  }
-};
+  export const METER_STATUS_COLORS = {
+    PENDING: {
+      bg: "#FFF3C4",
+      border: "#FFB300",
+    },
+    DRAFT: {
+      bg: "#F0F4FF",
+      border: "#5D7BF2",
+    },
+    SUBMITTED: {
+      bg: "#E8F5E9",
+      border: "#4CAF50",
+    },
+  };
 
 export const getMeterStatusStyle = (status: MeterReadingStatus) => {
   const statusConfig = METER_STATUS_COLORS[status] || METER_STATUS_COLORS.PENDING;
