@@ -43,7 +43,7 @@ const stateStructure = createStructuredSelector({
 });
 
 const DiscrepancyDetails = (props: any) => {
-  const { id, property, srId } = props.route.params;
+  const { id, property, srId, operations } = props.route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -149,6 +149,27 @@ const DiscrepancyDetails = (props: any) => {
     },
   ];
   const handleSubmit = () => {
+    if (!operations) {
+      alertBox(
+        localize("common.error"),
+        localize("discrepancy.invalidRequest")
+      );
+      return;
+    }
+
+    const hasLevel1InProgress = operations.some(
+      (operation) =>
+        operation.workflow_level === 1 && operation.status === "IN_PROGRESS"
+    );
+
+    if (!hasLevel1InProgress) {
+      alertBox(
+        localize("common.error"),
+        localize("discrepancy.level1ApproverNotInProgress")
+      );
+      return;
+    }
+
     setIsFinalSubmit(true);
     const params = {
       service_request_id: parseInt(srId),
@@ -297,6 +318,12 @@ const DiscrepancyDetails = (props: any) => {
               showSeperator={false}
               btnContainerStyle={styles.submitButtonStyle}
               handleOnSubmit={handleSubmit}
+              isDisable={
+                !operations ||
+                !operations.some(
+                  (op) => op.workflow_level === 1 && op.status === "IN_PROGRESS"
+                )
+              }
             />
           )}
         </ScrollView>

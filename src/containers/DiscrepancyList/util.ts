@@ -1,19 +1,16 @@
 import { localize } from "../../locale/utils";
 import { getColorWithOpacity } from "../../utils/helper";
 
-type ApproverRole =
-  | "LEASING_ADMIN"
-  | "MALL_MANAGER"
-  | "OPERATIONS_MANAGER"
-  | "OPERATIONS_SUPPORT";
 type OperationStatus =
   | "YET_TO_START"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "REJECTED";
+  | "REJECTED"
+  | "FINISHED"
+  | "APPROVED";
 
 interface Operation {
-  assigned_role: ApproverRole;
+  assigned_role: string;
   created_at: string;
   service_request_operation_id: number;
   status: OperationStatus;
@@ -21,13 +18,6 @@ interface Operation {
   workflow_level: number;
   updated_by?: string;
 }
-
-export const APPROVER_ORDER = [
-  "OPERATIONS_SUPPORT",
-  "OPERATIONS_MANAGER",
-  "MALL_MANAGER",
-  "LEASING_ADMIN",
-];
 
 export const STATUS_COLORS = {
   IN_PROCESS: {
@@ -95,7 +85,7 @@ export const getStatusStyle = (status: string) => {
   };
 };
 
-export const getApproverStatusStyle = (status) => {
+export const getApproverStatusStyle = (status: OperationStatus) => {
   const statusConfig =
     APPROVER_STATUS_COLORS[status] || APPROVER_STATUS_COLORS.YET_TO_START;
   return {
@@ -135,36 +125,33 @@ export const getApproverInitials = (role: string) => {
     : "";
 };
 
+const COMPLETED_STATUSES = ["COMPLETED", "APPROVED", "FINISHED"];
+
 export const getSortedOperations = (operations: Operation[]): Operation[] => {
   if (!operations || !Array.isArray(operations)) {
     return [];
   }
-  const osOperation = operations.find(
-    (op) => op.assigned_role === "OPERATIONS_SUPPORT"
-  );
-  const omOperation = operations.find(
-    (op) => op.assigned_role === "OPERATIONS_MANAGER"
-  );
+  const sortedOps = [...operations].sort((a, b) => b.workflow_level - a.workflow_level);
+  const operationsByLevel = sortedOps.reduce((acc, operation) => {
+    const level = operation.workflow_level;
+    if (!acc[level]) {
+      acc[level] = [];
+    }
+    acc[level].push(operation);
+    return acc;
+  }, {} as Record<number, Operation[]>);
+  const filteredOperations: Operation[] = [];
 
-  let allowedRoles = APPROVER_ORDER;
+  Object.values(operationsByLevel).forEach(levelOperations => {
+    const approvedOperation = levelOperations.find(op =>
+      COMPLETED_STATUSES.includes(op.status)
+    );
 
-  if (
-    osOperation &&
-    ["COMPLETED", "APPROVED", "FINISHED"].includes(osOperation.status)
-  ) {
-    allowedRoles = allowedRoles.filter((role) => role !== "OPERATIONS_MANAGER");
-  }
-
-  if (
-    omOperation &&
-    ["COMPLETED", "APPROVED", "FINISHED"].includes(omOperation.status)
-  ) {
-    allowedRoles = allowedRoles.filter((role) => role !== "OPERATIONS_SUPPORT");
-  }
-
-  return allowedRoles
-    .map((role) =>
-      operations.find((operation) => operation.assigned_role === role)
-    )
-    .filter((operation): operation is Operation => Boolean(operation));
+    if (approvedOperation) {
+      filteredOperations.push(approvedOperation);
+    } else {
+      filteredOperations.push(...levelOperations);
+    }
+  });
+  return filteredOperations.sort((a, b) => b.workflow_level - a.workflow_level);
 };

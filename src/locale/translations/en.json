@@ -566,6 +566,8 @@
     "reviewStatus": "Review Status",
     "match": "Match",
     "mismatch": "Mismatch",
+    "invalidRequest": "Invalid Request Data",
+    "level1ApproverNotInProgress": "Level 1 approver is not in progress",
     "status": {
         "in_process": "Pending",
         "in_progress": "Pending",
@@ -581,7 +583,9 @@
         "leasing_admin": "Leasing Admin",
         "mall_manager": "Mall Manager",
         "operations_manager": "Operations Manager",
-        "operations_support": "Operations Support"
+        "operations_support": "Operations Support",
+        "finance_manager": "Finance Manager",
+        "mall_admin": "Mall Admin"
       }
   }
 }
