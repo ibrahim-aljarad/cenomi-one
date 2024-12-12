@@ -556,6 +556,7 @@
     "searchUnit": "Search Unit...",
     "invalidDataFormat": "Invalid QR code format. Please scan again.",
     "invalidUnit": "Invalid unit. Please scan a unit that belongs to this mall",
+    "srNumber": "SR No.",
     "level": "Level",
     "unit": "Unit",
     "unitStatus": "Unit Status",

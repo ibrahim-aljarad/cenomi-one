@@ -59,7 +59,7 @@ const ListItem = (props: any) => {
               lineHeight: RfH(21),
             }}
           >
-            {localize("SR. No")}: {item?.service_request_id}
+            {localize("discrepancy.srNumber")}: {item?.service_request_id}
           </CustomText>
           <CustomText
             fontSize={14}
