@@ -325,10 +325,10 @@ tenantCentralInstance.interceptors.response.use(
     try {
         const token = await getSaveData(LOCAL_STORAGE_DATA_KEY.USER_TOKEN);
         const userInfo = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
-        // const email = JSON.parse(userInfo || '{}')?.username;
+        const email = JSON.parse(userInfo || '{}')?.username;
         const response = await axios.post(
             Config.API_BASE_URL + "tp/tenant-platform/login",
-            { email: "app.tester@cenomi.com" },
+            { email },
             {
               headers: {
                 Authorization: `Bearer ${token}`,

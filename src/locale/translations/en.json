@@ -140,7 +140,8 @@
     "youdontHaveAccess": "You don’t have access, Please contact the support team.",
     "jailBrokenDeviceDetected": "Jailbroken Device Detected",
     "jailBrokenWarningMsg": "Your account information may not be secure by running the Cenomi mobile app on a jailbroken device. For your protection, it is strongly recommended that your access your account on antoher device, or reset your device to its original settings.",
-    "permissionDenied": "Permission Denied"
+    "permissionDenied": "Permission Denied",
+    "notAvailable": "N/A"
   },
   "components": {
     "pleaseWait": "Please wait",
@@ -156,8 +157,7 @@
     "galleryPermissonMsg": "Please grant permission to access photo gallery",
     "uploadDocument": "Upload document",
     "uploadAttachment": "Upload attachment",
-    "uploadPhoto": "Upload Photo",
-    "notAvailable": "N/A"
+    "uploadPhoto": "Upload Photo"
   },
 
   "home": {
@@ -570,7 +570,7 @@
     "match": "Match",
     "mismatch": "Mismatch",
     "invalidRequest": "Invalid Request Data",
-    "level1ApproverNotInProgress": "Level 1 approver is not in progress",
+    "level1ApproverNotInProgress": "All preliminary operations must be in progress before submission.",
     "status": {
       "in_process": "Pending",
       "in_progress": "Pending",

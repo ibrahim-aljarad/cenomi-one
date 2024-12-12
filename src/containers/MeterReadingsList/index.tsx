@@ -18,6 +18,7 @@ import NavigationRouteNames from "../../routes/ScreenNames";
 import { MeterReadingItemsType } from "./type";
 import { ThemeProvider } from "../../theme/context";
 import {
+  getLoadingSelector,
   getMeterReadingListErrorSelector,
   getMeterReadingListSelector,
 } from "../Home/redux/selectors";
@@ -29,13 +30,13 @@ const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   meterReadingList: getMeterReadingListSelector,
   error: getMeterReadingListErrorSelector,
+  isLoading: getLoadingSelector,
 });
 
 export default function MeterReadings() {
-  const { isDarkMode, meterReadingList, error } = useSelector(stateSelector);
+  const { isDarkMode, meterReadingList, error, isLoading } = useSelector(stateSelector);
   const navigation = useNavigation();
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [meterReadingItems, setMeterReadingItems] = useState([]);
   const ITEMS_PER_PAGE = 10;
   const dispatch = useDispatch();
@@ -44,6 +45,7 @@ export default function MeterReadings() {
     trackEvent(EVENT_NAME.PRESSED_METER_READINGS);
     navigation.navigate(NavigationRouteNames.METER_READING as never, {
       srId: item?.service_request_id,
+      operations: item?.operations,
     });
   };
 
@@ -58,16 +60,10 @@ export default function MeterReadings() {
           ? [...meterReadingList.list]
           : [...prevItems, ...meterReadingList.list]
       );
-      setIsLoading(false);
     }
-
-    if (error) {
-      setIsLoading(false);
-    }
-  }, [meterReadingList, error]);
+  }, [meterReadingList]);
 
   const fetchMeterReadingList = (pageNumber: number) => {
-    setIsLoading(true);
     dispatch(
       getMeterReadingList.trigger({
         page: pageNumber,
@@ -103,7 +99,7 @@ export default function MeterReadings() {
   };
 
   const renderContent = () => {
-    if (isLoading && page === 1 && !error) {
+    if (isLoading && page === 1) {
       return <BenefitListSkeleton isDarkMode={isDarkMode} height={RfH(125)} />;
     }
 

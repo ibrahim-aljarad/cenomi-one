@@ -92,21 +92,17 @@ function* updateMeterReadingRequest(action: {
 }) {
   try {
     const data = action.payload;
-    console.log("data", data);
     yield put(updateMeterReading.request({ isLoading: true }));
 
     const response = yield call(updateMeterReadingApiCall, data);
-    console.log("response", response);
     if (response.success) {
       const { data } = response;
-      console.log("data", data);
       yield put(updateMeterReading.success({ data }));
     } else {
         const errorMessage = response.message || localize("meterReadings.failedToUpdateMeter");
         yield put(updateMeterReading.failure({ message: errorMessage }));
     }
   } catch (error: any) {
-    console.error("Meter reading update error:", error);
     const errorMessage = error.response?.data?.message || error.message || localize("common.someThingWentWrong");
     yield put(updateMeterReading.failure({ message: errorMessage }));
   } finally {

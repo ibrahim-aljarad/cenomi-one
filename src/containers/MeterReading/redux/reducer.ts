@@ -9,6 +9,8 @@ import {
   getSrMeters,
   getMeterReadingDetails,
   updateMeterReading,
+  clearMeterReading,
+  clearError,
 } from "./actions";
 
 export type MeterReadingState = {
@@ -54,7 +56,6 @@ export default (state = initialState, action: { type: any; payload: any }) =>
       }
       case getSrMeters.SUCCESS: {
         draft.loading.metersList = false;
-        console.log("getSrMeters.SUCCESS", action.payload?.data?.data);
         draft.metersList = action.payload?.data?.data;
         break;
       }
@@ -93,7 +94,7 @@ export default (state = initialState, action: { type: any; payload: any }) =>
       }
       case updateMeterReading.SUCCESS: {
         draft.loading.updateReading = false;
-        draft.updatedReading = action.payload?.data;
+        draft.updatedReading = "success";
         break;
       }
       case updateMeterReading.FAILURE: {
@@ -101,6 +102,30 @@ export default (state = initialState, action: { type: any; payload: any }) =>
         draft.error.updateReading =
           action.payload?.message || localize("meterReadings.failedToUpdateMeter");
         draft.updatedReading = {};
+        break;
+      }
+
+      case clearError.TRIGGER: {
+        draft.error.meterDetails = null;
+        draft.error.metersList = null;
+        draft.error.updateReading = null;
+        break;
+      }
+
+      case clearMeterReading.TRIGGER: {
+        draft.meterReadingDetail = {};
+        draft.metersList = [];
+        draft.updatedReading =  {};
+        draft.loading =  {
+          meterDetails: false,
+          metersList: false,
+          updateReading: false,
+        };
+        draft.error = {
+          meterDetails: null,
+          metersList: null,
+          updateReading: null,
+        };
         break;
       }
 

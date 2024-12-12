@@ -140,7 +140,8 @@
     "youdontHaveAccess": "You don’t have access, Please contact the support team (ar).",
     "jailBrokenDeviceDetected": "Jailbroken Device Detected (ar)",
     "jailBrokenWarningMsg": "Your account information may not be secure by running the Cenomi mobile app on a jailbroken device. For your protection, it is strongly recommended that your access your account on antoher device, or reset your device to its original settings (ar).",
-    "permissionDenied": "تم رفض الإذن"
+    "permissionDenied": "تم رفض الإذن",
+    "notAvailable": "لا يوجد"
   },
   "components": {
     "pleaseWait": "يرجى الانتظار",
@@ -156,8 +157,7 @@
     "galleryPermissonMsg": " يرجى منح الإذن للوصول إلى معرض الصور",
     "uploadDocument": "تحميل المستند ",
     "uploadAttachment": " تحميل المستند ",
-    "uploadPhoto": "تحميل الصورة",
-    "notAvailable": "لا يوجد"
+    "uploadPhoto": "تحميل الصورة"
   },
   "home": {
     "cenomiBenefits": "حوافز سينومي",
@@ -570,7 +570,7 @@
     "match": "مباراة",
     "mismatch": "مباراة",
     "invalidRequest": "بيانات الطلب غير صالحة",
-    "level1ApproverNotInProgress": "المعتمد من المستوى 1 ليس قيد التقدم",
+    "level1ApproverNotInProgress": "يجب أن تكون جميع العمليات الأولية جارية قبل التقديم.",
     "status": {
       "in_process": "قيد الانتظار",
       "in_progress": "قيد الانتظار",

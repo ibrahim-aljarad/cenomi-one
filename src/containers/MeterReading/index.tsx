@@ -47,8 +47,14 @@ import {
   getErrorSelector,
   getLoadingSelector,
   getMetersListSelector,
+  getUpdatedReadingSelector,
 } from "./redux/selectors";
-import { getSrMeters, updateMeterReading } from "./redux/actions";
+import {
+  clearError,
+  clearMeterReading,
+  getSrMeters,
+  updateMeterReading,
+} from "./redux/actions";
 import {
   formatMeterStatus,
   getMeterStatusStyle,
@@ -61,13 +67,13 @@ import {
 } from "../redux/selectors";
 import { clearTenantFileUpload } from "../redux/actions";
 import { isEmpty } from "lodash";
-import { navigate } from "../../appContainer/rootNavigation";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   metersList: getMetersListSelector,
   tenantfileUploadedData: getTenantFileUploadedDataSelector,
   imageUploadError: getTenantFileUploadErrorSelector,
+  updatedReading: getUpdatedReadingSelector,
   loading: getLoadingSelector,
   error: getErrorSelector,
 });
@@ -106,11 +112,12 @@ const METER_TABS = [
 type TabType = (typeof METER_TABS)[number]["id"];
 
 export default function CombinedMeterReading({ route }) {
-  const { srId } = route.params;
+  const { srId, operations } = route.params;
   const {
     isDarkMode,
     metersList,
     loading,
+    updatedReading,
     tenantfileUploadedData,
     imageUploadError,
     error,
@@ -176,12 +183,20 @@ export default function CombinedMeterReading({ route }) {
   }, [imageUploadError]);
 
   useEffect(() => {
+    if (updatedReading === "success") {
+      dispatch(clearMeterReading.trigger());
+      dispatch(getSrMeters.trigger(srId));
+      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
+    }
+  }, [updatedReading]);
+
+  useEffect(() => {
     if (error.updateReading) {
       alertBox(localize("common.error"), error.updateReading, {
         positiveText: localize("common.ok"),
         cancelable: true,
         onPositiveClick: () => {
-          dispatch(updateMeterReading.failure(null));
+          dispatch(clearError.trigger());
         },
       });
     }
@@ -341,16 +356,13 @@ export default function CombinedMeterReading({ route }) {
       setIsLoading(true);
       try {
         const payload = {
-          "service-request-id": selectedMeter["service-request-id"],
-          "meter-reading-id": selectedMeter["meter-reading-id"],
+          "service-request-id": parseInt(selectedMeter["service-request-id"]),
+          "meter-reading-id": parseInt(selectedMeter["meter-reading-id"]),
           "present-reading": meterData.meterReading,
-          "document-ids": imageState.documentId,
+          "document-ids": imageState.documentId ? [imageState.documentId] : [],
           status: "DRAFT",
         };
-        console.log("payload", payload);
         dispatch(updateMeterReading.trigger(payload));
-        await Promise.all([dispatch(getSrMeters.trigger(srId))]);
-        Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
         resetForm();
         dispatch(clearTenantFileUpload.trigger());
       } catch (error) {
@@ -379,6 +391,30 @@ export default function CombinedMeterReading({ route }) {
   };
 
   const handleMeterSubmission = () => {
+    if (!operations) {
+        alertBox(
+          localize("common.error"),
+          localize("discrepancy.invalidRequest")
+        );
+        return;
+      }
+    const levelOneOperations = operations.filter(
+      (op) => op.workflow_level === 1
+    );
+    const allLevelOneInProgress = levelOneOperations.every(
+      (op) => op.status === "IN_PROGRESS"
+    );
+    if (!allLevelOneInProgress) {
+      alertBox(
+        localize("common.error"),
+        localize("discrepancy.level1ApproverNotInProgress"),
+        {
+          positiveText: localize("common.ok"),
+          cancelable: true,
+        }
+      );
+      return;
+    }
     try {
       dispatch(
         updateMeterReading.trigger({
@@ -399,7 +435,7 @@ export default function CombinedMeterReading({ route }) {
 
   const renderMeterItem = ({ item }) => {
     const isNavigatable =
-      item?.status === "COMPLETED" || item?.status === "DRAFT";
+      item?.status === "SUBMITTED" || item?.status === "DRAFT";
 
     const itemContent = (
       <View
@@ -421,8 +457,7 @@ export default function CombinedMeterReading({ route }) {
               lineHeight: RfH(21),
             }}
           >
-            {localize("meterReadings.meterReadingId")}:{" "}
-            {item["meter-reading-id"]}
+            {localize("meterReadings.meterNumber")}: {item["meter-no"]}
           </CustomText>
           <CustomText
             fontSize={14}
@@ -433,11 +468,32 @@ export default function CombinedMeterReading({ route }) {
               lineHeight: RfH(21),
             }}
           >
-            {localize("meterReadings.propertyGroup")} :{" "}
-            {item["property-group-name"] || localize("common.notAvailable")}
+            {localize("meterReadings.previousReading")} :{" "}
+            {item["previous-reading"] || localize("common.notAvailable")}
           </CustomText>
 
-          <View style={[styles.statusPill, getMeterStatusStyle(item?.status)]}>
+          {item["present-reading"] && (
+            <CustomText
+              fontSize={14}
+              numberOfLines={2}
+              color={Colors.black}
+              styling={{
+                ...CommonStyles.regularFont500Style,
+                lineHeight: RfH(21),
+              }}
+            >
+              {localize("meterReadings.presentReading")} :{" "}
+              {item["present-reading"] || localize("common.notAvailable")}
+            </CustomText>
+          )}
+
+          <View
+            style={[
+              styles.statusPill,
+              getMeterStatusStyle(item?.status),
+              { marginTop: RfH(4) },
+            ]}
+          >
             <CustomText
               fontSize={12}
               color={METER_STATUS_COLORS[item?.status]?.border}
@@ -820,6 +876,33 @@ export default function CombinedMeterReading({ route }) {
                   btnContainerStyle={styles.submitAllButtonStyle}
                   handleOnSubmit={() => {
                     if (remainingMeters > 0) {
+                      if (!operations) {
+                        alertBox(
+                          localize("common.error"),
+                          localize("discrepancy.invalidRequest")
+                        );
+                        return;
+                      }
+
+                      const levelOneOperations = operations.filter(
+                        (op) => op.workflow_level === 1
+                      );
+
+                      const allLevelOneInProgress = levelOneOperations.every(
+                        (op) => op.status === "IN_PROGRESS"
+                      );
+
+                      if (!allLevelOneInProgress) {
+                        alertBox(
+                          localize("common.error"),
+                          localize("discrepancy.level1ApproverNotInProgress"),
+                          {
+                            positiveText: localize("common.ok"),
+                            cancelable: true,
+                          }
+                        );
+                        return;
+                      }
                       alertBox(
                         localize("meterReadings.confirmation"),
                         localize("meterReadings.remainingMetersConfirmation", {

@@ -166,6 +166,11 @@ const getMeterReadingListErrorSelector = createSelector(
   (globalState) => globalState.meterServiceRequestError
 );
 
+const getLoadingSelector = createSelector(
+  selectGlobalSubStore,
+  (globalState) => globalState.isLoading
+);
+
 export {
   getCorporateCommunicationSelector,
   getCorporateCommunicationDetailsSelector,
@@ -191,4 +196,5 @@ export {
   getServiceRequestListSelector,
   getMeterReadingListSelector,
   getMeterReadingListErrorSelector,
+  getLoadingSelector,
 };

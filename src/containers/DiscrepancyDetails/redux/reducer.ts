@@ -112,6 +112,7 @@ export default (
         draft.unitList = {};
         draft.unitDiscrepancy = {};
         draft.savedDiscrepancy = {};
+        draft.apiError = {};
         break;
       }
 

@@ -18,7 +18,6 @@ import {
 
 const ListItem = (props: any) => {
   const { isDarkMode, item, onPressItem } = props;
-  console.log("item", item);
   return (
     <>
       <TouchableOpacity

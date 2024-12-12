@@ -2,7 +2,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
 import { api, tenantCentralApi } from "../../../utils/axios";
 
-import { setCookie, storeData, urlSlugify } from "../../../utils/helpers";
+import { setCookie, urlSlugify } from "../../../utils/helpers";
 import {
   cancelAcknowledge,
   getApprovalFeatureModules,
@@ -26,7 +26,6 @@ import {
   submitAcknowledge,
   getMeterReadingList,
 } from "./actions";
-import { LOCAL_STORAGE_DATA_KEY } from "../../../utils/constants";
 import Config from "../../../utils/config";
 import { setApiError } from "../../DiscrepancyDetails/redux/actions";
 import { localize } from "../../../locale/utils";
