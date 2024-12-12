@@ -153,5 +153,5 @@ export const getSortedOperations = (operations: Operation[]): Operation[] => {
       filteredOperations.push(...levelOperations);
     }
   });
-  return filteredOperations.sort((a, b) => b.workflow_level - a.workflow_level);
+  return filteredOperations
 };

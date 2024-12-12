@@ -157,12 +157,14 @@ const DiscrepancyDetails = (props: any) => {
       return;
     }
 
-    const hasLevel1InProgress = operations.some(
-      (operation) =>
-        operation.workflow_level === 1 && operation.status === "IN_PROGRESS"
+    const levelOneOperations = operations.filter(
+      (op) => op.workflow_level === 1
+    );
+    const allLevelOneInProgress = levelOneOperations.every(
+      (op) => op.status === "IN_PROGRESS"
     );
 
-    if (!hasLevel1InProgress) {
+    if (!allLevelOneInProgress) {
       alertBox(
         localize("common.error"),
         localize("discrepancy.level1ApproverNotInProgress")
@@ -320,9 +322,9 @@ const DiscrepancyDetails = (props: any) => {
               handleOnSubmit={handleSubmit}
               isDisable={
                 !operations ||
-                !operations.some(
-                  (op) => op.workflow_level === 1 && op.status === "IN_PROGRESS"
-                )
+                !operations
+                  .filter((op) => op.workflow_level === 1)
+                  .every((op) => op.status === "IN_PROGRESS")
               }
             />
           )}

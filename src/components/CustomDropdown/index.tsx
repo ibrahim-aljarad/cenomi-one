@@ -9,7 +9,7 @@ import { createStructuredSelector } from "reselect";
 import { isDarkModeSelector } from "../../containers/redux/selectors";
 import { useSelector } from "react-redux";
 import CustomImage from "../CustomImage";
-import { isRTL } from "../../locale/utils";
+import { isRTL, localize } from "../../locale/utils";
 import { RfH, getColorWithOpacity } from "../../utils/helper";
 
 const stateSructure = createStructuredSelector({
@@ -35,10 +35,32 @@ const CustomDropDown = (props: any) => {
     onEndReached,
     ...restData
   } = props;
-  const { isDarkMode } = useSelector(stateSructure);
 
+  const { isDarkMode } = useSelector(stateSructure);
   const [value, setValue] = useState(null);
   const [selected, setSelected] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const renderNoData = () => {
+    return (
+      <View
+        style={[
+          stylesDrop.noDataContainer,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+          },
+        ]}
+      >
+        <CustomText
+          fontSize={12}
+          color={isDarkMode ? Colors.white : Colors.app_black}
+          styling={stylesDrop.noDataText}
+        >
+          {localize("common.noDataFound")}
+        </CustomText>
+      </View>
+    );
+  };
 
   const dropdownSection = (position) => {
     let flag = false;
@@ -72,7 +94,6 @@ const CustomDropDown = (props: any) => {
   const renderItem = (item, index) => {
     const findedItem = selected?.find((data) => data === item?.value);
     const isSelected = findedItem !== undefined;
-    // const isSelected = true;
 
     return (
       <View
@@ -93,27 +114,9 @@ const CustomDropDown = (props: any) => {
         >
           {item.label}
         </CustomText>
-        {item.value === value && (
-          // <AntDesign
-          //   style={stylesDrop.icon}
-          //   color="black"
-          //   name="Safety"
-          //   size={20}
-          // />
-          <View></View>
-        )}
+        {item.value === value && <View />}
         {isSelected ? (
-          <View
-            style={{
-              marginRight: RfW(12),
-              backgroundColor: "#F7F1FF",
-              height: RfW(18),
-              width: RfW(18),
-              // borderRadius: RfW(10),
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+          <View style={stylesDrop.checkmarkContainer}>
             <CustomImage
               image={Images.icCheckTick}
               imageHeight={RfH(10)}
@@ -122,10 +125,18 @@ const CustomDropDown = (props: any) => {
             />
           </View>
         ) : (
-          <View></View>
+          <View />
         )}
       </View>
     );
+  };
+
+  const handleDropdownOpen = () => {
+    setIsOpen(true);
+  };
+
+  const handleDropdownClose = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -162,7 +173,6 @@ const CustomDropDown = (props: any) => {
             stylesDrop.inputSearchStyle,
             { color: isDarkMode ? Colors.white : Colors.app_black },
           ]}
-          // iconStyle={stylesDrop.iconStyle}
           data={data}
           search={false}
           maxHeight={300}
@@ -172,7 +182,6 @@ const CustomDropDown = (props: any) => {
           searchPlaceholder="Search..."
           value={selected}
           onChange={(item) => {
-            // setValue(item.value);
             setSelected(item || []);
             onChange(item);
           }}
@@ -199,7 +208,6 @@ const CustomDropDown = (props: any) => {
             },
           ]}
           inputSearchStyle={stylesDrop.inputSearchStyle}
-          // iconStyle={stylesDrop.iconStyle}
           data={data}
           search={searchable}
           maxHeight={300}
@@ -224,8 +232,8 @@ const CustomDropDown = (props: any) => {
                     ? Colors.darkModeButton
                     : Colors.white,
                   color: isDarkMode ? Colors.white : Colors.app_black,
-                   textAlign: isRTL() ? 'right' : 'left',
-                   writingDirection: isRTL() ? 'rtl' : 'ltr'
+                  textAlign: isRTL() ? "right" : "left",
+                  writingDirection: isRTL() ? "rtl" : "ltr",
                 },
               ]}
             />
@@ -233,9 +241,13 @@ const CustomDropDown = (props: any) => {
           renderLeftIcon={() => dropdownSection("left")}
           renderRightIcon={() => dropdownSection("right")}
           renderItem={renderItem}
+          renderEmptyComponent={renderNoData}
+          onFocus={handleDropdownOpen}
+          onBlur={handleDropdownClose}
           {...restData}
           flatListProps={{
             onEndReached,
+            ListEmptyComponent: isOpen ? renderNoData : null,
           }}
         />
       )}
@@ -243,11 +255,9 @@ const CustomDropDown = (props: any) => {
   );
 };
 
-export default CustomDropDown;
 const stylesDrop = StyleSheet.create({
   dropdown: {
     height: 40,
-
     borderBottomWidth: 1,
     borderColor: Colors.grayLight,
     textAlign: isRTL() ? "right" : "left",
@@ -265,22 +275,30 @@ const stylesDrop = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-
     elevation: 2,
-  },
-  icon: {
-    marginRight: 5,
   },
   item: {
     paddingVertical: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    // marginBottom: RfH(3)
   },
-  textItem: {
-    flex: 1,
-    fontSize: 16,
+  noDataContainer: {
+    padding: RfW(16),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noDataText: {
+    ...CommonStyles.regularFont400Style,
+    textAlign: "center",
+  },
+  checkmarkContainer: {
+    marginRight: RfW(12),
+    backgroundColor: "#F7F1FF",
+    height: RfW(18),
+    width: RfW(18),
+    justifyContent: "center",
+    alignItems: "center",
   },
   placeholderStyle: {
     fontSize: 14,
@@ -289,10 +307,6 @@ const stylesDrop = StyleSheet.create({
   selectedTextStyle: {
     fontSize: 14,
     color: Colors.app_black,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
   },
   inputSearchStyle: {
     height: 40,
@@ -309,3 +323,5 @@ const stylesDrop = StyleSheet.create({
     ...CommonStyles.regularFont400Style,
   },
 });
+
+export default CustomDropDown;

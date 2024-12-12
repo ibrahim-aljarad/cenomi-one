@@ -449,7 +449,7 @@ function Step1({
           placeholder={getUnitDropdownPlaceholder()}
           onEndReached={handleDropdownScroll}
           loading={isLoading}
-          searchable={!!selectValues?.level && !hasNoUnits}
+          searchable={!!selectValues?.level}
           searchPlaceholder={
             selectValues?.level ? localize("discrepancy.searchUnit") : ""
           }
