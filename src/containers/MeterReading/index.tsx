@@ -942,7 +942,8 @@ export default function CombinedMeterReading({ route }) {
           isUploadFileOnServer={false}
           cropping
           isTenantServerUpload={true}
-          isFilePickerVisible={true}
+          isFilePickerVisible={false}
+          openCameraDefault
           imageCompressionQuality={1}
         />
       </SafeAreaView>
