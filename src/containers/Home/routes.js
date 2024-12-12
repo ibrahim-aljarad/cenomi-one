@@ -32,6 +32,9 @@ import Surveys from "../Surveys";
 import SyncProfile from "../SyncProfile";
 import DiscrepancyList from "../DiscrepancyList";
 import DiscrepancyDetails from "../DiscrepancyDetails";
+import MeterReadings from "../MeterReadingsList";
+import MeterReadingsDetails from "../MeterReadingsDetail";
+import MeterReading from "../MeterReading";
 const Stack = createStackNavigator();
 
 const HomeStack = () => (
@@ -190,6 +193,7 @@ const HomeStack = () => (
       component={Organisation}
       options={{ headerShown: false, animationEnabled: false }}
     />
+
     <Stack.Screen
       name={NavigationRouteNames.KNOWLEDGEHUB_DETAILS}
       component={KnowledgeHubDetailsScreen}
@@ -205,6 +209,24 @@ const HomeStack = () => (
     <Stack.Screen
       name={NavigationRouteNames.DISCREPANCY_DETAILS}
       component={DiscrepancyDetails}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.METER_READINGS}
+      component={MeterReadings}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.METER_READING}
+      component={MeterReading}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.METER_READING_DETAILS}
+      component={MeterReadingsDetails}
       options={{ headerShown: false, animationEnabled: false }}
     />
   </>

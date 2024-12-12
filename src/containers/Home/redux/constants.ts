@@ -19,6 +19,7 @@ const GET_PENDING_ACKNOWLEDGEMENT = 'get_pending_acknowledgement';
 const SET_NOTIFICATION_COUNT = 'set_notification_count';
 const GET_TENANT_LOGIN = 'get_tenant_login';
 const GET_DISCREPANCY_LIST = 'get_discrepancy_list';
+const GET_METER_READING_LIST = 'get_meter_reading_list';
 export {
   GET_CORPORATE_COMMUNICATION,
   GET_CORPORATE_COMMUNICATION_DETAILS,
@@ -41,4 +42,5 @@ export {
   SET_NOTIFICATION_COUNT,
   GET_TENANT_LOGIN,
   GET_DISCREPANCY_LIST,
+  GET_METER_READING_LIST,
 };

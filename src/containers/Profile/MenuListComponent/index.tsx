@@ -43,7 +43,7 @@ const MenuListComponent = (props: any) => {
         {
           backgroundColor: isDarkMode
             ? Colors.darkModeButton
-            : getColorWithOpacity(Colors.blueBayoux, 0.37)
+            : getColorWithOpacity(Colors.blueBayoux, 0.83)
         }
       ]}
       activeOpacity={0.8}
