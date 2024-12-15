@@ -1,14 +1,12 @@
 import {
   BackHandler,
-  Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import {
@@ -24,23 +22,16 @@ import {
   CustomButton,
   CustomImage,
   CustomText,
-  CustomTextInput,
   HeaderSVG,
   Loader,
 } from "../../components";
 import { ThemeProvider } from "../../theme/context";
-import UploadDocument from "../../components/UploadDocument";
 import { BenefitListSkeleton } from "../../components/SkeletonLoader";
 import EmptyListComponent from "../../components/EmptyListComponent";
 
 import { RfH, RfW } from "../../utils/helper";
 import { isRTL, localize } from "../../locale/utils";
 import { alertBox, deviceHeight } from "../../utils/helpers";
-import {
-  detectMeterReading,
-  sanitizeNumericInput,
-  validateMeterForm,
-} from "../MeterReadingsDetail/util";
 import styles from "./style";
 import NavigationRouteNames from "../../routes/ScreenNames";
 import {
@@ -60,47 +51,15 @@ import {
   getMeterStatusStyle,
   METER_STATUS_COLORS,
 } from "./util";
-import {
-  getTenantFileUploadedDataSelector,
-  getTenantFileUploadErrorSelector,
-  isDarkModeSelector,
-} from "../redux/selectors";
-import { clearTenantFileUpload } from "../redux/actions";
-import { isEmpty } from "lodash";
+import { isDarkModeSelector } from "../redux/selectors";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
   metersList: getMetersListSelector,
-  tenantfileUploadedData: getTenantFileUploadedDataSelector,
-  imageUploadError: getTenantFileUploadErrorSelector,
   updatedReading: getUpdatedReadingSelector,
   loading: getLoadingSelector,
   error: getErrorSelector,
 });
-
-const initialMeterData = {
-  meterNumber: "",
-  meterReading: "",
-};
-
-interface ImageState {
-  localUri: string | null;
-  serverUri: string | null;
-  documentId: string | null;
-  aspectRatio: number;
-}
-
-const initialImageState: ImageState = {
-  localUri: null,
-  serverUri: null,
-  documentId: null,
-  aspectRatio: 1,
-};
-
-const initialErrors = {
-  meterNumber: "",
-  meterReading: "",
-};
 
 const METER_TABS = [
   { id: "ALL", label: localize("meterReadings.tabs.all") },
@@ -113,117 +72,17 @@ type TabType = (typeof METER_TABS)[number]["id"];
 
 export default function CombinedMeterReading({ route }) {
   const { srId, operations } = route.params;
-  const {
-    isDarkMode,
-    metersList,
-    loading,
-    updatedReading,
-    tenantfileUploadedData,
-    imageUploadError,
-    error,
-  } = useSelector(stateSelector);
+  const { isDarkMode, metersList, updatedReading, loading, error } =
+    useSelector(stateSelector);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-
-  const [imageState, setImageState] = useState<ImageState>(initialImageState);
-  const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
-    useState(false);
-  const [fileUploadStarted, setFileUploadStarted] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [meterData, setMeterData] = useState(initialMeterData);
-  const [errors, setErrors] = useState(initialErrors);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showMeterList, setShowMeterList] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("ALL");
-
-  const capturedImage = useMemo(
-    () => imageState.serverUri || imageState.localUri,
-    [imageState.serverUri, imageState.localUri]
-  );
-
-  const screenWidth = Dimensions.get("window").width;
-  const containerPadding = 32;
-  const imageWidth = screenWidth - containerPadding;
-  const imageHeight = imageWidth / imageState?.aspectRatio;
+  const isSubmitting = useRef(false);
 
   useEffect(() => {
-    if (showMeterList) {
-      dispatch(getSrMeters.trigger(srId));
-      dispatch(clearTenantFileUpload.trigger());
-    }
-  }, [srId, dispatch, showMeterList]);
-
-  useEffect(() => {
-    if (fileUploadStarted && tenantfileUploadedData?.document_id) {
-      setImageState((prev) => ({
-        ...prev,
-        serverUri: tenantfileUploadedData.signed_url,
-        documentId: tenantfileUploadedData.document_id,
-      }));
-      handleMeterDetection(tenantfileUploadedData.signed_url);
-    }
-  }, [tenantfileUploadedData, fileUploadStarted]);
-
-  useEffect(() => {
-    if (!isEmpty(imageUploadError)) {
-      alertBox(
-        localize("meterReadings.imageUploadFailed"),
-        localize("meterReadings.imageUploadFailedDesc"),
-        {
-          positiveText: "Ok",
-          cancelable: true,
-          onPositiveClick: () => {
-            resetForm();
-            dispatch(clearTenantFileUpload.trigger());
-          },
-        }
-      );
-    }
-  }, [imageUploadError]);
-
-  useEffect(() => {
-    if (updatedReading === "success") {
-      dispatch(clearMeterReading.trigger());
-      dispatch(getSrMeters.trigger(srId));
-      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
-    }
-  }, [updatedReading]);
-
-  useEffect(() => {
-    if (error.updateReading) {
-      alertBox(localize("common.error"), error.updateReading, {
-        positiveText: localize("common.ok"),
-        cancelable: true,
-        onPositiveClick: () => {
-          dispatch(clearError.trigger());
-        },
-      });
-    }
-  }, [error.updateReading, dispatch]);
-
-  const handleMeterDetection = async (signedUrl: string) => {
-    setIsLoading(true);
-    try {
-      const detectedData = await detectMeterReading(signedUrl);
-      setMeterData(detectedData);
-      setIsEditing(true);
-    } catch (error) {
-      resetForm();
-      dispatch(clearTenantFileUpload.trigger());
-      alertBox(
-        localize("common.error"),
-        localize("meterReadings.detectionError"),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
-      console.error("Error detecting meter reading:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    dispatch(getSrMeters.trigger(srId));
+  }, [srId, dispatch]);
 
   const filteredMeters = useMemo(() => {
     if (!metersList) return [];
@@ -242,31 +101,33 @@ export default function CombinedMeterReading({ route }) {
     [metersList]
   );
 
-  const resetForm = () => {
-    setImageState({
-      localUri: null,
-      serverUri: null,
-      documentId: null,
-      aspectRatio: 1,
-    });
-    setMeterData(initialMeterData);
-    setErrors(initialErrors);
-    setIsEditing(false);
-    setShowMeterList(true);
-    setFileUploadStarted(false);
-    setIsShowDocumentPickerModal(false);
-    setIsLoading(false);
-  };
-
   const backHandler = (): boolean => {
-    if (!showMeterList) {
-      resetForm();
-      dispatch(clearTenantFileUpload.trigger());
-      return true;
-    }
     navigation.goBack();
     return true;
   };
+
+  useEffect(() => {
+    if (updatedReading === "success" && isSubmitting.current) {
+      isSubmitting.current = false;
+      dispatch(clearMeterReading.trigger());
+      dispatch(clearError.trigger());
+      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
+      navigation.navigate(NavigationRouteNames.METER_READINGS as never);
+    }
+  }, [updatedReading]);
+
+  useEffect(() => {
+    if (error.updateReading && isSubmitting.current) {
+      isSubmitting.current = false;
+      alertBox(localize("common.error"), error.updateReading, {
+        positiveText: localize("common.ok"),
+        cancelable: true,
+        onPositiveClick: () => {
+          dispatch(clearError.trigger());
+        },
+      });
+    }
+  }, [error.updateReading]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -276,128 +137,24 @@ export default function CombinedMeterReading({ route }) {
       return () => {
         BackHandler.removeEventListener("hardwareBackPress", backHandler);
       };
-    }, [isFocused, showMeterList])
+    }, [isFocused])
   );
 
-  // Camera handlers
-  const handleRetake = () => {
-    resetForm();
-    dispatch(clearTenantFileUpload.trigger());
-    setIsShowDocumentPickerModal(true);
-    setFileUploadStarted(true);
-  };
-
   const onPressUploadAttachment = () => {
-    setShowMeterList(false);
-    setIsShowDocumentPickerModal(true);
-    setFileUploadStarted(true);
-  };
-
-  const handleDocumentUpload = async (imageData) => {
-    setIsLoading(true);
-    try {
-      setImageState((prev) => ({
-        ...prev,
-        localUri: imageData.path,
-      }));
-
-      await new Promise((resolve, reject) => {
-        Image.getSize(
-          imageData.path,
-          (width, height) => {
-            setImageState((prev) => ({
-              ...prev,
-              aspectRatio: width / height,
-            }));
-            resolve(null);
-          },
-          reject
-        );
-      });
-    } catch (error) {
-      resetForm();
-      dispatch(clearTenantFileUpload.trigger());
-      alertBox(
-        localize("common.error"),
-        localize("meterReadings.failedToProcessImage"),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Save handler
-  const handleSave = async () => {
-    const { isValid, errors: validationErrors } = validateMeterForm(
-      meterData.meterNumber,
-      meterData.meterReading
-    );
-
-    if (isValid) {
-      const selectedMeter = metersList?.find(
-        (meter) => meter["meter-no"] === meterData.meterNumber
-      );
-
-      if (!selectedMeter) {
-        alertBox(
-          localize("common.error"),
-          localize("meterReadings.noMatchingMeter"),
-          {
-            positiveText: localize("common.ok"),
-            cancelable: true,
-          }
-        );
-        return;
-      }
-      setIsLoading(true);
-      try {
-        const payload = {
-          "service-request-id": parseInt(selectedMeter["service-request-id"]),
-          "meter-reading-id": parseInt(selectedMeter["meter-reading-id"]),
-          "present-reading": meterData.meterReading,
-          "document-ids": imageState.documentId ? [imageState.documentId] : [],
-          status: "DRAFT",
-        };
-        dispatch(updateMeterReading.trigger(payload));
-        resetForm();
-        dispatch(clearTenantFileUpload.trigger());
-      } catch (error) {
-        alertBox(
-          localize("common.error"),
-          localize("common.someThingWentWrong"),
-          {
-            positiveText: localize("common.ok"),
-            cancelable: true,
-          }
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setErrors(validationErrors);
-      alertBox(
-        localize("meterReadings.validationError"),
-        localize("meterReadings.pleaseCorrectErrors"),
-        {
-          positiveText: localize("common.ok"),
-          cancelable: true,
-        }
-      );
-    }
+    navigation.navigate(NavigationRouteNames.METER_CAPTURE as never, {
+      srId,
+      metersList,
+    });
   };
 
   const handleMeterSubmission = () => {
     if (!operations) {
-        alertBox(
-          localize("common.error"),
-          localize("discrepancy.invalidRequest")
-        );
-        return;
-      }
+      alertBox(
+        localize("common.error"),
+        localize("discrepancy.invalidRequest")
+      );
+      return;
+    }
     const levelOneOperations = operations.filter(
       (op) => op.workflow_level === 1
     );
@@ -416,18 +173,15 @@ export default function CombinedMeterReading({ route }) {
       return;
     }
     try {
+      isSubmitting.current = true;
       dispatch(
         updateMeterReading.trigger({
           "service-request-id": parseInt(srId),
           status: "SUBMITTED",
         })
       );
-
-      Toast.show(localize("meterReadings.submitSuccess"), Toast.SHORT);
-      resetForm();
-      dispatch(clearTenantFileUpload.trigger());
-      navigation.navigate(NavigationRouteNames.METER_READINGS as never);
     } catch (error) {
+      isSubmitting.current = false;
       console.error("Submit all failed:", error);
       Toast.show(localize("common.someThingWentWrong"), Toast.SHORT);
     }
@@ -697,7 +451,7 @@ export default function CombinedMeterReading({ route }) {
           },
         ]}
       >
-        <Loader isLoading={isLoading} />
+        <Loader isLoading={loading.metersList || loading.updateReading} />
         <ThemeProvider useNewStyles={true}>
           <HeaderSVG
             isBackButtonVisible={true}
@@ -754,198 +508,78 @@ export default function CombinedMeterReading({ route }) {
                 tintColor={isDarkMode ? Colors.white : Colors.black}
               />
             </TouchableOpacity>
-
-            {capturedImage && (
-              <View style={styles.imagePreviewContainer}>
-                <Image
-                  source={{ uri: capturedImage }}
-                  style={[
-                    styles.previewImage,
-                    {
-                      width: imageWidth,
-                      height: imageHeight,
-                    },
-                  ]}
-                  resizeMode="contain"
-                />
-                <TouchableOpacity
-                  style={styles.retakeButton}
-                  onPress={handleRetake}
-                >
-                  <CustomText
-                    fontSize={14}
-                    color={Colors.white}
-                    styling={styles.retakeButtonText}
-                  >
-                    {localize("meterReadings.retakeImage")}
-                  </CustomText>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {meterData.meterNumber && (
-              <View>
-                <CustomTextInput
-                  label={localize("meterReadings.meterNumber")}
-                  isMandatory={false}
-                  noOfLines={1}
-                  multiline={false}
-                  showClearButton={false}
-                  value={meterData.meterNumber}
-                  onChangeHandler={(text) => {
-                    const sanitizedText = sanitizeNumericInput(text);
-                    setMeterData((prev) => ({
-                      ...prev,
-                      meterNumber: sanitizedText,
-                    }));
-                    if (errors.meterNumber) {
-                      setErrors((prev) => ({ ...prev, meterNumber: "" }));
-                    }
-                  }}
-                  inputwrapperStyle={{
-                    borderWidth: 1,
-                    borderColor: errors.meterNumber ? Colors.red : Colors.white,
-                    paddingHorizontal: 5,
-                  }}
-                  editable={isEditing}
-                  keyboardType="numeric"
-                  error={errors.meterNumber}
-                />
-
-                <View style={{ marginBottom: RfH(32) }}>
-                  <CustomTextInput
-                    label={localize("meterReadings.meterReading")}
-                    isMandatory={false}
-                    noOfLines={1}
-                    multiline={false}
-                    showClearButton={false}
-                    value={meterData.meterReading}
-                    onChangeHandler={(text) => {
-                      const sanitizedText = sanitizeNumericInput(text);
-                      setMeterData((prev) => ({
-                        ...prev,
-                        meterReading: sanitizedText,
-                      }));
-                      if (errors.meterReading) {
-                        setErrors((prev) => ({ ...prev, meterReading: "" }));
-                      }
-                    }}
-                    keyboardType="numeric"
-                    inputwrapperStyle={{
-                      borderWidth: 1,
-                      borderColor: errors.meterReading
-                        ? Colors.red
-                        : Colors.white,
-                      paddingHorizontal: 5,
-                    }}
-                    editable={isEditing}
-                    error={errors.meterReading}
-                  />
-                </View>
-
-                {isEditing && (
-                  <CustomButton
-                    buttonText={localize("common.save")}
-                    btnContainerStyle={styles.submitButtonStyle}
-                    handleOnSubmit={handleSave}
-                  />
-                )}
-              </View>
-            )}
-
-            {showMeterList && !capturedImage && renderListSection()}
+            {renderListSection()}
           </ScrollView>
 
-          {showMeterList &&
-            !capturedImage &&
-            hasMeters &&
-            !loading.metersList && (
-              <SafeAreaView
-                style={[
-                  styles.bottomButtonContainer,
-                  {
-                    backgroundColor: isDarkMode
-                      ? Colors.darkModeBackground
-                      : "#1E2340",
-                  },
-                ]}
-              >
-                <CustomButton
-                  buttonText={localize("discrepancy.submitAll")}
-                  showSeperator={false}
-                  btnContainerStyle={styles.submitAllButtonStyle}
-                  handleOnSubmit={() => {
-                    if (remainingMeters > 0) {
-                      if (!operations) {
-                        alertBox(
-                          localize("common.error"),
-                          localize("discrepancy.invalidRequest")
-                        );
-                        return;
-                      }
-
-                      const levelOneOperations = operations.filter(
-                        (op) => op.workflow_level === 1
-                      );
-
-                      const allLevelOneInProgress = levelOneOperations.every(
-                        (op) => op.status === "IN_PROGRESS"
-                      );
-
-                      if (!allLevelOneInProgress) {
-                        alertBox(
-                          localize("common.error"),
-                          localize("discrepancy.level1ApproverNotInProgress"),
-                          {
-                            positiveText: localize("common.ok"),
-                            cancelable: true,
-                          }
-                        );
-                        return;
-                      }
+          {hasMeters && !loading.metersList && (
+            <SafeAreaView
+              style={[
+                styles.bottomButtonContainer,
+                {
+                  backgroundColor: isDarkMode
+                    ? Colors.darkModeBackground
+                    : "#1E2340",
+                },
+              ]}
+            >
+              <CustomButton
+                buttonText={localize("discrepancy.submitAll")}
+                showSeperator={false}
+                btnContainerStyle={styles.submitAllButtonStyle}
+                handleOnSubmit={() => {
+                  if (remainingMeters > 0) {
+                    if (!operations) {
                       alertBox(
-                        localize("meterReadings.confirmation"),
-                        localize("meterReadings.remainingMetersConfirmation", {
-                          count: remainingMeters,
-                          total: totalMeters,
-                        }),
+                        localize("common.error"),
+                        localize("discrepancy.invalidRequest")
+                      );
+                      return;
+                    }
+
+                    const levelOneOperations = operations.filter(
+                      (op) => op.workflow_level === 1
+                    );
+
+                    const allLevelOneInProgress = levelOneOperations.every(
+                      (op) => op.status === "IN_PROGRESS"
+                    );
+
+                    if (!allLevelOneInProgress) {
+                      alertBox(
+                        localize("common.error"),
+                        localize("discrepancy.level1ApproverNotInProgress"),
                         {
-                          positiveText: localize("common.yes"),
-                          negativeText: localize("common.no"),
-                          onPositiveClick: () => {
-                            handleMeterSubmission();
-                          },
-                          onNegativeClick: () => {
-                            console.log("Submission canceled.");
-                          },
+                          positiveText: localize("common.ok"),
+                          cancelable: true,
                         }
                       );
-                    } else {
-                      handleMeterSubmission();
+                      return;
                     }
-                  }}
-                />
-              </SafeAreaView>
-            )}
+                    alertBox(
+                      localize("meterReadings.confirmation"),
+                      localize("meterReadings.remainingMetersConfirmation", {
+                        count: remainingMeters,
+                        total: totalMeters,
+                      }),
+                      {
+                        positiveText: localize("common.yes"),
+                        negativeText: localize("common.no"),
+                        onPositiveClick: () => {
+                          handleMeterSubmission();
+                        },
+                        onNegativeClick: () => {
+                          console.log("Submission canceled.");
+                        },
+                      }
+                    );
+                  } else {
+                    handleMeterSubmission();
+                  }
+                }}
+              />
+            </SafeAreaView>
+          )}
         </View>
-
-        <UploadDocument
-          title={localize("components.uploadPhoto")}
-          isVisible={isShowDocumentPickerModal}
-          handleClose={() => {
-            setIsShowDocumentPickerModal(false);
-            if (!capturedImage) {
-              setShowMeterList(true);
-            }
-          }}
-          handleUpload={handleDocumentUpload}
-          isUploadFileOnServer={false}
-          cropping
-          isTenantServerUpload={true}
-          isFilePickerVisible={false}
-          openCameraDefault
-          imageCompressionQuality={1}
-        />
       </SafeAreaView>
     </WrapperContainer>
   );

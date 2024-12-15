@@ -1,24 +1,21 @@
 import {
-  Modal,
   Platform,
   SafeAreaView,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   Linking,
-  FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 
-import { alertBox, deviceWidth } from "../../utils/helpers";
+import { alertBox } from "../../utils/helpers";
 import { styles } from "./styles";
 import DocumentPicker from "react-native-document-picker";
 import PropTypes from "prop-types";
-import { Colors, CommonStyles, Images } from "../../theme";
+import { Colors, Images } from "../../theme";
 import { isEmpty, uniqueId } from "lodash";
 import ImagePicker from "react-native-image-crop-picker";
-import { RfH, RfW, getColorWithOpacity } from "../../utils/helper";
+import { RfH, RfW } from "../../utils/helper";
 import { ImageUploaderComponentErrorCode } from "../../constant";
 import CustomImage from "../CustomImage";
 import CustomText from "../CustomText";
@@ -36,19 +33,45 @@ import AvatarUpload from "./AvatarUpload";
 const RNFS = require("react-native-fs");
 // const imageCompressionQuality = 0.5;
 
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 export const base64ToArrayBuffer = (base64) => {
   // Decode the Base64 string using Buffer
-  const byteString = Buffer.from(base64, 'base64');
+  const byteString = Buffer.from(base64, "base64");
 
   // Create an ArrayBuffer from the byte string
-  const arrayBuffer = byteString.buffer.slice(byteString.byteOffset, byteString.byteOffset + byteString.byteLength);
+  const arrayBuffer = byteString.buffer.slice(
+    byteString.byteOffset,
+    byteString.byteOffset + byteString.byteLength
+  );
 
   return arrayBuffer; // Return the ArrayBuffer
 };
 
+export const DocumentType = {
+  DISCREPANCY: "SR_DSC_OPN",
+  METER_READING: "SR_MRC_OPN",
+} as const;
 
+export type DocumentTypeId = (typeof DocumentType)[keyof typeof DocumentType];
+
+const documentTypeValidator = (props, propName, componentName) => {
+  const { isTenantServerUpload, documentTypeId } = props;
+
+  if (isTenantServerUpload) {
+    if (!documentTypeId) {
+      return new Error(
+        `${propName} is required when isTenantServerUpload is true in ${componentName}`
+      );
+    }
+    if (!Object.values(DocumentType).includes(documentTypeId)) {
+      return new Error(
+        `Invalid ${propName} '${documentTypeId}' supplied to ${componentName}. ` +
+          `Must be one of: ${Object.values(DocumentType).join(", ")}`
+      );
+    }
+  }
+};
 
 const stateStructure = createStructuredSelector({
   fileUploadedData: getFileUploadedDataSelector,
@@ -74,6 +97,7 @@ function UploadDocument(props) {
     openCameraDefault = false,
     imageCompressionQuality = 1,
     isTenantServerUpload = false,
+    documentTypeId,
   } = props;
   const [imageSet, updateImageSet] = useState([]);
   const [isEnableUploadDocument, setIsEnableUploadDocument] = useState(false);
@@ -84,9 +108,20 @@ function UploadDocument(props) {
   const uploadDocument = (selectedFileData) => {
     const filesUpload = async () => {
       const { fileName, path, mime } = selectedFileData || {};
+      if (isTenantServerUpload && !documentTypeId) {
+        alertBox(
+          localize("common.error"),
+          "Document type ID is required for tenant file uploads",
+          {
+            positiveText: localize("common.gotit"),
+            onPositiveClick: handleClose,
+          }
+        );
+        return;
+      }
       try {
         // Read the file as a Base64 string
-        const base64String = await RNFS.readFile(path, 'base64');
+        const base64String = await RNFS.readFile(path, "base64");
 
         // Convert to ArrayBuffer
         const arrayBuffer = base64ToArrayBuffer(base64String);
@@ -94,14 +129,14 @@ function UploadDocument(props) {
         dispatch(
           tenantFileUpload.trigger({
             fileName,
-            document_type_id: "SR_DSC_OPN",
-            mime:  mime?.split("/")[1],
+            document_type_id: documentTypeId,
+            mime: mime?.split("/")[1],
             file: arrayBuffer,
           })
         );
         return arrayBuffer;
       } catch (error) {
-        console.error('Error reading file:', error);
+        console.error("Error reading file:", error);
       }
     };
     if (isTenantServerUpload) {
@@ -546,6 +581,7 @@ UploadDocument.propTypes = {
   openCameraDefault: PropTypes.bool,
   imageCompressionQuality: PropTypes.number,
   isTenantServerUpload: PropTypes.bool,
+  documentTypeId: documentTypeValidator,
 };
 
 UploadDocument.defaultProps = {
@@ -559,6 +595,7 @@ UploadDocument.defaultProps = {
   fileNameWithTimeStamp: false,
   isUploadFileOnServer: false,
   isAvatarVisible: false,
+  documentTypeId: undefined,
 };
 
 export default UploadDocument;

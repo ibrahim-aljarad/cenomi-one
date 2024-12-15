@@ -5,7 +5,7 @@ import { tenantCentralApi } from "../../../utils/axios";
 import {
   getSrMeters,
   getMeterReadingDetails,
-  updateMeterReading
+  updateMeterReading,
 } from "./actions";
 
 const METER_READING_BASE = "meter-reading";
@@ -36,7 +36,6 @@ const updateMeterReadingApiCall = (data: {
     data,
   });
 
-
 function* getMeterReadingDetailsRequest(action: { payload: string | number }) {
   try {
     const meterDetailId = action.payload;
@@ -49,7 +48,11 @@ function* getMeterReadingDetailsRequest(action: { payload: string | number }) {
       yield put(getMeterReadingDetails.success({ data }));
     } else {
       yield put(setGlobalError.success());
-      yield put(getMeterReadingDetails.failure({ message: "Failed to fetch meter reading details" }));
+      yield put(
+        getMeterReadingDetails.failure({
+          message: "Failed to fetch meter reading details",
+        })
+      );
     }
   } catch (error: any) {
     yield put(setGlobalError.success());
@@ -65,13 +68,16 @@ function* getSrMetersRequest(action: { payload: string | number }) {
     yield put(getSrMeters.request({ isLoading: true }));
 
     const response = yield call(getSrMetersApiCall, serviceRequestId);
-    console.log("sr meters resp", response);
     if (response.success) {
       const { data } = response;
       yield put(getSrMeters.success({ data }));
     } else {
       yield put(setGlobalError.success());
-      yield put(getSrMeters.failure({ message: localize("meterReadings.failedToFetchMeters") }));
+      yield put(
+        getSrMeters.failure({
+          message: localize("meterReadings.failedToFetchMeters"),
+        })
+      );
     }
   } catch (error: any) {
     yield put(setGlobalError.success());
@@ -88,7 +94,7 @@ function* updateMeterReadingRequest(action: {
     preset_reading: number;
     document_id: string[];
     status: string;
-  }
+  };
 }) {
   try {
     const data = action.payload;
@@ -99,20 +105,26 @@ function* updateMeterReadingRequest(action: {
       const { data } = response;
       yield put(updateMeterReading.success({ data }));
     } else {
-        const errorMessage = response.message || localize("meterReadings.failedToUpdateMeter");
-        yield put(updateMeterReading.failure({ message: errorMessage }));
+      const errorMessage =
+        response.message || localize("meterReadings.failedToUpdateMeter");
+      yield put(updateMeterReading.failure({ message: errorMessage }));
     }
   } catch (error: any) {
-    const errorMessage = error.response?.data?.message || error.message || localize("common.someThingWentWrong");
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      localize("common.someThingWentWrong");
     yield put(updateMeterReading.failure({ message: errorMessage }));
   } finally {
     yield put(updateMeterReading.fulfill({ isLoading: false }));
   }
 }
 
-// Root saga
 export default function* meterReadingSaga() {
-  yield takeLatest(getMeterReadingDetails.TRIGGER, getMeterReadingDetailsRequest);
+  yield takeLatest(
+    getMeterReadingDetails.TRIGGER,
+    getMeterReadingDetailsRequest
+  );
   yield takeLatest(getSrMeters.TRIGGER, getSrMetersRequest);
   yield takeLatest(updateMeterReading.TRIGGER, updateMeterReadingRequest);
 }

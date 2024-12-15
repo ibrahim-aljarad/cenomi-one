@@ -56,6 +56,7 @@ const NavigationRouteNames = {
   METER_READINGS: "Meter_Readings",
   METER_READING: "Meter_Reading",
   METER_READING_DETAILS: "Meter_Reading_Details",
+  METER_CAPTURE: "Meter_Capture",
 };
 
 export default NavigationRouteNames;
