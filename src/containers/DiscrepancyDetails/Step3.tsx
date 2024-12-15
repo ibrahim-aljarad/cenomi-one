@@ -15,7 +15,7 @@ import styles from "./styles";
 import { isRTL, localize } from "../../locale/utils";
 import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomSwitch from "../../components/CustomSwitch";
-import UploadDocument from "../../components/UploadDocument";
+import UploadDocument, { DocumentType } from "../../components/UploadDocument";
 import {
   getTenantFileUploadedDataSelector,
   isDarkModeSelector,
@@ -359,6 +359,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
           isUploadFileOnServer={false}
           cropping
           isTenantServerUpload={true}
+          documentTypeId={DocumentType.DISCREPANCY}
           isFilePickerVisible={false}
           openCameraDefault
           imageCompressionQuality={0.6}

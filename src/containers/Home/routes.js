@@ -35,6 +35,7 @@ import DiscrepancyDetails from "../DiscrepancyDetails";
 import MeterReadings from "../MeterReadingsList";
 import MeterReadingsDetails from "../MeterReadingsDetail";
 import MeterReading from "../MeterReading";
+import MeterCapture from "../MeterReading/components/MeterCapture";
 const Stack = createStackNavigator();
 
 const HomeStack = () => (
@@ -228,6 +229,45 @@ const HomeStack = () => (
       name={NavigationRouteNames.METER_READING_DETAILS}
       component={MeterReadingsDetails}
       options={{ headerShown: false, animationEnabled: false }}
+    />
+
+    <Stack.Screen
+      name={NavigationRouteNames.METER_CAPTURE}
+      component={MeterCapture}
+      options={{ headerShown: false, animationEnabled: false }}
+      initialParams={{
+        srId: null,
+        metersList: null,
+      }}
+      initialState={{
+        isDarkMode: false,
+        metersList: null,
+        imageUploadError: null,
+        updatedReading: null,
+        loading: null,
+        error: null,
+      }}
+      listeners={({ navigation }) => ({
+        state: (state) => {
+          const {
+            isDarkMode,
+            metersList,
+            imageUploadError,
+            updatedReading,
+            loading,
+            error,
+          } = state;
+          return {
+            isDarkMode,
+            metersList,
+            imageUploadError,
+            updatedReading,
+            loading,
+            error,
+          };
+        },
+        navigation,
+      })}
     />
   </>
 );

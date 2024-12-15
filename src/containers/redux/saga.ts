@@ -101,10 +101,10 @@ const tenantFileUploadApiCall = ({ file, ...data }: any) =>
       encode: false,
     })}`,
     data: file,
-    headers:  {
-      'Content-Type': 'application/octet-stream', // Set appropriate content type
+    headers: {
+      "Content-Type": "application/octet-stream", // Set appropriate content type
       // Other headers as necessary, e.g., Authorization
-    }
+    },
   });
 
 function* fileUploadRequest(action: any) {
@@ -321,16 +321,15 @@ function* tenantFileUploadRequest(action: any) {
       signed_url: true,
       file,
     });
-    console.log(response,'resssssss')
     if (response.success) {
       const { data } = response;
       yield put(tenantFileUpload.success({ data }));
     } else {
-      console.log("error", response);
+      console.log("tenant file upload error", response);
       yield put(tenantFileUpload.failure());
     }
   } catch (error) {
-    console.log("error", error);
+    console.log("tenant file upload error", error);
     yield put(tenantFileUpload.failure());
   } finally {
     yield put(tenantFileUpload.fulfill({ isLoading: false }));
