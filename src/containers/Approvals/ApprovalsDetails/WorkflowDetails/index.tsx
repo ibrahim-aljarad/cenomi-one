@@ -14,12 +14,15 @@ import {
   estimatedSalesField,
   generalDetailsTermination,
   getGenaralDetailsCard,
+  headerDetailsFields,
+  lineDataFields,
   mallDataFields,
   noteFields,
   renewalProposalDetailsData,
   taskDataFields,
   terminationGridDetails,
   terminationPortfolioData,
+  vendorDetailsFields,
 } from "./serializer";
 import { localize } from "../../../../locale/utils";
 import { isString, sortBy } from "lodash";
@@ -344,6 +347,35 @@ function WorkflowDetails({
           },
         ]
       : []),
+      // for serena invoice
+      ...(requestData?.Vendordata?.[0]?.Vendor
+        ? [
+            {
+              title: "Vendor Details",
+              details: vendorDetailsFields,
+              dataField: requestData?.Vendordata[0]?.Vendor,
+            },
+          ]
+        : []),
+      ...(requestData?.headerdata?.[0]
+        ? [
+            {
+              title: "Header Details",
+              details: headerDetailsFields,
+              dataField: requestData?.headerdata[0],
+            },
+          ]
+        : []),
+      ...(requestData?.lineData
+        ? [
+            {
+              title: "Line Details",
+              details: lineDataFields,
+              dataField: requestData?.lineData,
+              component: "table",
+            },
+          ]
+        : []),
   ];
 
   const generalCards = dealCardsData.filter(
