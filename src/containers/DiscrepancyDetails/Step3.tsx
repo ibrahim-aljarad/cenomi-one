@@ -43,7 +43,7 @@ const stateStructure = createStructuredSelector({
   tenantfileUploadedData: getTenantFileUploadedDataSelector,
   unitDiscrepancy: getUnitDiscrepancySelector,
 });
-function Step3({ selectValues, setSelectValues, setStep }) {
+function Step3({ selectValues, setSelectValues, setStep, srId }) {
   const { isDarkMode, tenantfileUploadedData, unitDiscrepancy } =
     useSelector(stateStructure);
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
@@ -155,6 +155,7 @@ function Step3({ selectValues, setSelectValues, setStep }) {
       },
       document_ids: documentId,
       discrepancy_id: parseInt(unitDiscrepancy?.discrepancy_id),
+      service_request_id: parseInt(srId),
       status: "DRAFT",
     };
     dispatch(saveUnitDicrepancy.trigger(params));

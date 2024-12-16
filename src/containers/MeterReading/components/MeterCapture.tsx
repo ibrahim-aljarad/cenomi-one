@@ -471,8 +471,9 @@ export default function MeterCapture({ route }) {
           isUploadFileOnServer={false}
           cropping
           isTenantServerUpload={true}
-          documentTypeId={DocumentType.DISCREPANCY}
-          isFilePickerVisible={true}
+          documentTypeId={DocumentType.METER_READING}
+          isFilePickerVisible={false}
+          openCameraDefault
           imageCompressionQuality={1}
         />
       </SafeAreaView>
