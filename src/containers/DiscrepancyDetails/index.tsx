@@ -261,6 +261,7 @@ const DiscrepancyDetails = (props: any) => {
                 selectValues={selectValues}
                 setSelectValues={setSelectValues}
                 srId={srId}
+                operations={operations}
               />
             ) : (
               <></>

@@ -20,7 +20,7 @@ const stateStructure = createStructuredSelector({
   unitDiscrepancy: getUnitDiscrepancySelector,
 });
 
-function Step2({ setStep, selectValues, setSelectValues, srId }) {
+function Step2({ setStep, selectValues, setSelectValues, srId, operations }) {
   const dispatch = useDispatch();
 
   const { unitDiscrepancy } = useSelector(stateStructure);
@@ -113,6 +113,7 @@ function Step2({ setStep, selectValues, setSelectValues, srId }) {
         setSelectValues={setSelectValues}
         setStep={setStep}
         srId={srId}
+        operations={operations}
       />
     </>
   );

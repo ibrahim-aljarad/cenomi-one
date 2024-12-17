@@ -43,7 +43,7 @@ const stateStructure = createStructuredSelector({
   tenantfileUploadedData: getTenantFileUploadedDataSelector,
   unitDiscrepancy: getUnitDiscrepancySelector,
 });
-function Step3({ selectValues, setSelectValues, setStep, srId }) {
+function Step3({ selectValues, setSelectValues, setStep, srId, operations }) {
   const { isDarkMode, tenantfileUploadedData, unitDiscrepancy } =
     useSelector(stateStructure);
   const [isShowDocumentPickerModal, setIsShowDocumentPickerModal] =
@@ -108,6 +108,28 @@ function Step3({ selectValues, setSelectValues, setStep, srId }) {
   }, [tenantfileUploadedData]);
 
   const handleSaveDiscrepancy = () => {
+    if(!operations) {
+        return alertBox(
+            localize("common.error"),
+            localize("discrepancy.invalidRequest")
+          );
+    }
+    const levelOneOperations = operations.filter(
+        (op) => op.workflow_level === 1
+      );
+      const allLevelOneInProgress = levelOneOperations.every(
+        (op) => op.status === "IN_PROGRESS"
+      );
+      if (!allLevelOneInProgress) {
+        return alertBox(
+          localize("common.error"),
+          localize("discrepancy.level1ApproverNotInProgress"),
+          {
+            positiveText: localize("common.ok"),
+            cancelable: true,
+          }
+        );
+      }
     if (!selectValues?.documentId?.length) {
       return alertBox(
         localize("discrepancy.takePhoto"),
@@ -371,6 +393,10 @@ function Step3({ selectValues, setSelectValues, setStep, srId }) {
           buttonText={localize("common.save")}
           btnContainerStyle={styles.buttonStyle}
           handleOnSubmit={handleSaveDiscrepancy}
+          isDisable={!operations ||
+            !operations
+              .filter((op) => op.workflow_level === 1)
+              .every((op) => op.status === "IN_PROGRESS")}
         />
       </View>
       {imageModal ? (

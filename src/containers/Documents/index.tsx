@@ -44,12 +44,12 @@ const Documents = (props: any) => {
 
   useEffect(() => {
     if (!isEmpty(documentsData) && documentsData?.length > 0) {
-      const uniqueCategories = [...new Set(documentsData.map((item) => item.category))]
-        .map((category) => ({
-          name: category
-        }))
-        ?.slice()
-        ?.sort((a, b) => a.name - b.name);
+        const uniqueCategories = [...new Set(documentsData
+            .map((item) => item.category)
+            .filter(category => category !== undefined))
+          ].map((category) => ({
+            name: category
+          })).sort((a, b) => a.name.localeCompare(b.name));
 
       if (uniqueCategories?.length > 0) {
         setSelectedCategory(uniqueCategories[0]?.name);
@@ -87,12 +87,14 @@ const Documents = (props: any) => {
           borderBottomWidth: RfH(1),
           borderBottomColor: Colors.grayBorder
         }}>
+        <View style={{maxWidth: "80%"}}>
         <CustomText
           fontSize={16}
           color={Colors.white}
           styling={{ ...CommonStyles.regularFont400Style, lineHeight: RfH(20) }}>
           {item?.name}
         </CustomText>
+        </View>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {isAcknowledged ? (
             <View style={styles.tickContainer}>
