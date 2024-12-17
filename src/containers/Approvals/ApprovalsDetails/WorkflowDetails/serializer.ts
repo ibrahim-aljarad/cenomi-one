@@ -267,6 +267,87 @@ export const noteFields = [
   },
 ];
 
+export const vendorDetailsFields = [
+    {
+      label: "Vendor Code",
+      key: "VendorCode",
+    },
+    {
+      label: "Vendor Name",
+      key: "VendorName",
+    },
+    {
+      label: "Vendor ID",
+      key: "idVendor",
+    },
+  ];
+
+  export const headerDetailsFields = [
+    {
+      label: "Approval Type",
+      key: "ApprovalType",
+    },
+    {
+      label: "Order Number",
+      key: "OrderNumber",
+    },
+    {
+      label: "Serina Document ID",
+      key: "SerinaDocumentId",
+    },
+    {
+      label: "Serina Invoice Date",
+      key: "SerinaInvoiceDate",
+    },
+    {
+      label: "Serina Invoice Number",
+      key: "SerinaInvoiceNumber",
+    },
+  ];
+
+  export const lineDataFields = [
+    {
+      label: "Line Number",
+      key: "LineNumber",
+      alignItems: "flex-start",
+    },
+    {
+      label: "Description",
+      key: "Description",
+      alignItems: "flex-start",
+    },
+    {
+      label: "Department",
+      key: "DEPARTMENT_DFF",
+      alignItems: "flex-start",
+    },
+    {
+      label: "Quantity",
+      key: "Quantity",
+      alignItems: "flex-end",
+    },
+    {
+      label: "UOM",
+      key: "UOMCode",
+      alignItems: "center",
+    },
+    {
+      label: "Price",
+      key: "Price",
+      alignItems: "flex-end",
+    },
+    {
+      label: "Buyer Email",
+      key: "BUYER_EMAIL",
+      alignItems: "flex-start",
+    },
+    {
+      label: "Requester Email",
+      key: "REQUESTER_EMAIL",
+      alignItems: "flex-start",
+    },
+  ];
+
 const salesDataColor = ({ customerRequestLen, accPolicy, customerRequest }) =>
   customerRequestLen > 1 ||
   parseFloat(customerRequest) > parseFloat(accPolicy) > accPolicy
