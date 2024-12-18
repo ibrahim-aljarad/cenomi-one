@@ -19,7 +19,7 @@ const NoticeListItems = (props: any) => {
   const darkCard = {
     backgroundColor: isDarkMode
       ? Colors.darkModeButton
-      : getColorWithOpacity(Colors.midnightExpress, 0.24),
+      : getColorWithOpacity(Colors.white),
     borderRadius: BorderRadius.BR15
   };
 
@@ -53,7 +53,7 @@ const NoticeListItems = (props: any) => {
             {!isRead ? <View style={styles.dotView} /> : <View style={{ width: RfW(6) }} />}
             <CustomText
               fontSize={14}
-              color={isDarkMode ? Colors.white : Colors.white}
+              color={isDarkMode ? Colors.white : Colors.black}
               styling={{
                 lineHeight: RfH(20),
                 marginLeft: 8,
@@ -64,7 +64,7 @@ const NoticeListItems = (props: any) => {
           </View>
           <CustomText
             fontSize={12}
-            color={isDarkMode ? Colors.white : Colors.white}
+            color={isDarkMode ? Colors.white : Colors.black}
             styling={{
               lineHeight: RfH(20),
               marginLeft: 14,
@@ -74,7 +74,7 @@ const NoticeListItems = (props: any) => {
           </CustomText>
           <CustomText
             fontSize={12}
-            color={Colors.white}
+            color={Colors.black}
             styling={{
               lineHeight: RfH(20),
               marginLeft: 14,
@@ -89,7 +89,7 @@ const NoticeListItems = (props: any) => {
             imageWidth={RfW(8)}
             imageHeight={RfH(13)}
             imageResizeMode={'contain'}
-            tintColor={isDarkMode ? Colors.white : Colors.white}
+            tintColor={isDarkMode ? Colors.white : Colors.black}
           />
         </View>
       </View>

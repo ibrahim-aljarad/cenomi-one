@@ -147,7 +147,7 @@ const COLORS = {
   kudosCardBg: 'rgba(255, 255, 255, 1)',
   doveGray: 'rgba(109, 109, 120, 1)',
   midnightExpress: '#12223E',
-  headerBgColor: 'rgba(31, 41, 55, 0.3)',
+  headerBgColor: 'rgba(31, 41, 55, 0.9)',
   darkPurple: '#65317E',
   blueBayoux: '#636783',
   whiteSmoke: '#F8F8F8',

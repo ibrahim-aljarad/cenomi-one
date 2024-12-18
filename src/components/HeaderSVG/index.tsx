@@ -27,20 +27,22 @@ function HeaderSVG(props) {
   const { useNewStyles } = useTheme();
 
 
-  const getNewStyles = () => {
+  const getNewStyles = (headerBackgroundColor) => {
     if(useNewStyles){
         return {
             borderRadius: BorderRadius.BR0,
-            backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.4)
+            backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.4),
+            backgroundColor : Colors.headerBgColor
         }
     }
     return {
         borderRadius: BorderRadius.BR15,
-        backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.18)
+        backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.18),
+        backgroundColor: isDarkMode
+        ? Colors.darkModeBackground
+        : headerBackgroundColor,
     }
   }
-
-  const newStyles = getNewStyles();
 
   const {
     containerStyle,
@@ -69,6 +71,7 @@ function HeaderSVG(props) {
     headerBackgroundColor,
     isBorderRadius,
   } = props;
+  const newStyles = getNewStyles(headerBackgroundColor);
 
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -108,9 +111,7 @@ function HeaderSVG(props) {
         style={[
           {
             ...styles.headerContainer,
-            backgroundColor: isDarkMode
-              ? Colors.darkModeBackground
-              : headerBackgroundColor,
+            backgroundColor: newStyles.backgroundColor,
             ...containerStyle,
             ...containerStyle2,
           },

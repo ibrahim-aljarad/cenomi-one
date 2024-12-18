@@ -401,7 +401,8 @@
     "gotoNotificationSettings": "You need to allow notifications on your device to use this feature. Go to device settings?",
     "keepThinOnNotification": "Keep this on to receive notifications on your device.",
     "noTurnOff": "No, turn off",
-    "keepItOn": "Keep it on"
+    "keepItOn": "Keep it on",
+    "loadingMore": "Loading..."
   },
   "profile": {
     "app_ver": "App ver",
