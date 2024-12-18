@@ -285,7 +285,7 @@ const ApprovalsListing = (props: any) => {
           style={{
             backgroundColor: isDarkMode
               ? Colors.darkModeBackground
-              : Colors.headerBgColor,
+              : Colors.newHeaderBgColor,
             paddingBottom: RfH(15),
             borderBottomLeftRadius: RfW(15),
             borderBottomRightRadius: RfW(15),

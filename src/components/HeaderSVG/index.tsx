@@ -32,7 +32,7 @@ function HeaderSVG(props) {
         return {
             borderRadius: BorderRadius.BR0,
             backBtnBgColor: getColorWithOpacity(Colors.whiteSmoke, 0.4),
-            backgroundColor : Colors.headerBgColor
+            backgroundColor : Colors.newHeaderBgColor
         }
     }
     return {
