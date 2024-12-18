@@ -28,6 +28,7 @@ import {
 import styles from './styles';
 import { setNotificationCount } from '../Home/redux/actions';
 import WrapperContainer from '../../components/WrapperContainer';
+import { ThemeProvider } from '../../theme/context';
 
 const stateStructure = createStructuredSelector({
   notification: getNotificationSelector,
@@ -114,9 +115,11 @@ const Notifications = () => {
   };
 
   const handleOnEndReached = () => {
-    if (parseInt(notificationList?.length) < parseInt(notification?.paginator?.totalCount)) {
-      fetchNotification({ page: page + 1 });
-      setPage(page + 1);
+    if (!loader && parseInt(notificationList?.length) < parseInt(notification?.paginator?.totalCount)) {
+      setLoader(true);
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchNotification({ page: nextPage });
     }
   };
 
@@ -126,25 +129,36 @@ const Notifications = () => {
   };
 
   const footerComponent = () => {
+    const hasLoadedAll = parseInt(notificationList?.length) >= parseInt(notification?.paginator?.totalCount);
     return (
       <View
         style={{
-          marginBottom: RfH(50),
-          paddingTop: RfH(15),
-          alignItems: 'center'
+            paddingVertical: RfH(20),
+            marginBottom: RfH(80),
+            alignItems: 'center',
+            width: '100%',
+            position: 'relative',
+            bottom: 0
         }}>
-        {parseInt(notificationList?.length) === parseInt(notification?.paginator?.totalCount) &&
-        page > 1 ? (
-          <CustomText color={Colors.grayTwo} styling={{ ...CommonStyles.regularFont400Style }}>
+       {hasLoadedAll ? (
+          <CustomText
+            color={isDarkMode ? Colors.white : Colors.white}
+            styling={{ ...CommonStyles.regularFont400Style }}>
             {localize('notification.noMoreNotification')}
           </CustomText>
-        ) : null}
+        ) : (
+          <CustomText
+            color={isDarkMode ? Colors.white : Colors.white}
+            styling={{ ...CommonStyles.regularFont400Style }}>
+            {localize('notification.loadingMore')}
+          </CustomText>
+        )}
       </View>
     );
   };
 
   const mainSection = () => {
-    if (loader) {
+    if (loader && page === 1) {
       return <NotificationListSkeleton isDarkMode={isDarkMode} />;
     }
     return (
@@ -173,7 +187,7 @@ const Notifications = () => {
                       ? isDarkMode
                         ? Colors.white
                         : Colors.white
-                      : getColorWithOpacity(Colors.white, 0.5)
+                      : getColorWithOpacity(Colors.white, 0.7)
                   }
                 />
                 <CustomText
@@ -184,7 +198,7 @@ const Notifications = () => {
                     ...CommonStyles.regularFont400Style,
                     color: isUnreadNotifications()
                       ? Colors.white
-                      : getColorWithOpacity(Colors.white, 0.5)
+                      : getColorWithOpacity(Colors.white, 0.7)
                   }}>
                   {localize('notification.markAllAsRead')}
                 </CustomText>
@@ -199,7 +213,11 @@ const Notifications = () => {
               ListFooterComponent={footerComponent}
               onEndReached={handleOnEndReached}
               onEndReachedThreshold={0.2}
-              contentContainerStyle={{ paddingBottom: RfH(110) }}
+              contentContainerStyle={{ paddingBottom: RfH(20), flexGrow: 1 }}
+              refreshing={loader}
+              maintainVisibleContentPosition={{
+                minIndexForVisible: 0
+              }}
             />
           </View>
         ) : (
@@ -216,7 +234,7 @@ const Notifications = () => {
   };
 
   return (
-    <WrapperContainer>
+    <WrapperContainer showOverlay>
       <SafeAreaView
         style={{
           ...styles.mainContainer,
@@ -227,12 +245,14 @@ const Notifications = () => {
             flex: 1,
             paddingTop: RfH(10)
           }}>
+        <ThemeProvider useNewStyles={true}>
           <HeaderSVG
             isBackButtonVisible={true}
             titleText={localize('notification.notifications')}
             titleFont={20}
             onBackPressHandler={() => navigation.goBack()}
           />
+          </ThemeProvider>
           {mainSection()}
         </View>
       </SafeAreaView>
