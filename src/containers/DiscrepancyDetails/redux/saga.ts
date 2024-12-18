@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
-import { api, appianApi, tenantCentralApi } from "../../../utils/axios";
+import { tenantCentralApi } from "../../../utils/authService";
 
 import {
   getDiscrepancyDetail,
@@ -8,10 +8,6 @@ import {
   getUnitList,
   saveUnitDicrepancy,
 } from "./actions";
-
-import { alertBox } from "../../../utils/helpers";
-import { DEVICE_TIMEZONE } from "../../../utils/constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 const qs = require("qs");
 
 const DISCREPANCY_DETAIL = "service-requests/discrepancy";

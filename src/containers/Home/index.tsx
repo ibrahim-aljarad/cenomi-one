@@ -39,7 +39,6 @@ import { getWishesListSelector, isDarkModeSelector } from "../redux/selectors";
 import {
   getPendingAcknowledgement,
   getQoutes,
-  getTenantLogin,
   submitAcknowledge,
 } from "./redux/actions";
 import {
@@ -76,6 +75,7 @@ import UseFulApps from "./components/UseFulApp";
 import YouDontHaveAccessModal from "./components/YouDontHaveAccessModal";
 import { jailBreak } from "../../utils/helper";
 import RNExitApp from "react-native-exit-app";
+import { useTenantAuth } from "../../hooks/useTenantAuth";
 
 const stateSelector = createStructuredSelector({
   myProfileData: getMyProfileDetailsSelector,
@@ -93,6 +93,7 @@ const Home = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
+  const { login, isLoading, error } = useTenantAuth();
 
   const {
     myProfileData,
@@ -211,16 +212,13 @@ const Home = () => {
   }, [notificationPayload]);
 
   useEffect(() => {
-    const getTenantLoginToken = async () => {
-      const user = await getSaveData(LOCAL_STORAGE_DATA_KEY?.USER_INFO);
-      dispatch(getTenantLogin.trigger({ email: JSON.parse(user || "{}")?.username }));
-    };
     if (isFocused) {
       dispatch(getSendWishesInfo.trigger());
       dispatch(getOrganizationConfig.trigger());
       dispatch(getQoutes.trigger());
       dispatch(getPendingAcknowledgement.trigger());
-      getTenantLoginToken();
+      login()
+
 
       const jailBreakStatus = jailBreak();
       if (jailBreakStatus) {
