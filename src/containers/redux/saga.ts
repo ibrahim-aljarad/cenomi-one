@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../appContainer/redux/actions";
-import { api, tenantCentralApi } from "../../utils/axios";
+import { api } from "../../utils/axios";
+import { tenantCentralApi } from "../../utils/authService";
 
 import Config from "../../utils/config";
 import {
