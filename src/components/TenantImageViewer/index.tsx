@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, Dimensions, StyleSheet } from "react-native";
 import { RfH, RfW } from "../../utils/helper";
 import CustomImage from "../CustomImage";
-import { tenantCentralApi } from "../../utils/axios";
+import { tenantCentralApi } from "../../utils/authService";
 import Config from "../../utils/config";
 import { Colors, Images } from "../../theme";
 

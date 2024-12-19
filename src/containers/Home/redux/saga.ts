@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
-import { api, tenantCentralApi } from "../../../utils/axios";
+import { api } from "../../../utils/axios";
+import { tenantCentralApi } from "../../../utils/authService";
 
 import { setCookie, urlSlugify } from "../../../utils/helpers";
 import {
@@ -19,7 +20,6 @@ import {
   getPendingAcknowledgement,
   getQoutes,
   getSurvey,
-  getTenantLogin,
   getUsefulApps,
   getknowledgeHubCategories,
   organizationStructure,
@@ -46,7 +46,6 @@ const CREATE_ACKNOWLEDGE_URL = "acknowledgement/create";
 const ACKNOWLEDGE_URL = "acknowledgement";
 const ORGANIZATION_STRUCTURE_URL = "user/organization-structure";
 const PENDING_ACKNOWLEDGEMENT_URL = "acknowledgement/pending-items";
-const LOGIN_END = "tp/tenant-platform/login";
 const SERVICE_REQUEST_URL = "service-requests";
 
 const getCorporateCommunicationRequestApiCall = () =>
@@ -155,13 +154,6 @@ const getPendingAcknowledgementApiCall = () =>
   api({
     method: "GET",
     url: `${PENDING_ACKNOWLEDGEMENT_URL}`,
-  });
-
-const getTenantLoginApiCall = (data: any) =>
-  api({
-    method: "POST",
-    url: `${LOGIN_END}`,
-    data,
   });
 
 const getDiscrepancyListApiCall = (data: any) =>
@@ -518,34 +510,6 @@ function* getPendingAcknowledgementRequest(action: any) {
     yield put(getPendingAcknowledgement.fulfill({ isLoading: false }));
   }
 }
-function* getTenantLoginRequest(action: any) {
-  try {
-    yield put(getTenantLogin.request({ isLoading: true }));
-    const { email } = action?.payload || {};
-    const response = yield call(getTenantLoginApiCall, { email });
-    if (response.success) {
-      const { data } = response;
-      if (data?.data?.access_token) {
-        setCookie(
-          Config.TENANT_CENTRAL_URL||'',
-          'access_token',
-          data?.data?.access_token
-        );
-      }
-      yield put(getTenantLogin.success({ data }));
-      yield put(setApiError.trigger(undefined));
-    } else {
-      yield put(getTenantLogin.failure());
-      yield call(handleApiError, { payload: { error: { title: 'Access Denied', message: 'Please check your credentials' } } });
-      yield put(setGlobalError.success());
-    }
-  } catch (error) {
-    yield put(getTenantLogin.failure());
-    yield put(setGlobalError.success());
-  } finally {
-    yield put(getTenantLogin.fulfill({ isLoading: false }));
-  }
-}
 
 function* getDiscrepancyListRequest(action: any) {
     try {
@@ -655,7 +619,6 @@ export default function* homeSaga() {
     getPendingAcknowledgement.TRIGGER,
     getPendingAcknowledgementRequest
   );
-  yield takeLatest(getTenantLogin.TRIGGER, getTenantLoginRequest);
   yield takeLatest(getDiscrepancyList.TRIGGER, getDiscrepancyListRequest);
   yield takeLatest(getMeterReadingList.TRIGGER, getMeterReadingListRequest);
 }

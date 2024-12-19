@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { setGlobalError } from "../../../appContainer/redux/actions";
 import { localize } from "../../../locale/utils";
-import { tenantCentralApi } from "../../../utils/axios";
+import { tenantCentralApi } from "../../../utils/authService";
 import {
   getSrMeters,
   getMeterReadingDetails,
