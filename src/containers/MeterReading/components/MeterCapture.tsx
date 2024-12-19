@@ -370,13 +370,21 @@ export default function MeterCapture({ route }) {
 
         <KeyboardAwareScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ padding: RfW(16) }}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            padding: RfW(16),
+            flexGrow: 1
+          }}
           enableOnAndroid={true}
           enableAutomaticScroll={true}
           keyboardShouldPersistTaps="handled"
-          extraHeight={Platform.OS === 'ios' ? (isDisplayWithNotch() ? RfH(60) : RfH(100)) : 0}
-          extraScrollHeight={RfH(35)}
+          extraHeight={Platform.select({
+            ios: isDisplayWithNotch() ? RfH(60) : RfH(100),
+            android: RfH(100)
+          })}
+          extraScrollHeight={RfH(200)}
+          enableResetScrollToCoords={false}
+          scrollEnabled={true}
+          bounces={true}
         >
           {capturedImage && (
             <View style={styles.imagePreviewContainer}>
@@ -433,6 +441,7 @@ export default function MeterCapture({ route }) {
                 editable={isEditing}
                 keyboardType="numeric"
                 error={errors.meterNumber}
+                returnKeyType="next"
               />
 
               <View style={{ marginBottom: RfH(32) }}>
@@ -463,6 +472,7 @@ export default function MeterCapture({ route }) {
                   }}
                   editable={isEditing}
                   error={errors.meterReading}
+                  returnKeyType="done"
                 />
               </View>
 
