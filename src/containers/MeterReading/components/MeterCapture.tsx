@@ -190,7 +190,13 @@ export default function MeterCapture({ route }) {
         {
           positiveText: localize("common.ok"),
           cancelable: true,
-          onPositiveClick: handleBack,
+          onPositiveClick: () => {
+            setMeterData({
+                meterNumber: "",
+                meterReading: "",
+              });
+              setIsEditing(true);
+          },
         }
       );
       console.error("Error detecting meter reading:", error);
@@ -400,7 +406,7 @@ export default function MeterCapture({ route }) {
             </View>
           )}
 
-          {meterData.meterNumber && (
+          {isEditing && (
             <View>
               <CustomTextInput
                 label={localize("meterReadings.meterNumber")}
