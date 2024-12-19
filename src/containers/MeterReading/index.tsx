@@ -311,7 +311,7 @@ export default function CombinedMeterReading({ route }) {
         <CustomText
           fontSize={16}
           color={Colors.voiletTwo}
-          styling={{ ...CommonStyles.regularFont500Style }}
+          styling={{ ...CommonStyles.regularFont500Style, writingDirection: 'ltr' }}
         >
           {remainingMeters} / {totalMeters}
         </CustomText>
