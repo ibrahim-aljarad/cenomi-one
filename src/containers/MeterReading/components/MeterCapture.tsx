@@ -2,8 +2,8 @@ import {
   BackHandler,
   Dimensions,
   Image,
+  Platform,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -29,7 +29,7 @@ import UploadDocument, {
 
 import { RfH, RfW } from "../../../utils/helper";
 import { localize } from "../../../locale/utils";
-import { alertBox } from "../../../utils/helpers";
+import { alertBox, isDisplayWithNotch } from "../../../utils/helpers";
 import {
   detectMeterReading,
   sanitizeNumericInput,
@@ -55,6 +55,7 @@ import {
   getLoadingSelector,
   getUpdatedReadingSelector,
 } from "../redux/selectors";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const stateSelector = createStructuredSelector({
   isDarkMode: isDarkModeSelector,
@@ -189,7 +190,13 @@ export default function MeterCapture({ route }) {
         {
           positiveText: localize("common.ok"),
           cancelable: true,
-          onPositiveClick: handleBack,
+          onPositiveClick: () => {
+            setMeterData({
+                meterNumber: "",
+                meterReading: "",
+              });
+              setIsEditing(true);
+          },
         }
       );
       console.error("Error detecting meter reading:", error);
@@ -238,9 +245,12 @@ export default function MeterCapture({ route }) {
   );
 
   const handleDocumentUpload = async (imageData) => {
+    if (!imageData) {
+      handleBack();
+      return;
+    }
     setIsShowDocumentPickerModal(true);
     setFileUploadStarted(true);
-    console.log("handleDocumentUpload func", imageData);
     setIsLoading(true);
     try {
       setImageState((prev) => ({
@@ -312,7 +322,6 @@ export default function MeterCapture({ route }) {
           "document-ids": imageState.documentId ? [imageState.documentId] : [],
           status: "DRAFT",
         };
-        console.log("payload", payload);
         dispatch(updateMeterReading.trigger(payload));
       } catch (error) {
         alertBox(
@@ -359,10 +368,15 @@ export default function MeterCapture({ route }) {
           />
         </ThemeProvider>
 
-        <ScrollView
+        <KeyboardAwareScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ padding: RfW(16) }}
           showsVerticalScrollIndicator={false}
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          keyboardShouldPersistTaps="handled"
+          extraHeight={Platform.OS === 'ios' ? (isDisplayWithNotch() ? RfH(60) : RfH(100)) : 0}
+          extraScrollHeight={RfH(35)}
         >
           {capturedImage && (
             <View style={styles.imagePreviewContainer}>
@@ -392,7 +406,7 @@ export default function MeterCapture({ route }) {
             </View>
           )}
 
-          {meterData.meterNumber && (
+          {isEditing && (
             <View>
               <CustomTextInput
                 label={localize("meterReadings.meterNumber")}
@@ -461,7 +475,7 @@ export default function MeterCapture({ route }) {
               )}
             </View>
           )}
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
         <UploadDocument
           title={localize("components.uploadPhoto")}
@@ -475,6 +489,7 @@ export default function MeterCapture({ route }) {
           isFilePickerVisible={false}
           openCameraDefault
           imageCompressionQuality={1}
+          maxFileSize={10}
         />
       </SafeAreaView>
     </WrapperContainer>

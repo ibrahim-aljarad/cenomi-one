@@ -608,7 +608,7 @@
       "submitted": "Submitted"
     },
     "validationError": "Validation Error",
-    "detectionError": "Error detecting meter reading",
+    "detectionError": "Error detecting meter reading, please enter details manually",
     "pleaseCorrectErrors": "Please correct the errors before saving.",
     "submitSuccess": "Meter Reading Submitted Successfully",
     "confirmation": "Are you sure you want to submit all readings?",
@@ -632,7 +632,7 @@
     "noMeters": "No meters found",
     "meters": "Meters",
     "failedToFetchMeters": "Failed to fetch meters",
-    "failedToUpdateMeter": "Failed to update meter",
+    "failedToUpdateMeter": "Failed to update meter, permission is denied",
     "imageUploadFailed": "Image upload failed",
     "imageUploadFailedDesc": "Failed to upload image. Please try again.",
     "failedToProcessImage": "Failed to process image",

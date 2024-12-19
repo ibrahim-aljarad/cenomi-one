@@ -254,6 +254,7 @@ function UploadDocument(props) {
             }
           );
         }
+        handleUpload(null)
         closeWindow();
       });
   };

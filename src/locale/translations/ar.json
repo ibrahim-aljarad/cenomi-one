@@ -608,7 +608,7 @@
       "submitted": "مُقَدَّم"
     },
     "validationError": "خطأ في التحقق",
-    "detectionError": "خطأ في اكتشاف قراءة العداد",
+    "detectionError": "خطأ في اكتشاف قراءة العداد، يرجى إدخال التفاصيل يدويا",
     "pleaseCorrectErrors": "يرجى تصحيح الأخطاء قبل الحفظ.",
     "submitSuccess": "تم إرسال قراءة العداد بنجاح",
     "confirmation": "هل أنت متأكد من أنك تريد تقديم كافة القراءات؟",
@@ -632,7 +632,7 @@
     "noMeters": "لم يتم العثور على متر",
     "meters": "متر",
     "failedToFetchMeters": "فشل في جلب العدادات",
-    "failedToUpdateMeter": "فشل في تحديث العداد",
+    "failedToUpdateMeter": "فشل تحديث العداد، تم رفض الإذن",
     "imageUploadFailed": "فشل تحميل الصورة",
     "imageUploadFailedDesc": "فشل تحميل الصورة. يرجى المحاولة مرة أخرى",
     "failedToProcessImage": "فشلت معالجة الصورة",
