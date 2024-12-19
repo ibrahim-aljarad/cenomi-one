@@ -1,3 +1,4 @@
+import moment from "moment";
 import { Colors } from "../../theme";
 import { MonthTypes } from "./types";
 
@@ -32,12 +33,13 @@ function parseTime(time: string, date: string) {
   ).getTime();
 }
 
-function getAllDatesInMonth(year: number, month: number) {
+function getAllDatesInMonth(year: number, month: number, weekend: string[]) {
   const date = new Date(year, month, 1);
   const dates: Date[] = [];
 
   while (date.getMonth() === month) {
-    if (date.getDay() !== 6 && date.getDay() !== 5) {
+    const dayName = moment(date).format('dddd');
+    if (!weekend.includes(dayName)) {
       dates.push(new Date(date));
     }
     date.setDate(date.getDate() + 1);
@@ -52,19 +54,22 @@ function formatDateToYYYYMMDD(date) {
 }
 export const calculateTimestampDifferences = (
   data,
-  selectedMonth: MonthTypes
+  selectedMonth: MonthTypes,
+  weekend: string[]
 ) => {
   const dates = getAllDatesInMonth(
     selectedMonth.year,
-    selectedMonth.monthNumber - 1
+    selectedMonth.monthNumber - 1,
+    weekend
   );
   const result = {};
+  const today = moment().startOf('day');
   dates.forEach((dateObj) => {
     const date = formatDateToYYYYMMDD(dateObj);
-    //returning if date is future dates
-    if (dateObj > new Date()) {
-      return;
-    }
+    const momentDate = moment(date);
+    if (momentDate.isAfter(today) || isWeekend(weekend, date)) {
+        return;
+      }
     if (data[date]) {
       const timestamps = data[date].timestamps;
       const differences: number[] = [];
@@ -229,3 +234,9 @@ export const sortArrayByDate = (array) => {
     return dateA - dateB;
   });
 };
+
+
+export const isWeekend = (weekend:string[] , date: string) => {
+    const dayOfWeek = moment(date).format('dddd');
+    return weekend?.includes(dayOfWeek);
+}

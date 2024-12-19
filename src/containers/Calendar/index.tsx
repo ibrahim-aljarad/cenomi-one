@@ -49,6 +49,7 @@ import {
   formatTime,
   getStatusColors,
   getStatusTitle,
+  isWeekend,
   mergeData,
   sortArrayByDate,
 } from "./helper";
@@ -286,7 +287,8 @@ const Calendar = () => {
 
     const updatedData = calculateTimestampDifferences(
       formattedData,
-      selectedMonth
+      selectedMonth,
+      weekend
     );
 
     setAttendanceData(
@@ -301,6 +303,12 @@ const Calendar = () => {
   };
 
   const handleOnPressDate = (date: { dateString: string }) => {
+    if (moment(date?.dateString).isAfter(moment(), 'day') || isWeekend(weekend, date?.dateString)) {
+        setSelectedDateEventList([]);
+        setIsClearFilter(true);
+        setSelectedDate(date?.dateString);
+        return;
+      }
     const temp = moment(date?.dateString).format("YYYY-MM-DD");
 
     const filteredData = absenseList?.filter(
@@ -425,18 +433,28 @@ const Calendar = () => {
   };
 
   const renderAttendance = ({ item }) => {
+    if (!item) return null;
+    if (moment(item.date).isAfter(moment(), 'day') || isWeekend(weekend, item.date)) {
+        return null;
+      }
     const isPublicHoliday =
       publicHolidayData?.status &&
       moment(publicHolidayData.date).format("YYYY-MM-DD") === item.date;
+
+  const hasValidTimestamps = item?.timestamps?.length > 0;
+  const hasValidDifferences = item?.timestampDifferences?.length > 0;
+  const timeDifference = hasValidDifferences ? item.timestampDifferences[0] : 0;
+
+
     const title = isPublicHoliday
       ? "Public Holiday"
       : getStatusTitle({
-          timestampDifferences: Math.abs(item?.timestampDifferences[0]),
-          timestamps: item?.timestamps,
+        timestampDifferences: hasValidDifferences ? Math.abs(timeDifference) : 0,
+        timestamps: item?.timestamps || [],
         });
-    const startTime = item?.timestamps[0];
-    const endTime = item?.timestamps[1] ? item?.timestamps[1] : "";
-    let duration = item?.timestampDifferences[0];
+        const startTime = hasValidTimestamps ? item.timestamps[0] : undefined;
+        const endTime = hasValidTimestamps && item.timestamps[1] ? item.timestamps[1] : "";
+        const duration = hasValidDifferences ? timeDifference : 0;
 
     return (
       <View style={[styles.listContainer, darkCard]}>
@@ -459,7 +477,7 @@ const Calendar = () => {
                   : getStatusColors({
                       startTime,
                       duration,
-                      timestamps: item.timestamps,
+                      timestamps: item.timestamps || [],
                     }),
               },
               styles.statusColor,
@@ -486,7 +504,7 @@ const Calendar = () => {
                   ? ""
                   : `${startTime} ${endTime ? "to " + endTime : ""}`}
               </CustomText>
-              {!isNaN(duration) && (
+              {hasValidDifferences && !isNaN(duration) && (
                 <CustomText
                   fontSize={14}
                   color={Colors.white}
@@ -496,7 +514,7 @@ const Calendar = () => {
                   }}
                 >
                   {`${convertHoursToHoursAndMinutes(
-                    item?.timestampDifferences[0].toFixed(2)
+                    duration.toFixed(2)
                   )} hours` || ""}
                 </CustomText>
               )}
