@@ -36,6 +36,8 @@ const MoreOptions = () => {
 
   const [isShowComingSoonModal, setisShowComingSoonModal] = useState(false);
 
+  const isAssistantFacilitiesManager = myProfileDetails?.profile?.workRelationships?.[0]?.assignments?.[0]?.assignmentName === "Asst.Facilities Manager";
+
   let menuList = [];
   if (
     getUserConfigData(
@@ -209,6 +211,7 @@ const MoreOptions = () => {
   }
 
   if (
+    isAssistantFacilitiesManager &&
     getUserConfigData(
       myProfileDetails?.config?.config,
       CONFIG_CONSTANT?.CALENDAR,
