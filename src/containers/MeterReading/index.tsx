@@ -93,13 +93,24 @@ export default function CombinedMeterReading({ route }) {
   }, [metersList, activeTab]);
 
   const hasMeters = useMemo(() => (metersList?.length || 0) > 0, [metersList]);
-
   const totalMeters = useMemo(() => metersList?.length || 0, [metersList]);
   const remainingMeters = useMemo(
     () =>
       metersList?.filter((meter) => meter.status === "PENDING")?.length || 0,
     [metersList]
   );
+
+  const isAllPending = useMemo(() => {
+    if (!metersList || metersList.length === 0) return true;
+    return metersList.every(meter => meter.status === "PENDING");
+  }, [metersList]);
+
+  const isAllSubmitted = useMemo(() => {
+    if (!metersList || metersList.length === 0) return true;
+    return metersList.every(meter => meter.status === "SUBMITTED");
+  }, [metersList]);
+
+  const isSubmitDisabled = isAllPending || isAllSubmitted;
 
   const backHandler = (): boolean => {
     navigation.goBack();
@@ -526,7 +537,9 @@ export default function CombinedMeterReading({ route }) {
                 buttonText={localize("discrepancy.submitAll")}
                 showSeperator={false}
                 btnContainerStyle={styles.submitAllButtonStyle}
+                isDisable={isSubmitDisabled}
                 handleOnSubmit={() => {
+                  if (isSubmitDisabled) return;
                   if (remainingMeters > 0) {
                     if (!operations) {
                       alertBox(
