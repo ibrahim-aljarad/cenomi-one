@@ -24,6 +24,33 @@ function CustomButton(props: CustomButtonProps) {
     bgColor = Colors.transparent,
     isDisable = false
   } = props;
+
+  const getButtonStyle = () => {
+    const baseStyle = [
+      styles.buttonContainer,
+      btnContainerStyle,
+      isOutline && { backgroundColor: Colors.transparent, borderWidth: 1 }
+    ];
+
+    if (isDisable) {
+      baseStyle.push(styles.disabledButton);
+    }
+
+    return baseStyle;
+  };
+
+  const getTextStyle = () => {
+    const baseStyle = [
+      styles.buttonLabel,
+      isOutline && { color: Colors.black }
+    ];
+
+    if (isDisable) {
+      baseStyle.push(styles.disabledText);
+    }
+
+    return baseStyle;
+  };
   return (
     <View style={{ justifyContent: 'flex-end', backgroundColor: bgColor }}>
       <View
@@ -35,13 +62,9 @@ function CustomButton(props: CustomButtonProps) {
         }>
         <TouchableOpacity
           disabled={isDisable}
-          style={[
-            styles.buttonContainer,
-            btnContainerStyle,
-            isOutline && { backgroundColor: Colors.transparent, borderWidth: 1 }
-          ]}
+          style={getButtonStyle()}
           onPress={handleOnSubmit}>
-          <Text style={[styles.buttonLabel, isOutline && { color: Colors.black }]}>
+          <Text style={getTextStyle()}>
             {buttonText}
           </Text>
         </TouchableOpacity>

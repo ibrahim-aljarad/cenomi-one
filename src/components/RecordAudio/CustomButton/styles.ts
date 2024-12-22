@@ -17,6 +17,14 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     color: Colors.white,
     textAlign: 'center'
+  },
+  disabledButton: {
+    backgroundColor: Colors.lightGrey219,
+    opacity: 0.7
+  },
+  disabledText: {
+    color: Colors.app_black,
+    opacity: 0.7
   }
 });
 export default styles;
