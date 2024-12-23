@@ -68,6 +68,7 @@ export const DOCUMENTS_DOCX = "docx";
 export const DOCUMENTS_XLS = "xls";
 export const DOCUMENTS_XLSX = "xlsx";
 export const DOCUMENTS_MSG = "msg";
+export const DOCUMENTS_HTML = "HTML";
 
 export const inputs = {};
 
