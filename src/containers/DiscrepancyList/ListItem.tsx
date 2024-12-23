@@ -37,6 +37,9 @@ const ListItem = (props: any) => {
       ? item?.payload?.marketing_name_arabic
       : item?.payload?.marketing_name;
 
+      const title = isArabic() && item?.payload?.TitleAr
+      ? item?.payload?.TitleAr
+      : item?.title;
   return (
     <>
       <TouchableOpacity
@@ -70,7 +73,7 @@ const ListItem = (props: any) => {
               lineHeight: RfH(21),
             }}
           >
-            {localize("discrepancy.title")}: {item?.title}
+            {localize("discrepancy.title")}: {title}
           </CustomText>
           <CustomText
             fontSize={14}

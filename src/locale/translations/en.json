@@ -609,7 +609,7 @@
     },
     "validationError": "Validation Error",
     "detectionError": "Error detecting meter reading, please enter details manually",
-    "pleaseCorrectErrors": "Please correct the errors before saving.",
+    "pleaseCorrectErrors": "Please enter all the required fields before saving.",
     "submitSuccess": "Meter Reading Submitted Successfully",
     "confirmation": "Are you sure you want to submit all readings?",
     "noMoreMeterReadings": "No more meter readings",
