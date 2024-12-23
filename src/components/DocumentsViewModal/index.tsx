@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { isDarkModeSelector } from "../../containers/redux/selectors";
 import { localize } from "../../locale/utils";
-import { Colors } from "../../theme";
+import { Colors, CommonStyles } from "../../theme";
 import {
   DOCUMENTS_CSV,
   DOCUMENTS_DOC,
@@ -35,6 +35,7 @@ import {
   DOCUMENTS_VIDEO,
   DOCUMENTS_XLS,
   DOCUMENTS_XLSX,
+  DOCUMENTS_HTML,
 } from "../../utils/constants";
 import { downloadFile, getImageUrl, processUrl } from "../../utils/helper";
 import {
@@ -44,6 +45,7 @@ import {
   isValidYouTubeUrl,
 } from "../../utils/helpers";
 import CustomImage from "../CustomImage";
+import CustomRenderHtml from "../CustomRenderHtml";
 import HeaderSVG from "../HeaderSVG";
 import Loader from "../Loader";
 import styles from "./styles";
@@ -62,11 +64,11 @@ function DocumentsViewModal(props) {
   const [isCorrectFileExtension, setIsCorrectFileExtension] = useState(true);
 
   const [msgContent, setMsgContent] = useState({
-    subject: '',
-    body: '',
-    from: '',
-    to: '',
-    date: ''
+    subject: "",
+    body: "",
+    from: "",
+    to: "",
+    date: "",
   });
 
   const { isDarkMode } = useSelector(stateStructure);
@@ -94,11 +96,11 @@ function DocumentsViewModal(props) {
     try {
       loadingStart();
       const response = await fetch(url, {
-        headers: documentInfo?.headers
+        headers: documentInfo?.headers,
       });
 
       if (!response.ok) {
-        throw new Error('Network response failed');
+        throw new Error("Network response failed");
       }
 
       const blob = await response.blob();
@@ -106,16 +108,20 @@ function DocumentsViewModal(props) {
       reader.onload = () => {
         const arrayBuffer = reader.result;
         const uint8Array = new Uint8Array(arrayBuffer as ArrayBuffer);
-        const decoder = new TextDecoder('utf-8');
+        const decoder = new TextDecoder("utf-8");
         let text = decoder.decode(uint8Array);
-        text = text.replace(/\u0000/g, '').replace(/[\x00-\x09\x0B-\x1F]/g, '');
+        text = text.replace(/\u0000/g, "").replace(/[\x00-\x09\x0B-\x1F]/g, "");
 
         const emailContent = {
-          subject: text.match(/Subject:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
-          from: text.match(/From:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
-          to: text.match(/To:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
-          date: text.match(/Date:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || '',
-          body: text.split(/\r?\n\r?\n/).slice(1).join('\n').trim()
+          subject: text.match(/Subject:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || "",
+          from: text.match(/From:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || "",
+          to: text.match(/To:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || "",
+          date: text.match(/Date:(.*?)(?:\r?\n|$)/i)?.[1]?.trim() || "",
+          body: text
+            .split(/\r?\n\r?\n/)
+            .slice(1)
+            .join("\n")
+            .trim(),
         };
 
         setMsgContent(emailContent);
@@ -123,14 +129,17 @@ function DocumentsViewModal(props) {
       };
       reader.readAsArrayBuffer(blob);
     } catch (error) {
-      console.error('Error processing MSG:', error);
+      console.error("Error processing MSG:", error);
       setIsError(true);
       loadingFalse();
     }
   };
 
   useEffect(() => {
-    if (documentInfo?.fileType?.toLowerCase() === DOCUMENTS_MSG && documentInfo?.url) {
+    if (
+      documentInfo?.fileType?.toLowerCase() === DOCUMENTS_MSG &&
+      documentInfo?.url
+    ) {
       fetchAndProcessMsg(documentInfo.url);
     }
   }, [documentInfo]);
@@ -343,6 +352,39 @@ function DocumentsViewModal(props) {
     );
   };
 
+  const renderHtmlContent = (html) => {
+    setTimeout(() => {
+      loadingFalse();
+    }, 100);
+    return (
+      <ScrollView
+        style={[
+          styles.documentViewContainer,
+          {
+            backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
+            padding: 16,
+          },
+        ]}
+        onLayout={() => {
+          loadingFalse();
+        }}
+      >
+        <CustomRenderHtml
+          source={html}
+          tagsStyles={{
+            body: {
+              whiteSpace: "normal",
+              color: isDarkMode ? Colors.black : Colors.black,
+              fontSize: 14,
+              lineHeight: 22,
+              ...CommonStyles.regularFont400Style,
+            },
+          }}
+        />
+      </ScrollView>
+    );
+  };
+
   const fileNotSupportedSection = () => {
     if (isLoading) {
       loadingFalse();
@@ -425,28 +467,47 @@ function DocumentsViewModal(props) {
     );
   };
 
-
   const renderMsgView = () => (
     <ScrollView
       style={[
         styles.documentViewContainer,
         {
           backgroundColor: isDarkMode ? Colors.darkModeButton : Colors.white,
-          padding: 16
-        }
+          padding: 16,
+        },
       ]}
     >
       <View style={styles.emailHeader}>
-        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+        <Text
+          style={[
+            styles.emailLabel,
+            { color: isDarkMode ? Colors.white : Colors.black },
+          ]}
+        >
           From: {msgContent.from}
         </Text>
-        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+        <Text
+          style={[
+            styles.emailLabel,
+            { color: isDarkMode ? Colors.white : Colors.black },
+          ]}
+        >
           To: {msgContent.to}
         </Text>
-        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+        <Text
+          style={[
+            styles.emailLabel,
+            { color: isDarkMode ? Colors.white : Colors.black },
+          ]}
+        >
           Subject: {msgContent.subject}
         </Text>
-        <Text style={[styles.emailLabel, { color: isDarkMode ? Colors.white : Colors.black }]}>
+        <Text
+          style={[
+            styles.emailLabel,
+            { color: isDarkMode ? Colors.white : Colors.black },
+          ]}
+        >
           Date: {msgContent.date}
         </Text>
       </View>
@@ -473,7 +534,9 @@ function DocumentsViewModal(props) {
           ? renderYoutubeView()
           : renderVideoPlayer(documentInfo?.url);
       case DOCUMENTS_MSG.toLowerCase():
-            return renderMsgView();
+        return renderMsgView();
+      case DOCUMENTS_HTML.toLowerCase():
+        return renderHtmlContent(documentInfo?.htmlContent);
 
       case DOCUMENTS_OTHERS.toLowerCase():
         return renderOtherFileType();
@@ -522,17 +585,19 @@ function DocumentsViewModal(props) {
             />
           </ThemeProvider>
           {mainView()}
-          {isError && documentInfo?.fileType?.toLowerCase() !== DOCUMENTS_PDF.toLowerCase() && (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text>{localize("common.somethingWentWrong")}</Text>
-            </View>
-          )}
+          {isError &&
+            documentInfo?.fileType?.toLowerCase() !==
+              DOCUMENTS_PDF.toLowerCase() && (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{localize("common.somethingWentWrong")}</Text>
+              </View>
+            )}
 
           {isLoading ? <Loader isLoading={isLoading} /> : <></>}
         </SafeAreaView>
