@@ -379,9 +379,9 @@ export default function MeterCapture({ route }) {
           keyboardShouldPersistTaps="handled"
           extraHeight={Platform.select({
             ios: isDisplayWithNotch() ? RfH(60) : RfH(100),
-            android: RfH(100)
+            android: RfH(150)
           })}
-          extraScrollHeight={RfH(200)}
+          extraScrollHeight={RfH(250)}
           enableResetScrollToCoords={false}
           scrollEnabled={true}
           bounces={true}
